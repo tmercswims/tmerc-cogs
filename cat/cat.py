@@ -16,6 +16,7 @@ class Cat:
 
     @commands.command(pass_context=True, no_pm=True)
     async def cat(self, ctx):
+        """Shows a random cat."""
         async with aiohttp.get(self.url) as response:
             j = json.loads(await response.text())
             await self.bot.say(j['file'])

@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Thomas Mercurio",
+    "INSTALL_MSG" : "Thanks for installing! Enjoy some dogs!",
+    "NAME" : "Dog",
+    "SHORT" : "Displays a random of a dog.",
+    "DESCRIPTION" : "Displays a random image of a dog."
+}
