@@ -4,12 +4,6 @@ import random
 import discord
 from discord.ext import commands
 
-try:
-    from bs4 import BeautifulSoup
-    soup_available = True
-except:
-    soup_available = False
-
 import aiohttp
 import json
 
@@ -27,7 +21,4 @@ class Cat:
             await self.bot.say(j['file'])
 
 def setup(bot):
-    if soup_available:
-        bot.add_cog(Cat(bot))
-    else:
-        raise RuntimeError('You need to run `pip3 install beautifulsoup4`')
+    bot.add_cog(Cat(bot))
