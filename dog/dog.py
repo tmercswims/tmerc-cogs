@@ -16,11 +16,12 @@ class Dog:
         """Shows a random dog."""
         async with aiohttp.get(self.url) as response:
             content = await response.text()
-        try:
-            img = self.url + re.search(r'.*<img src="(.*)">.*', content).group(1)
-            await self.bot.say(img)
-        except:
-            await self.bot.say("Something went wrong.")
+            print(content)
+            try:
+                img = self.url + re.search(r'.*<img src="(.*)">.*', content).group(1)
+                await self.bot.say(img)
+            except:
+                await self.bot.say("Something went wrong.")
 
 def setup(bot):
     bot.add_cog(Dog(bot))
