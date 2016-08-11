@@ -15,8 +15,7 @@ class Cat:
     async def cat(self, ctx):
         """Shows a random cat."""
         async with aiohttp.get(self.url) as response:
-            j = json.loads(await response.text())
-            await self.bot.say(j['file'])
+            await self.bot.say(json.loads(await response.text())['file'])
 
 def setup(bot):
     bot.add_cog(Cat(bot))
