@@ -1,14 +1,8 @@
 import discord
 from discord.ext import commands
 
-soup_available = False
-try:
-    from bs4 import BeautifulSoup
-    soup_available = True
-except:
-    soup_available = False
-
 import aiohttp
+import re
 
 class Dog:
     """Shows a random dog."""
@@ -21,16 +15,12 @@ class Dog:
     async def dog(self, ctx):
         """Shows a random dog."""
         async with aiohttp.get(self.url) as response:
-            soup = BeautifulSoup(await response.text(), "html.parser")
+            content = await response.text()
         try:
-            img = self.url + soup.find('img').get_text()
+            img = self.url + re.search(r'.*<img src="(.*)">.*', content).group(1)
             await self.bot.say(img)
         except:
             await self.bot.say("Something went wrong.")
 
 def setup(bot):
-    print(soup_available)
-    if soup_available:
-        bot.add_cog(Dog(bot))
-    else:
-        raise RuntimeError('Missing BeautifulSoup, run `pip3 install beautifulsoup4`.')
+    bot.add_cog(Dog(bot))
