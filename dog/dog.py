@@ -1,13 +1,14 @@
-import os
-import random
-
 import discord
 from discord.ext import commands
 
-from bs4 import BeautifulSoup
+soup_available = False
+try:
+    from bs4 import BeautifulSoup
+    soup_available = True
+except:
+    soup_available = False
 
 import aiohttp
-import json
 
 class Dog:
     """Shows a random dog."""
@@ -28,4 +29,8 @@ class Dog:
             await self.bot.say("Something went wrong.")
 
 def setup(bot):
-    bot.add_cog(Dog(bot))
+    print(soup_available)
+    if soup_available:
+        bot.add_cog(Dog(bot))
+    else:
+        raise RuntimeError('Missing BeautifulSoup, run `pip3 install beautifulsoup4`.')
