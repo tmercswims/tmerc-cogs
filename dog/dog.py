@@ -9,7 +9,7 @@ try:
     from bs4 import BeautifulSoup
     soup_available = True
 except:
-    pass
+    soup_available = False
 
 import aiohttp
 import json
@@ -29,6 +29,8 @@ class Dog:
         try:
             img = self.url + soup.find('img').get_text()
             await self.bot.say(img)
+        except:
+            await self.bot.say("Something went wrong.")
 
 def setup(bot):
     if soup_available:
