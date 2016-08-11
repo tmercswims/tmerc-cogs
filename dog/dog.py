@@ -8,7 +8,7 @@ class Dog:
 
     def __init__(self, bot):
         self.bot = bot
-        self.url = 'http://random.dog/woof'
+        self.url = 'http://random.dog/woof/'
 
     @commands.command(pass_context=True, no_pm=True)
     async def cat(self, ctx):
