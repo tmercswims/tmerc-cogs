@@ -11,7 +11,7 @@ class Dog:
         self.url = 'http://random.dog/woof/'
 
     @commands.command(pass_context=True, no_pm=True)
-    async def cat(self, ctx):
+    async def dog(self, ctx):
         """Shows a random dog."""
         async with aiohttp.get(self.url) as response:
             await self.bot.say(self.url + await response.text())
