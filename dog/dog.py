@@ -18,7 +18,7 @@ class Dog:
             content = await response.text()
             print(content)
             try:
-                img = self.url + re.search(r'.*<img src="(.*)">.*', content).group(1)
+                img = self.url + re.search(r".*<img src='(.*)'>.*", content).group(1)
                 await self.bot.say(img)
             except:
                 await self.bot.say("Something went wrong.")
