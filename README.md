@@ -1,3 +1,3 @@
-# tmerc-plugins
+# tmerc-cogs
 
-Plugins for the [Red DiscordBot](https://github.com/Twentysix26/Red-DiscordBot).
+Cogs for the [Red DiscordBot](https://github.com/Twentysix26/Red-DiscordBot).
