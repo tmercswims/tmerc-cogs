@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "Thomas Mercurio",
     "INSTALL_MSG" : "Thanks for adding my repository! Please keep your expectations low.",
-    "NAME" : "Tmerc Plugins",
+    "NAME" : "tmerc-cogs",
     "SHORT" : "Miscellaneous cogs that do miscellaneous things.",
     "DESCRIPTION" : "Miscellaneous cogs that do miscellaneous things."
 }
