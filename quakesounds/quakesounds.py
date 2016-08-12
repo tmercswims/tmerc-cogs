@@ -18,7 +18,7 @@ class Quakesounds:
     def voice_client(self, server):
         return self.bot.voice_client_in(server)
 
-    async def leave_channel(self, context):
+    def leave_channel(self, context):
         server = context.message.server
         if not self.voice_connected(server):
             return
