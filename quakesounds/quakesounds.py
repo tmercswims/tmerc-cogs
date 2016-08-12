@@ -268,13 +268,6 @@ class Quakesounds:
         await self.sound_play(context, sound)
         await self._leave(context)
 
-    @commands.command(no_pm=True, pass_context=True, name='play')
-    async def _play(self, context):
-        gender = 'male'
-        sound = 'play'
-        await self.sound_play(context, sound)
-        await self._leave(context)
-
     @commands.command(no_pm=True, pass_context=True, name='prepare')
     async def _prepare(self, context):
         gender = 'male'
