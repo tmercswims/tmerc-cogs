@@ -25,7 +25,7 @@ class Quakesounds:
         voice_client = self.voice_client(server)
         if self.audio_player:
             self.audio_player.stop()
-        await voice_client.disconnect()
+        voice_client.disconnect()
 
     @commands.group(pass_context=True, no_pm=True, name='voice', aliases=['vc'])
     async def _vc(self, context):
