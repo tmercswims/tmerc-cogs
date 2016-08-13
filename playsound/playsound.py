@@ -84,8 +84,7 @@ class Playsound:
                                      Please make filenames (excluding extensions) unique!```""".format(len(f)))
             return
 
-        p = os.path.join(self.sound_base, f[0])
-        await self.sound_play(context, p)
+        await self.sound_play(context, f[0])
 
     @commands.command(pass_context=True, name='allsounds')
     async def _allsounds(self, context):
