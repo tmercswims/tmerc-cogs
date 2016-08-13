@@ -20,7 +20,7 @@ class Voice:
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
 
-    @_vc.command(hidden=True, pass_context=True, no_pm=True, name='join', aliases=['connect'])
+    @_voice.command(hidden=True, pass_context=True, no_pm=True, name='join', aliases=['connect'])
     @checks.serverowner_or_permissions()
     async def _join(self, context):
         """Joins your voice channel."""
@@ -30,7 +30,7 @@ class Voice:
         if not self.voice_connected(server):
             await self.bot.join_voice_channel(channel)
 
-    @_vc.command(hidden=True, pass_context=True, no_pm=True, name='leave', aliases=['disconnect'])
+    @_voice.command(hidden=True, pass_context=True, no_pm=True, name='leave', aliases=['disconnect'])
     @checks.serverowner_or_permissions()
     async def _leave(self, context):
         """Leaves your voice channel."""
@@ -42,7 +42,7 @@ class Voice:
             self.audio_player.stop()
         await voice_client.disconnect()
 
-    @_vc.command(no_pm=True, name='stop')
+    @_voice.command(no_pm=True, name='stop')
     async def _stop(self):
         if self.audio_player:
             self.audio_player.stop()
