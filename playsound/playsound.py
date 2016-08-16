@@ -105,6 +105,7 @@ class Playsound:
     @commands.command(no_pm=True, pass_context=True, name='addsound')
     @checks.mod_or_permissions(administrator=True)
     async def _addsound(self, context, *link):
+        """Adds a new sound."""
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
             self.bot.say('```Please only add one sound at a time.```')
@@ -117,7 +118,6 @@ class Playsound:
             url = a['url']
             filename = a['filename']
         elif link:
-            await self.bot.say(link)
             url = ''.join(link)
             filename = os.path.basename('_'.join(url.split()).replace('%20', '_'))
 
@@ -130,8 +130,25 @@ class Playsound:
         async with aiohttp.get(url) as new_sound:
             f = open(filepath, 'wb')
             f.write(await new_sound.read())
+            f.close()
 
         await self.bot.say("New sound added!")
+
+    @commands.command(no_pm=True, pass_context=True, name='delsound')
+    @checks.mod_or_permissions(administrator=True)
+    async def _delsound(self, context, soundname):
+        """Deletes an existing sound."""
+        f = glob.glob(os.path.join(self.sound_base, soundname + '.*'))
+        if len(f) < 1:
+            await self.bot.say('```Sound file not found! Try !allsounds.```')
+            return
+        elif len(f) > 1:
+            await self.bot.say("""```You have {} sound files with the same name, but different extensions, and I can't deal with it.
+                                     Please make filenames (excluding extensions) unique!```""".format(len(f)))
+            return
+
+        os.remove(f[0])
+
 
 def setup(bot):
     bot.add_cog(Playsound(bot))
