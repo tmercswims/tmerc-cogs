@@ -2,7 +2,9 @@ from discord.ext import commands
 from __main__ import send_cmd_help
 from .utils import checks
 
+import aiohttp
 import glob
+import json
 import os
 import os.path
 import threading
@@ -103,7 +105,32 @@ class Playsound:
     @commands.command(no_pm=True, pass_context=True, name='addsound')
     @checks.mod_or_permissions(administrator=True)
     async def _addsound(self, context, *link):
-        await self.bot.say(context.message.attachments)
+        attach = context.message.attachments
+        if (len(attach) > 1):
+            self.bot.say('```Please only add one sound at a time.```')
+            return
+
+        url = ''
+        filename = ''
+        if (attach):
+            a = json.loads(attach[0])
+            url = a['url']
+            filename = a['filename']
+        elif (link):
+            url = link
+            filename = os.path.basename(url)
+
+        filepath = os.path.join(self.sound_base, filename)
+
+        if (os.path.isfile(filepath)):
+            await self.bot.say("```A sound with that filename already exists!```")
+            return
+
+        async with aiohttp.get(a['url']) as new_sound:
+            f = os.open(filepath, 'wb')
+            f.write(await new_sound.read())
+
+        await self.bot.say("New sound added!")
 
 def setup(bot):
     bot.add_cog(Playsound(bot))
