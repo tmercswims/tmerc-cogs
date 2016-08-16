@@ -106,7 +106,7 @@ class Playsound:
     @checks.mod_or_permissions(administrator=True)
     async def _addsound(self, context, *link):
         attach = context.message.attachments
-        await   self.bot.say(attach)
+        await   self.bot.say(attach[0])
         if (len(attach) > 1):
             self.bot.say('```Please only add one sound at a time.```')
             return
