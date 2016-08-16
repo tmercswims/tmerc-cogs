@@ -100,5 +100,10 @@ class Playsound:
         if mess != "":
             await self.bot.send_message(context.message.author, mess)
 
+    @commands.command(no_pm=True, pass_context=True, name='addsound')
+    @checks.mod_or_permissions(administrator=True)
+    async def _addsound(self, context, *link):
+        print(ctx.message.attachments)
+
 def setup(bot):
     bot.add_cog(Playsound(bot))
