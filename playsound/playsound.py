@@ -106,6 +106,7 @@ class Playsound:
     @checks.mod_or_permissions(administrator=True)
     async def _addsound(self, context, *link):
         attach = context.message.attachments
+        self.bot.say(attach)
         if (len(attach) > 1):
             self.bot.say('```Please only add one sound at a time.```')
             return
@@ -113,7 +114,7 @@ class Playsound:
         url = ''
         filename = ''
         if (attach):
-            a = json.loads(attach[0])
+            a = attach[0]
             url = a['url']
             filename = a['filename']
         elif (link):
@@ -126,7 +127,7 @@ class Playsound:
             await self.bot.say("```A sound with that filename already exists!```")
             return
 
-        async with aiohttp.get(a['url']) as new_sound:
+        async with aiohttp.get(url) as new_sound:
             f = os.open(filepath, 'wb')
             f.write(await new_sound.read())
 
