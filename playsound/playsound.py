@@ -117,8 +117,8 @@ class Playsound:
             url = a['url']
             filename = a['filename']
         elif link:
-            url = '_'.join(link.split())
-            filename = os.path.basename(url)
+            url = link
+            filename = os.path.basename('_'.join(link.split()))
 
         filepath = os.path.join(self.sound_base, filename)
 
