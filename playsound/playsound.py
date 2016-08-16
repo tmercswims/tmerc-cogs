@@ -119,7 +119,7 @@ class Playsound:
         elif link:
             await self.bot.say(link)
             url = ''.join(link)
-            filename = os.path.basename('_'.join(url.split()))
+            filename = os.path.basename('_'.join(url.split()).replace('%20', '_'))
 
         filepath = os.path.join(self.sound_base, filename)
 
