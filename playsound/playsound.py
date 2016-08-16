@@ -123,7 +123,7 @@ class Playsound:
 
         filepath = os.path.join(self.sound_base, filename)
 
-        if os.path.isfile(filepath):
+        if filename in self.list_sounds():
             await self.bot.say("```A sound with that filename already exists!```")
             return
 
