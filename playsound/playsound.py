@@ -103,7 +103,7 @@ class Playsound:
     @commands.command(no_pm=True, pass_context=True, name='addsound')
     @checks.mod_or_permissions(administrator=True)
     async def _addsound(self, context, *link):
-        print(context.message.attachments)
+        await self.bot.say(context.message.attachments)
 
 def setup(bot):
     bot.add_cog(Playsound(bot))
