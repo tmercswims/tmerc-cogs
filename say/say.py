@@ -42,7 +42,7 @@ class Say:
             evald = text
         if len(str(evald)) > 2000:
             evald = str(evald)[-1990:] + " you fuck."
-        await self.bot.send_message(context.message.channel, evald, tts=True)
+        await self.bot.send_message(ctx.message.channel, evald, tts=True)
 
 def setup(bot):
     bot.add_cog(Say(bot))
