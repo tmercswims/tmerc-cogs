@@ -148,6 +148,7 @@ class Playsound:
             return
 
         os.remove(f[0])
+        await self.bot.say("Sound {} deleted.".format(soundname))
 
 
 def setup(bot):
