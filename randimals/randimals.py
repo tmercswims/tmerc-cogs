@@ -4,6 +4,7 @@ from discord.ext import commands
 import aiohttp
 import io
 import json
+import os.path
 
 class Randimals:
     """Shows random animals."""
@@ -16,16 +17,19 @@ class Randimals:
         """Shows a random cat."""
         url = 'http://random.cat/meow'
         async with aiohttp.get(url) as response:
-            async with aiohttp.get(json.loads(await response.text())['file']) as image:
-                await self.bot.send_file(ctx.message.channel, io.BytesIO(await image.read()))
+            img_url = json.loads(await response.text())['file']
+            filename = os.path.basename(img_url)
+            async with aiohttp.get(img_url) as image:
+                await self.bot.send_file(ctx.message.channel, io.BytesIO(await image.read()), filename=filename)
 
     @commands.command(pass_context=True, no_pm=True, name='dog')
     async def _dog(self, ctx):
         """Shows a random dog."""
         url = 'http://random.dog/'
         async with aiohttp.get(url + 'woof') as response:
-            async with aiohttp.get(url + await response.text()) as image:
-                await self.bot.send_file(ctx.message.channel, io.BytesIO(await image.read()))
+            filename = await response.text()
+            async with aiohttp.get(url + filename) as image:
+                await self.bot.send_file(ctx.message.channel, io.BytesIO(await image.read()), filename=filename)
 
 def setup(bot):
     bot.add_cog(Randimals(bot))
