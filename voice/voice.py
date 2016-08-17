@@ -21,7 +21,7 @@ class Voice:
             await send_cmd_help(context)
 
     @_voice.command(hidden=True, pass_context=True, no_pm=True, name='join', aliases=['connect'])
-    @checks.serverowner_or_permissions()
+    @checks.admin_or_permissions(administrator=True)
     async def _join(self, context):
         """Joins your voice channel."""
         author = context.message.author
@@ -31,7 +31,7 @@ class Voice:
             await self.bot.join_voice_channel(channel)
 
     @_voice.command(hidden=True, pass_context=True, no_pm=True, name='leave', aliases=['disconnect'])
-    @checks.serverowner_or_permissions()
+    @checks.admin_or_permissions(administrator=True)
     async def _leave(self, context):
         """Leaves your voice channel."""
         server = context.message.server
@@ -41,11 +41,6 @@ class Voice:
         if self.audio_player:
             self.audio_player.stop()
         await voice_client.disconnect()
-
-    @_voice.command(no_pm=True, name='stop')
-    async def _stop(self):
-        if self.audio_player:
-            self.audio_player.stop()
 
 def setup(bot):
     bot.add_cog(Voice(bot))
