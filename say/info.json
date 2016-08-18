@@ -3,5 +3,5 @@
     "INSTALL_MSG" : "Is there an echo in here?",
     "NAME" : "Say",
     "SHORT" : "Echoes back the input.",
-    "DESCRIPTION" : "Echoes back the input."
+    "DESCRIPTION" : "Echoes back the input, with (!say) or without (!tts) TTS."
 }
