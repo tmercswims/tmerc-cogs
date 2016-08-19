@@ -34,7 +34,7 @@ class Membership:
         if ctx.invoked_subcommand is None:
             await send_cmd_help(context)
 
-    @membershipset.command(pass_context=True, no_pm=True, name="join", aliases=["greeting", "welcome"])
+    @_membershipset.command(pass_context=True, no_pm=True, name="join", aliases=["greeting", "welcome"])
     async def _join(self, context, *, format_str):
         """Sets the join/greeting/welcome message for the server.
         {0} is the member
@@ -47,7 +47,7 @@ class Membership:
         fileIO(self.settings_path, "save", self.settings)
         await self.bot.reply("Join message set.")
 
-    @membershipset.command(pass_context=True, no_pm=True, name="leave", aliases=["farewell"])
+    @_membershipset.command(pass_context=True, no_pm=True, name="leave", aliases=["farewell"])
     async def _leave(self, context, *, format_str):
         """Sets the leave/farewell message for the server.
         {0} is the member
@@ -60,7 +60,7 @@ class Membership:
         fileIO(self.settings_path, "save", self.settings)
         await self.bot.reply("Leave message set.")
 
-    @membershipset.command(pass_context=True, no_pm=True, name="ban")
+    @_membershipset.command(pass_context=True, no_pm=True, name="ban")
     async def _ban(self, context, *, format_str):
         """Sets the ban message for the server.
         {0} is the member
@@ -73,7 +73,7 @@ class Membership:
         fileIO(self.settings_path, "save", self.settings)
         await self.bot.reply("Ban message set.")
 
-    @membershipset.command(pass_context=True, no_pm=True, name="unban")
+    @_membershipset.command(pass_context=True, no_pm=True, name="unban")
     async def _unban(self, context, *, format_str):
         """Sets the unban message for the server.
         {0} is the member
@@ -86,7 +86,7 @@ class Membership:
         fileIO(self.settings_path, "save", self.settings)
         await self.bot.reply("Unban message set.")
 
-    @membershipset.command(pass_context=True, no_pm=True, name="toggle")
+    @_membershipset.command(pass_context=True, no_pm=True, name="toggle")
     async def _toggle(self, context):
         """Turns membership event commands on or off."""
 
@@ -99,7 +99,7 @@ class Membership:
             await self.bot.reply("Membership events will no longer be announced.")
         fileIO(self.settings_path, "save", self.settings)
 
-    @membership.command(pass_context=True, no_pm=True, name=channel)
+    @_membership.command(pass_context=True, no_pm=True, name=channel)
     async def _channel(self, context, channel: discord.Channel=None):
         """Sets the text channel to which the announcements will be sent. If none is specified, the default will be used."""
 
