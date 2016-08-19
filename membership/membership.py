@@ -99,7 +99,7 @@ class Membership:
             await self.bot.reply("Membership events will no longer be announced.")
         fileIO(self.settings_path, "save", self.settings)
 
-    @_membershipset.command(pass_context=True, no_pm=True, name=channel)
+    @_membershipset.command(pass_context=True, no_pm=True, name="channel")
     async def _channel(self, context, channel: discord.Channel=None):
         """Sets the text channel to which the announcements will be sent. If none is specified, the default will be used."""
 
