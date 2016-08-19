@@ -115,7 +115,7 @@ class Membership:
         self.settings[server.id]["channel"] = channel.id
         fileIO(self.settings_path, "save", self.settings)
         channel = self.get_welcome_channel(server)
-        await self.bot.send_message(channel, "{0.mention}, I will now send welcome messages to {1.mention}.".format(context.message.author, channel))
+        await self.bot.send_message(channel, "{0.mention}, I will now send membership announcements to {1.mention}.".format(context.message.author, channel))
 
     async def member_join(self, member):
         self.bot.type()
