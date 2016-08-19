@@ -31,7 +31,7 @@ class Membership:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
             fileIO(self.settings_path, "save", self.settings)
-        if ctx.invoked_subcommand is None:
+        if context.invoked_subcommand is None:
             await send_cmd_help(context)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join", aliases=["greeting", "welcome"])
