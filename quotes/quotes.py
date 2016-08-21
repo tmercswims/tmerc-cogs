@@ -37,6 +37,7 @@ class Quotes:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
+            fileIO(self.settings_path, "save", self.settings)
 
         idx = self.settings[server.id]["next_index"]
         self.settings[server.id]["quotes"][idx] = new_quote
@@ -74,6 +75,15 @@ class Quotes:
 
         self.bot.type()
         server = context.message.server
+
+        if server.id not in self.settings:
+            self.settings[server.id] = default_settings
+            fileIO(self.settings_path, "save", self.settings)
+
+        if len(self.settings[server.id]["quotes"]) == 0:
+            self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
+            return
+
         strbuffer = self.list_quotes(server)
         mess = ""
         for line in strbuffer:
@@ -95,6 +105,7 @@ class Quotes:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
+            fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
             self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
