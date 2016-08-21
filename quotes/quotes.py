@@ -22,7 +22,9 @@ class Quotes:
         self.settings = fileIO(self.settings_path, "load")
 
     def list_quotes(self, server):
-        return ["{}. {}".format(n, q) for (n, q) in [(int(k), v) for (k,v) in self.settings[server.id]["quotes"].items()].sort(key=lambda x: x[0])]
+        tups = [(int(k), v) for (k,v) in self.settings[server.id]["quotes"].items()]
+        tups.sort(key=lambda x: x[0])
+        return ["{}. {}".format(n, q) for (n, q) in tups]
 
     @commands.command(pass_context=True, no_pm=True, name="addquote")
     async def _addquote(self, context, *, new_quote):
