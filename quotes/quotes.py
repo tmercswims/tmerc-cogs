@@ -93,6 +93,8 @@ class Quotes:
 
         self.bot.type()
         server = context.message.server
+        if server.id not in self.settings:
+            self.settings[server.id] = default_settings
 
         if len(self.settings[server.id]["quotes"]) == 0:
             self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
@@ -106,9 +108,9 @@ def check_folders():
         os.makedirs("data/quotes")
 
 def check_files():
-    f = "data/quotes/quotes.json"
+    f = "data/quotes/settings.json"
     if not fileIO(f, "check"):
-        print("Creating data/quotes/quotes.json...")
+        print("Creating data/quotes/settings.json...")
         fileIO(f, "save", {})
 
 def setup(bot):
