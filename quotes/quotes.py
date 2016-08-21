@@ -81,7 +81,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
+            await self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
             return
 
         strbuffer = self.list_quotes(server)
@@ -108,7 +108,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
+            await self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
             return
 
         await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
