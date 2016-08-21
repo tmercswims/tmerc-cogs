@@ -22,12 +22,7 @@ class Quotes:
         self.settings = fileIO(self.settings_path, "load")
 
     def list_quotes(self, server):
-        ret = "```"
-        for num, quote in self.settings[server.id]["quotes"].items():
-            ret += "{}. {}\n".format(num, quote)
-        ret += "```"
-
-        return ret
+        return self.settings[server.id]["quotes"].values()
 
     @commands.command(pass_context=True, no_pm=True, name="addquote")
     async def _addquote(self, context, *, new_quote):
