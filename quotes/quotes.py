@@ -18,7 +18,7 @@ class Quotes:
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings_path = "data/quotes/quotes.json"
+        self.settings_path = "data/quotes/settings.json"
         self.settings = fileIO(self.settings_path, "load")
 
     def list_quotes(self, server):
