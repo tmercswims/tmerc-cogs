@@ -53,7 +53,7 @@ class Quotes:
             self.settings[server.id] = default_settings
 
         try:
-            number = int(number)
+            int(number)
         except ValueError:
             await self.bot.reply("Please provide a quote number to delete. Try \"!allquotes\" for a list.")
 
@@ -61,6 +61,7 @@ class Quotes:
             del self.settings[server.id]["quotes"][number]
         except KeyError:
             await self.bot.reply("A quote with that number cannot be found!")
+            return
 
         fileIO(self.settings_path, "save", self.settings)
 
