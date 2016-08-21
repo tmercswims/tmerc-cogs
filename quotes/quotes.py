@@ -40,7 +40,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         idx = self.settings[server.id]["next_index"]
-        self.settings[server.id]["quotes"][idx] = new_quote
+        self.settings[server.id]["quotes"][str(idx)] = new_quote
         self.settings[server.id]["next_index"] += 1
         fileIO(self.settings_path, "save", self.settings)
 
