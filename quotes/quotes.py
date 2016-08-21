@@ -111,7 +111,7 @@ class Quotes:
             self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
             return
 
-        self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
+        await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
 
 def check_folders():
     if not os.path.exists("data/quotes"):
