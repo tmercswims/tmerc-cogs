@@ -95,14 +95,16 @@ class Playsound:
         
         self.bot.type()
         strbuffer = self.list_sounds()
-        mess = ""
+        mess = "```"
         for line in strbuffer:
-            if len(mess) + len(line) + 1 < 2000:
+            if len(mess) + len(line) + 4 < 2000:
                 mess += "\n" + line
             else:
+                mess += "```"
                 await self.bot.whisper(mess)
-                mess = ""
+                mess = "```"
         if mess != "":
+            mess += "```"
             await self.bot.whisper(mess)
 
         await self.bot.reply("Check your PMs!")
