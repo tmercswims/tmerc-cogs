@@ -54,7 +54,7 @@ class Quotes:
 
         try:
             int(number)
-        except ValueError:
+        except (ValueError, TypeError):
             await self.bot.reply("Please provide a quote number to delete. Try \"!allquotes\" for a list.")
 
         try:
@@ -111,9 +111,12 @@ class Quotes:
             await self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
             return
 
+        if len(number) > 1:
+            await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
+
         try:
             int(number)
-        except ValueError:
+        except (ValueError, TypeError):
             await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
 
         try:
