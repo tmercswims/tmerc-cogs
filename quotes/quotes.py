@@ -113,17 +113,20 @@ class Quotes:
 
         if len(number) > 1:
             await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
+            return
 
         try:
             int(number)
         except (ValueError, TypeError):
             await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
+            return
 
         try:
             await self.bot.say(self.settings[server.id]["quotes"][number])
             return
         except KeyError:
             self.bot.reply("A quote with that number cannot be found!")
+            return
 
         await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
 
