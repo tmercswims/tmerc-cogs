@@ -98,7 +98,7 @@ class Quotes:
         await self.bot.reply("Check your PMs!")
 
     @commands.command(pass_context=True, no_pm=True, name="quote")
-    async def _quote(self, context):
+    async def _quote(self, context, *number):
         """Sends a random quote."""
 
         self.bot.type()
@@ -110,6 +110,17 @@ class Quotes:
         if len(self.settings[server.id]["quotes"]) == 0:
             await self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
             return
+
+        try:
+            int(number)
+        except ValueError:
+            await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
+
+        try:
+            await self.bot.say(self.settings[server.id]["quotes"][number])
+            return
+        except KeyError:
+            self.bot.reply("A quote with that number cannot be found!")
 
         await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
 
