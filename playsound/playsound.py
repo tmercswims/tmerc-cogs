@@ -50,7 +50,7 @@ class Playsound:
     async def sound_play(self, context, p):
         server = context.message.server
         if not context.message.author.voice_channel:
-            await self.bot.reply("```You need to join a voice channel first!```")
+            await self.bot.reply("You need to join a voice channel first.")
             return
         if not context.message.channel.is_private:
             if self.voice_connected(server):
@@ -80,11 +80,11 @@ class Playsound:
         """Plays the specified sound."""
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.reply("```Sound file not found! Try !allsounds.```")
+            await self.bot.reply("Sound file not found. Try !allsounds for a list.")
             return
         elif len(f) > 1:
-            await self.bot.reply("""```There are {} sound files with the same name, but different extensions, and I can"t deal with it.
-                                     Please make filenames (excluding extensions) unique!```""".format(len(f)))
+            await self.bot.reply("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
+                                     Please make filenames (excluding extensions) unique.""".format(len(f)))
             return
 
         await self.sound_play(context, f[0])
@@ -117,7 +117,7 @@ class Playsound:
         self.bot.type()
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
-            self.bot.reply("```Please only add one sound at a time.```")
+            self.bot.reply("Please only add one sound at a time.")
             return
 
         url = ""
@@ -133,7 +133,7 @@ class Playsound:
         filepath = os.path.join(self.sound_base, filename)
 
         if os.path.splitext(filename)[0] in self.list_sounds():
-            await self.bot.reply("```A sound with that filename already exists!```")
+            await self.bot.reply("A sound with that filename already exists. Please change the filename and try again.")
             return
 
         async with aiohttp.get(url) as new_sound:
@@ -141,7 +141,7 @@ class Playsound:
             f.write(await new_sound.read())
             f.close()
             if "audio" not in magic.from_file(filepath).lower():
-                await self.bot.reply("```The file you provided does not appear to be audio, please try again!```")
+                await self.bot.reply("The file you provided does not appear to be audio, please try again.")
                 os.remove(filepath)
                 return
 
@@ -158,8 +158,8 @@ class Playsound:
             await self.bot.say("```Sound file not found! Try !allsounds.```")
             return
         elif len(f) > 1:
-            await self.bot.say("""```There are {} sound files with the same name, but different extensions, and I can"t deal with it.
-                                     Please make filenames (excluding extensions) unique!```""".format(len(f)))
+            await self.bot.say("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
+                                     Please make filenames (excluding extensions) unique.""".format(len(f)))
             return
 
         os.remove(f[0])

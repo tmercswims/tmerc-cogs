@@ -14,13 +14,13 @@ class Voice:
     def voice_client(self, server):
         return self.bot.voice_client_in(server)
 
-    @commands.group(pass_context=True, no_pm=True, name='voice', aliases=['vc'])
+    @commands.group(pass_context=True, no_pm=True, name="voice", aliases=["vc"])
     async def _voice(self, context):
         """[join/leave]"""
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
 
-    @_voice.command(hidden=True, pass_context=True, no_pm=True, name='join', aliases=['connect'])
+    @_voice.command(hidden=True, pass_context=True, no_pm=True, name="join", aliases=["connect"])
     @checks.admin_or_permissions(administrator=True)
     async def _join(self, context):
         """Joins your voice channel."""
@@ -30,7 +30,7 @@ class Voice:
         if not self.voice_connected(server):
             await self.bot.join_voice_channel(channel)
 
-    @_voice.command(hidden=True, pass_context=True, no_pm=True, name='leave', aliases=['disconnect'])
+    @_voice.command(hidden=True, pass_context=True, no_pm=True, name="leave", aliases=["disconnect"])
     @checks.admin_or_permissions(administrator=True)
     async def _leave(self, context):
         """Leaves your voice channel."""

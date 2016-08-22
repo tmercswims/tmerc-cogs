@@ -13,14 +13,14 @@ class Say:
 
         self.bot.type()
         user = context.message.author
-        if hasattr(user, 'bot') and user.bot is True:
+        if hasattr(user, "bot") and user.bot is True:
             return
         try:
             if "__" in text:
                 raise ValueError
-            evald = eval(text, {}, {'message': context.message,
-                                    'channel': context.message.channel,
-                                    'server': context.message.server})
+            evald = eval(text, {}, {"message": context.message,
+                                    "channel": context.message.channel,
+                                    "server": context.message.server})
         except:
             evald = text
         if len(str(evald)) > 2000:
@@ -33,14 +33,14 @@ class Say:
 
         self.bot.type()
         user = context.message.author
-        if hasattr(user, 'bot') and user.bot is True:
+        if hasattr(user, "bot") and user.bot is True:
             return
         try:
             if "__" in text:
                 raise ValueError
-            evald = eval(text, {}, {'message': context.message,
-                                    'channel': context.message.channel,
-                                    'server': context.message.server})
+            evald = eval(text, {}, {"message": context.message,
+                                    "channel": context.message.channel,
+                                    "server": context.message.server})
         except:
             evald = text
         if len(str(evald)) > 2000:
@@ -53,14 +53,14 @@ class Say:
 
         self.bot.type()
         user = context.message.author
-        if hasattr(user, 'bot') and user.bot is True:
+        if hasattr(user, "bot") and user.bot is True:
             return
         try:
             if "__" in text:
                 raise ValueError
-            evald = eval(text, {}, {'message': context.message,
-                                    'channel': context.message.channel,
-                                    'server': context.message.server})
+            evald = eval(text, {}, {"message": context.message,
+                                    "channel": context.message.channel,
+                                    "server": context.message.server})
         except:
             evald = text
         if len(str(evald)) > 2000:
@@ -73,14 +73,14 @@ class Say:
 
         self.bot.type()
         user = context.message.author
-        if hasattr(user, 'bot') and user.bot is True:
+        if hasattr(user, "bot") and user.bot is True:
             return
         try:
             if "__" in text:
                 raise ValueError
-            evald = eval(text, {}, {'message': context.message,
-                                    'channel': context.message.channel,
-                                    'server': context.message.server})
+            evald = eval(text, {}, {"message": context.message,
+                                    "channel": context.message.channel,
+                                    "server": context.message.server})
         except:
             evald = text
         if len(str(evald)) > 2000:
