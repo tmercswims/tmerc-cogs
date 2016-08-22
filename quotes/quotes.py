@@ -111,9 +111,9 @@ class Quotes:
             await self.bot.reply("There are no saved quotes! Use \"!addquote\" to add one!")
             return
 
-        if len(number) > 1:
-            await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
-            return
+        # if len(number) > 1:
+        #     await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
+        #     return
 
         try:
             int(number)
