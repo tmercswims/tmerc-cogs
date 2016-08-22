@@ -126,7 +126,7 @@ class Quotes:
                 await self.bot.say(self.settings[server.id]["quotes"][number])
                 return
             except KeyError:
-                self.bot.reply("A quote with that number cannot be found. Try \"!allquotes\" for a list.")
+                await self.bot.reply("A quote with that number cannot be found. Try \"!allquotes\" for a list.")
                 return
 
         await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
