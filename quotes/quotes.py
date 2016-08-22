@@ -114,6 +114,7 @@ class Quotes:
         # if len(number) > 1:
         #     await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
         #     return
+        number = "".join(number)
         await self.bot.say(number)
         try:
             int(number)
