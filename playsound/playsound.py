@@ -10,6 +10,9 @@ import os
 import os.path
 import threading
 
+def my_final():
+    print("HELLO")
+
 class Playsound:
     """Play a sound byte."""
     def __init__(self, bot):
@@ -48,9 +51,6 @@ class Playsound:
             fut.result()
         except:
             pass
-
-    def my_final(self):
-        print("HELLO")
 
     async def sound_init(self, context, path):
         server = context.message.server
