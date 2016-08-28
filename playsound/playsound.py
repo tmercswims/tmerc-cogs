@@ -60,7 +60,7 @@ class Playsound:
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
                     # if not self.audio_player.is_playing():
-                    self.audio_player.stop()
+                    # self.audio_player.stop()
                     self.audio_player = self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
             else:
@@ -70,7 +70,7 @@ class Playsound:
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
                     # if not self.audio_player.is_playing():
-                    self.audio_player.stop()
+                    # self.audio_player.stop()
                     self.audio_player = self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
 
