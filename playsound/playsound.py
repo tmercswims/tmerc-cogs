@@ -117,7 +117,7 @@ class Playsound:
         self.bot.type()
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
-            self.bot.reply("Please only add one sound at a time.")
+            await self.bot.reply("Please only add one sound at a time.")
             return
 
         url = ""
@@ -129,6 +129,9 @@ class Playsound:
         elif link:
             url = "".join(link)
             filename = os.path.basename("_".join(url.split()).replace("%20", "_"))
+        else:
+            await self.bot.reply("You must provide either a Discord attachment or a direct link to a sound.")
+            return
 
         filepath = os.path.join(self.sound_base, filename)
 
@@ -145,7 +148,7 @@ class Playsound:
                 os.remove(filepath)
                 return
 
-        await self.bot.say("Sound {} added.".format(os.path.splitext(filename)[0]))
+        await self.bot.reply("Sound {} added.".format(os.path.splitext(filename)[0]))
 
     @commands.command(no_pm=True, pass_context=True, name="delsound")
     @checks.mod_or_permissions(administrator=True)
