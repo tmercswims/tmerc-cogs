@@ -167,7 +167,23 @@ class Playsound:
             return
 
         os.remove(f[0])
-        await self.bot.say("Sound {} deleted.".format(soundname))
+        await self.bot.reply("Sound {} deleted.".format(soundname))
+
+    @commands.command(no_pm=True, pass_context=True, name="getsound")
+    async def _getsound(self, context, soundname):
+        """Gets the given sound."""
+
+        self.bot.type()
+        f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
+        if len(f) < 1:
+            await self.bot.say("```Sound file not found! Try !allsounds.```")
+            return
+        elif len(f) > 1:
+            await self.bot.say("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
+                                     Please make filenames (excluding extensions) unique.""".format(len(f)))
+            return
+
+        await self.bot.upload(f[0])
 
 def setup(bot):
     bot.add_cog(Playsound(bot))

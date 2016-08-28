@@ -31,11 +31,13 @@ class Randimage:
 
         direc = os.path.join(self.base, dirname)
 
-        if not os.listdir(direc):
+        ls = os.listdir(direc)
+
+        if not ls:
             await self.bot.reply("There are no images in that directory.")
             return
 
-        await self.bot.upload(os.path.join(direc, random.choice(os.listdir(direc))))
+        await self.bot.upload(os.path.join(direc, random.choice(ls)))
 
 def setup(bot):
     bot.add_cog(Randimage(bot))
