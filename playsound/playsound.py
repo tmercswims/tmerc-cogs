@@ -48,6 +48,7 @@ class Playsound:
         self.audio_player = voice_client.create_ffmpeg_player(path, options=options, after=lambda: self.sound_final(context))
 
     def sound_final(self, context):
+        print("HELLO?")
         yield from self._leave_voice_channel(context)
 
     async def sound_play(self, context, p):
