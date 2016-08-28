@@ -65,6 +65,8 @@ class Customjoinleave:
                 # if self.audio_player.is_playing():
                 #     self.audio_player.stop()
                 await self.sound_init(server, p)
+
+                
                 threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
 
     def sound_thread(self, t, server):

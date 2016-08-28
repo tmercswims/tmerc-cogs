@@ -45,7 +45,10 @@ class Playsound:
         server = context.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
-        self.audio_player = voice_client.create_ffmpeg_player(path, options=options)
+        self.audio_player = voice_client.create_ffmpeg_player(path, options=options, after=lambda: self.sound_final(context))
+
+    def sound_final(self, context):
+        yield from self._leave_voice_channel()
 
     async def sound_play(self, context, p):
         server = context.message.server
@@ -56,20 +59,24 @@ class Playsound:
             if self.voice_connected(server):
                 if not self.audio_player:
                     await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    self.audio_player.start()
+                    # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
                     if not self.audio_player.is_playing():
                         await self.sound_init(context, p)
-                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                        self.audio_player.start()
+                        # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
                     await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    self.audio_player.start()
+                    # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
                     if not self.audio_player.is_playing():
                         await self.sound_init(context, p)
-                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                        self.audio_player.start()
+                        # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
 
     def sound_thread(self, t, context):
         t.run()
