@@ -60,8 +60,8 @@ class Playsound:
                     threading.Thread(target=self.sound_thread, args=(player, context,)).start()
                 else:
                     if not self.audio_player.is_playing():
-                    player = self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(player, context,)).start()
+                        player = self.sound_init(context, p)
+                        threading.Thread(target=self.sound_thread, args=(player, context,)).start()
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
