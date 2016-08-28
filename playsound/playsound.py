@@ -10,9 +10,6 @@ import os
 import os.path
 import threading
 
-def my_final():
-    print("HELLO")
-
 class Playsound:
     """Play a sound byte."""
     def __init__(self, bot):
@@ -52,11 +49,19 @@ class Playsound:
         except:
             pass
 
+    def my_final(self):
+        coro = self.bot.say("it works!")
+        fut = asyncio.run_coroutine_threadsafe(coro, self.bot.loop)
+        try:
+            fut.result()
+        except:
+            pass
+
     async def sound_init(self, context, path):
         server = context.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
-        self.audio_player = voice_client.create_ffmpeg_player(path, options=options, after=my_final)
+        self.audio_player = voice_client.create_ffmpeg_player(path, options=options, after=self.my_final)
 
     async def sound_play(self, context, p):
         server = context.message.server
