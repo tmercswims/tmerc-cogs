@@ -47,25 +47,25 @@ class Customjoinleave:
         if not channel.is_private:
             if self.audio_player.is_playing():
                 self.audio_player.stop()
-            if self.voice_connected(server):
-                if not self.audio_player:
-                    await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
-                else:
-                    # if self.audio_player.is_playing():
-                    #     self.audio_player.stop()
-                    await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+            # if self.voice_connected(server):
+            #     if not self.audio_player:
+            #         await self.sound_init(server, p)
+            #         threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+            #     else:
+            #         # if self.audio_player.is_playing():
+            #         #     self.audio_player.stop()
+            #         await self.sound_init(server, p)
+            #         threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+            # else:
+            await self.bot.join_voice_channel(channel)
+            if not self.audio_player:
+                await self.sound_init(server, p)
+                threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
             else:
-                await self.bot.join_voice_channel(channel)
-                if not self.audio_player:
-                    await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
-                else:
-                    # if self.audio_player.is_playing():
-                    #     self.audio_player.stop()
-                    await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+                # if self.audio_player.is_playing():
+                #     self.audio_player.stop()
+                await self.sound_init(server, p)
+                threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
 
     def sound_thread(self, t, server):
         t.run()
