@@ -73,9 +73,9 @@ class Playsound:
 
     def sound_thread(self, t, context):
         t.run()
-        # self.voice_client(context.message.server).loop.create_task(self._leave_voice_channel(context))
-        coro = self._leave_voice_channel(context)
-        asyncio.run_coroutine_threadsafe(coro, self.bot.loop).result()
+        self.voice_client(context.message.server).loop.create_task(self._leave_voice_channel(context))
+        # coro = self._leave_voice_channel(context)
+        # asyncio.run_coroutine_threadsafe(coro, self.bot.loop).result()
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
     async def _playsound(self, context, soundname):
