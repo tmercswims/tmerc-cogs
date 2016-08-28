@@ -210,11 +210,11 @@ class Customjoinleave:
             if before.voice.voice_channel != None and after.voice.voice_channel == None and self.settings[bserver.id]["leave_on"]:
                 path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
                 if os.path.exists(path):
-                    self.sound_play(bserver, before.voice.voice_channel, path)
+                    await self.sound_play(bserver, before.voice.voice_channel, path)
             elif after.voice.voice_channel != None:
                 path = "{}/{}/{}/join".format(self.sound_base, aserver.id, after.id)
                 if os.path.exists(path):
-                    self.sound_play(aserver, after.voice.voice_channel, path)
+                    await self.sound_play(aserver, after.voice.voice_channel, path)
 
 def check_folders():
     if not os.path.exists("data/customjoinleave"):
