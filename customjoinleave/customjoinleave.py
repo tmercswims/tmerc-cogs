@@ -186,10 +186,10 @@ class Customjoinleave:
             f = open(path, "wb")
             f.write(await nwsnd.read())
             f.close
-            if "audio" not in magic.from_file(path).lower():
-                await self.bot.reply("The file you provided does not appear to be audio, please try again.")
-                os.remove(path)
-                return
+            # if "audio" not in magic.from_file(path).lower():
+            #     await self.bot.reply("The file you provided does not appear to be audio, please try again.")
+            #     os.remove(path)
+            #     return
             await self.bot.reply("Your {} sound has been added.".format(action))
 
     async def voice_state_update(self, before, after):
