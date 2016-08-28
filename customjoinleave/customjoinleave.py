@@ -188,10 +188,6 @@ class Customjoinleave:
             f = open(path, "wb")
             f.write(await nwsnd.read())
             f.close
-            # if "audio" not in magic.from_file(path).lower():
-            #     await self.bot.reply("The file you provided does not appear to be audio, please try again.")
-            #     os.remove(path)
-            #     return
             await self.bot.reply("Your {} sound has been added.".format(action))
 
     async def voice_state_update(self, before, after):
@@ -207,14 +203,26 @@ class Customjoinleave:
             fileIO(self.settings_path, "save", self.settings)
 
         if before.voice.voice_channel != after.voice.voice_channel:
-            if before.voice.voice_channel != None and after.voice.voice_channel == None and self.settings[bserver.id]["leave_on"]:
-                path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
-                if os.path.exists(path):
-                    await self.sound_play(bserver, before.voice.voice_channel, path)
-            elif after.voice.voice_channel != None:
+            # went from no channel to a channel
+            if before.voice.voice_channel == None and after.voice.voice_channel != None and self.settings[aserver.id]["join_on"]:
                 path = "{}/{}/{}/join".format(self.sound_base, aserver.id, after.id)
                 if os.path.exists(path):
                     await self.sound_play(aserver, after.voice.voice_channel, path)
+            # went from one channel to another
+            elif before.voice.voice_channel != None and after.voice.voice_channel != None:
+                if self.settings[bserver.id]["leave_on"]:
+                    path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
+                    if os.path.exists(path):
+                        await self.sound_play(bserver, before.voice.voice_channel, path)
+                if self.settings[aserver.id]["join_on"]:
+                    path = "{}/{}/{}/join".format(self.sound_base, aserver.id, after.id)
+                    if os.path.exists(path):
+                        await self.sound_play(aserver, after.voice.voice_channel, path)
+            # went from a channel to no channel
+            elif before.voice.voice_channel != None and after.voice.voice_channel == None and self.settings[bserver.id]["leave_on"]:
+                path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
+                if os.path.exists(path):
+                    await self.sound_play(bserver, before.voice.voice_channel, path)
 
 def check_folders():
     if not os.path.exists("data/customjoinleave"):
