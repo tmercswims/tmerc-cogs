@@ -3,6 +3,7 @@ from __main__ import send_cmd_help
 from .utils import checks
 
 import aiohttp
+import asyncio
 import glob
 import json
 import magic
@@ -37,31 +38,15 @@ class Playsound:
             return
         voice_client = self.voice_client(server)
 
-        if self.audio_player:
-            self.audio_player.stop()
+        # if self.audio_player:
+        #     self.audio_player.stop()
         await voice_client.disconnect()
 
-    def sound_final(self, context):
-        coro = self._leave_voice_channel(context)
-        fut = asyncio.run_coroutine_threadsafe(coro, self.bot.loop)
-        try:
-            fut.result()
-        except:
-            pass
-
-    def my_final(self):
-        coro = self.bot.say("it works!")
-        fut = asyncio.run_coroutine_threadsafe(coro, self.bot.loop)
-        try:
-            fut.result()
-        except:
-            pass
-
-    async def sound_init(self, context, path):
+    def sound_init(self, context, path):
         server = context.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
-        self.audio_player = voice_client.create_ffmpeg_player(path, options=options, after=self.my_final)
+        return voice_client.create_ffmpeg_player(path, options=options)
 
     async def sound_play(self, context, p):
         server = context.message.server
@@ -71,33 +56,27 @@ class Playsound:
         if not context.message.channel.is_private:
             if self.voice_connected(server):
                 if not self.audio_player:
-                    await self.sound_init(context, p)
-                    self.audio_player.start()
-                    self.audio_player.stop()
-                    # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    player = self.sound_init(context, p)
+                    threading.Thread(target=self.sound_thread, args=(player, context,)).start()
                 else:
                     if not self.audio_player.is_playing():
-                        await self.sound_init(context, p)
-                        self.audio_player.start()
-                        self.audio_player.stop()
-                        # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    player = self.sound_init(context, p)
+                    threading.Thread(target=self.sound_thread, args=(player, context,)).start()
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
-                    await self.sound_init(context, p)
-                    self.audio_player.start()
-                    self.audio_player.stop()
-                    # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    player = self.sound_init(context, p)
+                    threading.Thread(target=self.sound_thread, args=(player, context,)).start()
                 else:
                     if not self.audio_player.is_playing():
-                        await self.sound_init(context, p)
-                        self.audio_player.start()
-                        self.audio_player.stop()
-                        # threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                        player = self.sound_init(context, p)
+                        threading.Thread(target=self.sound_thread, args=(player, context,)).start()
 
     def sound_thread(self, t, context):
         t.run()
-        self.voice_client(context.message.server).loop.create_task(self._leave_voice_channel(context))
+        # self.voice_client(context.message.server).loop.create_task(self._leave_voice_channel(context))
+        coro = self._leave_voice_channel(context)
+        asyncio.run_coroutine_threadsafe(coro, self.bot.loop).result()
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
     async def _playsound(self, context, soundname):
