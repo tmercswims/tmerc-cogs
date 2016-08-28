@@ -58,24 +58,24 @@ class Playsound:
                     await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
-                    if not self.audio_player.is_playing():
-                        await self.sound_init(context, p)
-                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    if self.audio_player.is_playing():
+                        self.audio_player.stop()
+                    await self.sound_init(context, p)
+                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
                     await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
-                    if not self.audio_player.is_playing():
-                        await self.sound_init(context, p)
-                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    if self.audio_player.is_playing():
+                        self.audio_player.stop()
+                    await self.sound_init(context, p)
+                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
 
     def sound_thread(self, t, context):
         t.run()
         self.voice_client(context.message.server).loop.create_task(self._leave_voice_channel(context))
-        # coro = self._leave_voice_channel(context)
-        # asyncio.run_coroutine_threadsafe(coro, self.bot.loop).result()
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
     async def _playsound(self, context, soundname):
