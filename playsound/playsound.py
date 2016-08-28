@@ -41,15 +41,19 @@ class Playsound:
             self.audio_player.stop()
         await voice_client.disconnect()
 
+    def sound_final(self, context):
+        coro = self._leave_voice_channel(context)
+        fut = asyncio.run_coroutine_threadsafe(coro, self.bot.loop)
+        try:
+            fut.result()
+        except:
+            pass
+
     async def sound_init(self, context, path):
         server = context.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
         self.audio_player = voice_client.create_ffmpeg_player(path, options=options, after=lambda: self.sound_final(context))
-
-    def sound_final(self, context):
-        print("HELLO?")
-        yield from self._leave_voice_channel(context)
 
     async def sound_play(self, context, p):
         server = context.message.server
