@@ -86,7 +86,7 @@ class Customjoinleave:
         """Toggles custom join sounds on/off."""
 
         self.bot.type()
-        
+
         server = context.message.server
         self.settings[server.id]["join_on"] = not self.settings[server.id]["join_on"]
         if self.settings[server.id]["join_on"]:
@@ -193,7 +193,7 @@ class Customjoinleave:
                 os.remove(path)
                 return
 
-        await self.bot.replay("Your {} sound has been added.".format(action))
+        await self.bot.reply("Your {} sound has been added.".format(action))
 
     async def voice_state_update(self, before, after):
         bserver = before.server
