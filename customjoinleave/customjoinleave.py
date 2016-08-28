@@ -50,7 +50,8 @@ class Customjoinleave:
                     await self.sound_init(server, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
                 else:
-                    # if not self.audio_player.is_playing():
+                    if self.audio_player.is_playing():
+                        self.audio_player.stop()
                     await self.sound_init(server, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
             else:
@@ -59,7 +60,8 @@ class Customjoinleave:
                     await self.sound_init(server, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
                 else:
-                    # if not self.audio_player.is_playing():
+                    if self.audio_player.is_playing():
+                        self.audio_player.stop()
                     await self.sound_init(server, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
 
