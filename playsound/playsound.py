@@ -4,7 +4,6 @@ from .utils import checks
 
 import aiohttp
 import glob
-import json
 import magic
 import os
 import os.path
@@ -58,20 +57,18 @@ class Playsound:
                     await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
-                    if self.audio_player.is_playing():
-                        self.audio_player.stop()
-                    await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    if not self.audio_player.is_playing():
+                        await self.sound_init(context, p)
+                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
                     await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
-                    if self.audio_player.is_playing():
-                        self.audio_player.stop()
-                    await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    if not self.audio_player.is_playing():
+                        await self.sound_init(context, p)
+                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
 
     def sound_thread(self, t, context):
         t.run()
@@ -85,7 +82,7 @@ class Playsound:
             await self.bot.reply("Sound file not found. Try !allsounds for a list.")
             return
         elif len(f) > 1:
-            await self.bot.reply("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
+            await self.bot.reply("""There are {} sound files with the same name, but different extensions, and I can't deal with it.
                                      Please make filenames (excluding extensions) unique.""".format(len(f)))
             return
 
