@@ -173,7 +173,7 @@ class Customjoinleave:
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path += action
+        path += "/" + action
         if os.path.exists(path):
             await self.bot.reply("You already have a custom {} sound. Do you want to replace it? (yes/no)".format(action))
             answer = await self.bot.wait_for_message(timeout=15, author=context.message.author)
@@ -192,8 +192,7 @@ class Customjoinleave:
                 await self.bot.reply("The file you provided does not appear to be audio, please try again.")
                 os.remove(path)
                 return
-
-        await self.bot.reply("Your {} sound has been added.".format(action))
+            await self.bot.reply("Your {} sound has been added.".format(action))
 
     async def voice_state_update(self, before, after):
         bserver = before.server
