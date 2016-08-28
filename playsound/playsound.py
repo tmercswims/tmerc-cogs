@@ -3,7 +3,6 @@ from __main__ import send_cmd_help
 from .utils import checks
 
 import aiohttp
-import asyncio
 import glob
 import json
 import magic
@@ -42,7 +41,7 @@ class Playsound:
         #     self.audio_player.stop()
         await voice_client.disconnect()
 
-    def sound_init(self, context, path):
+    async def sound_init(self, context, path):
         server = context.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
@@ -56,23 +55,21 @@ class Playsound:
         if not context.message.channel.is_private:
             if self.voice_connected(server):
                 if not self.audio_player:
-                    self.audio_player = self.sound_init(context, p)
+                    await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
-                    # if not self.audio_player.is_playing():
-                    # self.audio_player.stop()
-                    self.audio_player = self.sound_init(context, p)
+                    if not self.audio_player.is_playing():
+                    await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
-                    self.audio_player = self.sound_init(context, p)
+                    await self.sound_init(context, p)
                     threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
                 else:
-                    # if not self.audio_player.is_playing():
-                    # self.audio_player.stop()
-                    self.audio_player = self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    if not self.audio_player.is_playing():
+                        await self.sound_init(context, p)
+                        threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
 
     def sound_thread(self, t, context):
         t.run()
@@ -88,7 +85,7 @@ class Playsound:
             await self.bot.reply("Sound file not found. Try !allsounds for a list.")
             return
         elif len(f) > 1:
-            await self.bot.reply("""There are {} sound files with the same name, but different extensions, and I can't deal with it.
+            await self.bot.reply("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
                                      Please make filenames (excluding extensions) unique.""".format(len(f)))
             return
 
