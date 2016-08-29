@@ -114,35 +114,32 @@ class Customjoinleave:
     async def _setjoinsound(self, context, *link):
         """Sets the join sound for the calling user."""
 
-        self.bot.type()
+        await self._set_sound(context, link, "join", context.message.author.id)
 
-        server = context.message.server
-        if server.id not in self.settings:
-            self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+    @commands.command(pass_context=True, no_pm=True, name="setjoinsoundfor")
+    @checks.admin_or_permissions(Administrator=True)
+    async def _setjoinsoundfor(self, context, user: discord.User, *link):
+        """Sets the join sound for the given user. Must be a mention!"""
 
-        attach = context.message.attachments
-        if len(attach) > 1 or (attach and link):
-            await self.bot.reply("Please only provide one file.")
-            return
+        await self._set_sound(context, link, "join", user.id)
 
-        url = ""
-        if attach:
-            url = attach[0]["url"]
-        elif link:
-            url = "".join(link)
-        else:
-            await self.bot.reply("You must provide either a Discord attachment or a direct link to a sound.")
-            return
-        await self._set_sound(context, url, "join")
+    @commands.command(pass_context=True, no_pm=True, name="setleavesoundfor")
+    @checks.admin_or_permissions(Administrator=True)
+    async def _setleavesoundfor(self, context, user: discord.User, *link):
+        """Sets the leave sound for the given user. Must be a mention!"""
+
+        await self._set_sound(context, link, "leave", user.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesound")
     async def _setleavesound(self, context, *link):
         """Sets the leave sound for the calling user."""
 
-        self.bot.type()
-        server = context.message.server
+        await self._set_sound(context, link, "leave", context.message.author.id)
 
+    async def _set_sound(self, context, link, action, userid):
+        self.bot.type()
+
+        server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             fileIO(self.settings_path, "save", self.settings)
@@ -160,22 +157,18 @@ class Customjoinleave:
         else:
             await self.bot.reply("You must provide either a Discord attachment or a direct link to a sound.")
             return
-        await self._set_sound(context, url, "leave")
-
-    async def _set_sound(self, context, url, action):
-        server = context.message.server
 
         path = "{}/{}".format(self.sound_base, server.id)
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = "{}/{}/{}".format(self.sound_base, server.id, context.message.author.id)
+        path = "{}/{}/{}".format(self.sound_base, server.id, userid)
         if not os.path.exists(path):
             os.makedirs(path)
 
         path += "/" + action
         if os.path.exists(path):
-            await self.bot.reply("You already have a custom {} sound. Do you want to replace it? (yes/no)".format(action))
+            await self.bot.reply("There is already a custom {} sound. Do you want to replace it? (yes/no)".format(action))
             answer = await self.bot.wait_for_message(timeout=15, author=context.message.author)
 
             if answer.content.lower().strip() != "yes":
