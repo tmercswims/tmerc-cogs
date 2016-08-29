@@ -182,7 +182,7 @@ class Customjoinleave:
             f = open(path, "wb")
             f.write(await nwsnd.read())
             f.close
-            await self.bot.reply("Your {} sound has been added.".format(action))
+            await self.bot.reply("{} sound added.".format(action.capitalize()))
 
     async def voice_state_update(self, before, after):
         bserver = before.server
