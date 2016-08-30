@@ -1,11 +1,10 @@
 import discord
 from discord.ext import commands
-from __main__ import send_cmd_help
-from .utils import checks
 from .utils.dataIO import fileIO
+from .utils import checks, chat_formatting as cf
+from __main__ import send_cmd_help
 
 import aiohttp
-import magic
 import os
 import os.path
 import threading
@@ -91,9 +90,9 @@ class Customjoinleave:
         server = context.message.server
         self.settings[server.id]["join_on"] = not self.settings[server.id]["join_on"]
         if self.settings[server.id]["join_on"]:
-            await self.bot.reply("Custom join sounds are now enabled.")
+            await self.bot.reply(cf.info("Custom join sounds are now enabled."))
         else:
-            await self.bot.reply("Custom join sounds are now disabled.")
+            await self.bot.reply(cf.info("Custom join sounds are now disabled."))
         fileIO(self.settings_path, "save", self.settings)
 
     @_joinleaveset.command(pass_context=True, no_pm=True, name="toggleleave")
@@ -106,9 +105,9 @@ class Customjoinleave:
         server = context.message.server
         self.settings[server.id]["leave_on"] = not self.settings[server.id]["leave_on"]
         if self.settings[server.id]["leave_on"]:
-            await self.bot.reply("Custom leave sounds are now enabled.")
+            await self.bot.reply(cf.info("Custom leave sounds are now enabled."))
         else:
-            await self.bot.reply("Custom leave sounds are now disabled.")
+            await self.bot.reply(cf.info("Custom leave sounds are now disabled."))
         fileIO(self.settings_path, "save", self.settings)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsound")
@@ -147,7 +146,7 @@ class Customjoinleave:
 
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
-            await self.bot.reply("Please only provide one file.")
+            await self.bot.reply(cf.error("Please only provide one file."))
             return
 
         url = ""
@@ -156,7 +155,7 @@ class Customjoinleave:
         elif link:
             url = "".join(link)
         else:
-            await self.bot.reply("You must provide either a Discord attachment or a direct link to a sound.")
+            await self.bot.reply(cf.error("You must provide either a Discord attachment or a direct link to a sound."))
             return
 
         path = "{}/{}".format(self.sound_base, server.id)
@@ -173,7 +172,7 @@ class Customjoinleave:
             answer = await self.bot.wait_for_message(timeout=15, author=context.message.author)
 
             if answer.content.lower().strip() != "yes":
-                await self.bot.reply("Sound not replaced.")
+                await self.bot.reply("{} sound not replaced.".format(action))
                 return
 
             os.remove(path)

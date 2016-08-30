@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
-
 from .utils.dataIO import fileIO
-from .utils import checks
+from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
 import os
@@ -41,7 +40,7 @@ class Quotes:
         self.settings[server.id]["next_index"] += 1
         fileIO(self.settings_path, "save", self.settings)
 
-        await self.bot.reply("Quote added as number {}.".format(idx))
+        await self.bot.reply(cf.info("Quote added as number {}.".format(idx)))
 
     @commands.command(pass_context=True, no_pm=True, name="delquote")
     async def _delquote(self, context, number):
@@ -55,17 +54,17 @@ class Quotes:
         try:
             int(number)
         except (ValueError, TypeError):
-            await self.bot.reply("Please provide a quote number to delete. Try \"!allquotes\" for a list.")
+            await self.bot.reply(cf.error("Please provide a quote number to delete. Try \"{}allquotes\" for a list.".format(context.prefix)))
 
         try:
             del self.settings[server.id]["quotes"][number]
         except KeyError:
-            await self.bot.reply("A quote with that number cannot be found. Try \"!allquotes for a list.\"")
+            await self.bot.reply(cf.error("A quote with that number cannot be found. Try \"{}allquotes for a list.\"".format(context.prefix)))
             return
 
         fileIO(self.settings_path, "save", self.settings)
 
-        await self.bot.reply("Quote number {} deleted.".format(number))
+        await self.bot.reply(cf.info("Quote number {} deleted.".format(number)))
 
     @commands.command(pass_context=True, no_pm=False, name="allquotes")
     async def _allquotes(self, context):
@@ -79,7 +78,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            await self.bot.reply("There are no saved quotes. Use \"!addquote\" to add one.")
+            await self.bot.reply(cf.warning("There are no saved quotes. Use \"{}addquote\" to add one.".format(context.prefix)))
             return
 
         strbuffer = self.list_quotes(server)
@@ -108,7 +107,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            await self.bot.reply("There are no saved quotes. Use \"!addquote\" to add one.")
+            await self.bot.reply(cf.warning("There are no saved quotes. Use \"{}addquote\" to add one.".format(context.prefix)))
             return
 
         # if len(number) > 1:
@@ -119,14 +118,14 @@ class Quotes:
             try:
                 int(number)
             except (ValueError, TypeError):
-                await self.bot.reply("Please provide a number to get that specific quote. If you are trying to add a quote, use \"!addquote\".")
+                await self.bot.reply(cf.warning("Please provide a number to get that specific quote. If you are trying to add a quote, use \"{}addquote\".".format(context.prefix)))
                 return
 
             try:
                 await self.bot.say(self.settings[server.id]["quotes"][number])
                 return
             except KeyError:
-                await self.bot.reply("A quote with that number cannot be found. Try \"!allquotes\" for a list.")
+                await self.bot.reply(cf.warning("A quote with that number cannot be found. Try \"{}allquotes\" for a list.".format(context.prefix)))
                 return
 
         await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))

@@ -49,7 +49,7 @@ class Say:
 
     @commands.command(no_pm=True, pass_context=True, name="reply")
     async def _reply(self, context, *, text):
-        """Replies with what you tell it."""
+        """Replies to you with what you tell it."""
 
         self.bot.type()
         user = context.message.author

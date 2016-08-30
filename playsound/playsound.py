@@ -1,10 +1,10 @@
+import discord
 from discord.ext import commands
+from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
-from .utils import checks
 
 import aiohttp
 import glob
-import magic
 import os
 import os.path
 import threading
@@ -36,8 +36,8 @@ class Playsound:
             return
         voice_client = self.voice_client(server)
 
-        # if self.audio_player:
-        #     self.audio_player.stop()
+        if self.audio_player:
+            self.audio_player.stop()
         await voice_client.disconnect()
 
     async def sound_init(self, context, path):
@@ -49,7 +49,7 @@ class Playsound:
     async def sound_play(self, context, p):
         server = context.message.server
         if not context.message.author.voice_channel:
-            await self.bot.reply("You need to join a voice channel first.")
+            await self.bot.reply(cf.warning("You need to join a voice channel first."))
             return
         if not context.message.channel.is_private:
             if self.voice_connected(server):
@@ -81,11 +81,10 @@ class Playsound:
         """Plays the specified sound."""
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.reply("Sound file not found. Try !allsounds for a list.")
+            await self.bot.reply(cf.error("Sound file not found. Try \"{}allsounds\" for a list.".format(context.prefix)))
             return
         elif len(f) > 1:
-            await self.bot.reply("""There are {} sound files with the same name, but different extensions, and I can't deal with it.
-                                     Please make filenames (excluding extensions) unique.""".format(len(f)))
+            await self.bot.reply(cf.error("There are {} sound files with the same name, but different extensions, and I can't deal with it. Please make filenames (excluding extensions) unique.".format(len(f))))
             return
 
         await self.sound_play(context, f[0])
@@ -113,12 +112,12 @@ class Playsound:
     @commands.command(no_pm=True, pass_context=True, name="addsound")
     @checks.mod_or_permissions(administrator=True)
     async def _addsound(self, context, *link):
-        """Adds a new sound. Either upload the file as a Discord attachment and make your comment \"!addsound\", or use \"!addsound direct-URL-to-file\". """
+        """Adds a new sound. Either upload the file as a Discord attachment and make your comment "[p]addsound", or use "[p]addsound direct-URL-to-file". """
         
         self.bot.type()
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
-            await self.bot.reply("Please only add one sound at a time.")
+            await self.bot.reply(cf.error("Please only add one sound at a time."))
             return
 
         url = ""
@@ -131,25 +130,21 @@ class Playsound:
             url = "".join(link)
             filename = os.path.basename("_".join(url.split()).replace("%20", "_"))
         else:
-            await self.bot.reply("You must provide either a Discord attachment or a direct link to a sound.")
+            await self.bot.reply(cf.error("You must provide either a Discord attachment or a direct link to a sound."))
             return
 
         filepath = os.path.join(self.sound_base, filename)
 
         if os.path.splitext(filename)[0] in self.list_sounds():
-            await self.bot.reply("A sound with that filename already exists. Please change the filename and try again.")
+            await self.bot.reply(cf.error("A sound with that filename already exists. Please change the filename and try again."))
             return
 
         async with aiohttp.get(url) as new_sound:
             f = open(filepath, "wb")
             f.write(await new_sound.read())
             f.close()
-            if "audio" not in magic.from_file(filepath).lower():
-                await self.bot.reply("The file you provided does not appear to be audio, please try again.")
-                os.remove(filepath)
-                return
 
-        await self.bot.reply("Sound {} added.".format(os.path.splitext(filename)[0]))
+        await self.bot.reply(cf.info("Sound {} added.".format(os.path.splitext(filename)[0])))
 
     @commands.command(no_pm=True, pass_context=True, name="delsound")
     @checks.mod_or_permissions(administrator=True)
@@ -159,15 +154,14 @@ class Playsound:
         self.bot.type()
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.say("```Sound file not found! Try !allsounds.```")
+            await self.bot.say(cf.error("Sound file not found! Try \"{}allsounds\" for a list.".format(context.prefix)))
             return
         elif len(f) > 1:
-            await self.bot.say("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
-                                     Please make filenames (excluding extensions) unique.""".format(len(f)))
+            await self.bot.say(cf.error("There are {} sound files with the same name, but different extensions, and I can't deal with it. Please make filenames (excluding extensions) unique.".format(len(f))))
             return
 
         os.remove(f[0])
-        await self.bot.reply("Sound {} deleted.".format(soundname))
+        await self.bot.reply(cf.info("Sound {} deleted.".format(soundname)))
 
     @commands.command(no_pm=True, pass_context=True, name="getsound")
     async def _getsound(self, context, soundname):
@@ -176,11 +170,10 @@ class Playsound:
         self.bot.type()
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.say("```Sound file not found! Try !allsounds.```")
+            await self.bot.say(cf.error("Sound file not found! Try \"{}allsounds\" for a list.".format(context.prefix)))
             return
         elif len(f) > 1:
-            await self.bot.say("""There are {} sound files with the same name, but different extensions, and I can"t deal with it.
-                                     Please make filenames (excluding extensions) unique.""".format(len(f)))
+            await self.bot.say(cf.error("There are {} sound files with the same name, but different extensions, and I can't deal with it. Please make filenames (excluding extensions) unique.".format(len(f))))
             return
 
         await self.bot.upload(f[0])

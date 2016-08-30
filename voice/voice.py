@@ -1,6 +1,7 @@
+import discord
 from discord.ext import commands
-from __main__ import send_cmd_help
 from .utils import checks
+from __main__ import send_cmd_help
 
 class Voice:
     """Tools for controlling the bot's voice connections."""

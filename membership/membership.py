@@ -1,17 +1,16 @@
 import discord
 from discord.ext import commands
-
 from .utils.dataIO import fileIO
-from .utils import checks
+from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
 import os
 
 default_settings = {
-    "join_message": "{0.mention} has joined the server!",
-    "leave_message": "{0.mention} has left the server!",
-    "ban_message": "{0.mention} has been banned!",
-    "unban_message": "{0.mention} has been unbanned!",
+    "join_message": "{0.mention} has joined the server.",
+    "leave_message": "{0.mention} has left the server.",
+    "ban_message": "{0.mention} has been banned.",
+    "unban_message": "{0.mention} has been unbanned.",
     "on": False,
     "channel": None
 }
@@ -47,7 +46,7 @@ class Membership:
         server = context.message.server
         self.settings[server.id]["join_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
-        await self.bot.reply("Join message set.")
+        await self.bot.reply(cf.info("Join message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="leave", aliases=["farewell"])
     async def _leave(self, context, *, format_str):
@@ -60,7 +59,7 @@ class Membership:
         server = context.message.server
         self.settings[server.id]["leave_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
-        await self.bot.reply("Leave message set.")
+        await self.bot.reply(cf.info("Leave message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="ban")
     async def _ban(self, context, *, format_str):
@@ -73,7 +72,7 @@ class Membership:
         server = context.message.server
         self.settings[server.id]["ban_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
-        await self.bot.reply("Ban message set.")
+        await self.bot.reply(cf.info("Ban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="unban")
     async def _unban(self, context, *, format_str):
@@ -86,7 +85,7 @@ class Membership:
         server = context.message.server
         self.settings[server.id]["unban_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
-        await self.bot.reply("Unban message set.")
+        await self.bot.reply(cf.info("Unban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="toggle")
     async def _toggle(self, context):
@@ -96,9 +95,9 @@ class Membership:
         server = context.message.server
         self.settings[server.id]["on"] = not self.settings[server.id]["on"]
         if self.settings[server.id]["on"]:
-            await self.bot.reply("Membership events will now be announced.")
+            await self.bot.reply(cf.info("Membership events will now be announced."))
         else:
-            await self.bot.reply("Membership events will no longer be announced.")
+            await self.bot.reply(cf.info("Membership events will no longer be announced."))
         fileIO(self.settings_path, "save", self.settings)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="channel")
@@ -117,7 +116,7 @@ class Membership:
         self.settings[server.id]["channel"] = channel.id
         fileIO(self.settings_path, "save", self.settings)
         channel = self.get_welcome_channel(server)
-        await self.bot.send_message(channel, "{0.mention}, I will now send membership announcements to {1.mention}.".format(context.message.author, channel))
+        await self.bot.send_message(channel, ("{0.mention}, " + cf.info("I will now send membership announcements to {1.mention}.")).format(context.message.author, channel))
 
     async def member_join(self, member):
         self.bot.type()
