@@ -172,7 +172,7 @@ class Customjoinleave:
             answer = await self.bot.wait_for_message(timeout=15, author=context.message.author)
 
             if answer.content.lower().strip() != "yes":
-                await self.bot.reply("{} sound not replaced.".format(action))
+                await self.bot.reply("{} sound not replaced.".format(action.capitalize()))
                 return
 
             os.remove(path)
