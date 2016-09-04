@@ -168,11 +168,11 @@ class Customjoinleave:
 
         path += "/" + action
         if os.path.exists(path):
-            await self.bot.reply("There is already a custom {} sound. Do you want to replace it? (yes/no)".format(action))
+            await self.bot.reply(cf.question("There is already a custom {} sound. Do you want to replace it? (yes/no)".format(action)))
             answer = await self.bot.wait_for_message(timeout=15, author=context.message.author)
 
             if answer.content.lower().strip() != "yes":
-                await self.bot.reply("{} sound not replaced.".format(action))
+                await self.bot.reply("{} sound not replaced.".format(action.capitalize()))
                 return
 
             os.remove(path)
