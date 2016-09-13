@@ -11,7 +11,7 @@ class Say:
     async def _say(self, context, *, text):
         """Says what you tell it."""
 
-        self.bot.type()
+        await self.bot.type()
         user = context.message.author
         if hasattr(user, "bot") and user.bot is True:
             return
@@ -31,7 +31,7 @@ class Say:
     async def _tts(self, context, *, text):
         """TTS's what you tell it."""
 
-        self.bot.type()
+        await self.bot.type()
         user = context.message.author
         if hasattr(user, "bot") and user.bot is True:
             return
@@ -51,7 +51,7 @@ class Say:
     async def _reply(self, context, *, text):
         """Replies to you with what you tell it."""
 
-        self.bot.type()
+        await self.bot.type()
         user = context.message.author
         if hasattr(user, "bot") and user.bot is True:
             return
@@ -71,7 +71,7 @@ class Say:
     async def _pm(self, context, *, text):
         """PMs you what you tell it."""
 
-        self.bot.type()
+        await self.bot.type()
         user = context.message.author
         if hasattr(user, "bot") and user.bot is True:
             return

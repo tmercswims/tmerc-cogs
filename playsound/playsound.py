@@ -93,7 +93,7 @@ class Playsound:
     async def _allsounds(self, context):
         """Sends a list of every sound in a PM."""
         
-        self.bot.type()
+        await self.bot.type()
         strbuffer = self.list_sounds()
         mess = "```"
         for line in strbuffer:
@@ -114,7 +114,7 @@ class Playsound:
     async def _addsound(self, context, *link):
         """Adds a new sound. Either upload the file as a Discord attachment and make your comment "[p]addsound", or use "[p]addsound direct-URL-to-file". """
         
-        self.bot.type()
+        await self.bot.type()
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
             await self.bot.reply(cf.error("Please only add one sound at a time."))
@@ -151,7 +151,7 @@ class Playsound:
     async def _delsound(self, context, soundname):
         """Deletes an existing sound."""
         
-        self.bot.type()
+        await self.bot.type()
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
             await self.bot.say(cf.error("Sound file not found! Try \"{}allsounds\" for a list.".format(context.prefix)))
@@ -167,7 +167,7 @@ class Playsound:
     async def _getsound(self, context, soundname):
         """Gets the given sound."""
 
-        self.bot.type()
+        await self.bot.type()
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
             await self.bot.say(cf.error("Sound file not found! Try \"{}allsounds\" for a list.".format(context.prefix)))

@@ -85,7 +85,7 @@ class Customjoinleave:
     async def _togglejoin(self, context):
         """Toggles custom join sounds on/off."""
 
-        self.bot.type()
+        await self.bot.type()
 
         server = context.message.server
         self.settings[server.id]["join_on"] = not self.settings[server.id]["join_on"]
@@ -100,7 +100,7 @@ class Customjoinleave:
     async def _toggleleave(self, context):
         """Toggles custom join sounds on/off."""
 
-        self.bot.type()
+        await self.bot.type()
 
         server = context.message.server
         self.settings[server.id]["leave_on"] = not self.settings[server.id]["leave_on"]
@@ -116,6 +116,12 @@ class Customjoinleave:
 
         await self._set_sound(context, link, "join", context.message.author.id)
 
+    @commands.command(pass_context=True, no_pm=True, name="setleavesound")
+    async def _setleavesound(self, context, *link):
+        """Sets the leave sound for the calling user."""
+
+        await self._set_sound(context, link, "leave", context.message.author.id)
+
     @commands.command(pass_context=True, no_pm=True, name="setjoinsoundfor")
     @checks.admin_or_permissions(Administrator=True)
     async def _setjoinsoundfor(self, context, user: discord.User, *link):
@@ -130,14 +136,8 @@ class Customjoinleave:
 
         await self._set_sound(context, link, "leave", user.id)
 
-    @commands.command(pass_context=True, no_pm=True, name="setleavesound")
-    async def _setleavesound(self, context, *link):
-        """Sets the leave sound for the calling user."""
-
-        await self._set_sound(context, link, "leave", context.message.author.id)
-
     async def _set_sound(self, context, link, action, userid):
-        self.bot.type()
+        await self.bot.type()
 
         server = context.message.server
         if server.id not in self.settings:
@@ -183,6 +183,58 @@ class Customjoinleave:
             f.close
             await self.bot.reply("{} sound added.".format(action.capitalize()))
 
+    @commands.command(pass_context=True, no_pm=True, name="deljoinsound")
+    async def _deljoinsound(self, context):
+        """Deletes the join sound for the calling user."""
+
+        await self._del_sound(context, "join", context.message.author.id)
+
+    @commands.command(pass_context=True, no_pm=True, name="delleavesound")
+    async def _delleavesound(self, context):
+        """Deletes the leave sound for the calling user."""
+
+        await self._del_sound(context, "leave", context.message.author.id)
+
+    @commands.command(pass_context=True, no_pm=True, name="deljoinsoundfor")
+    @checks.admin_or_permissions(Administrator=True)
+    async def _deljoinsoundfor(self, context, user: discord.User):
+        """Deletes the join sound for the given user. Must be a mention!"""
+
+        await self._del_sound(context, "join", user.id)
+
+    @commands.command(pass_context=True, no_pm=True, name="delleavesoundfor")
+    @checks.admin_or_permissions(Administrator=True)
+    async def _delleavesoundfor(self, context, user: discord.User):
+        """Deletes the leave sound for the given user. Must be a mention!"""
+
+        await self._del_sound(context, "leave", user.id)
+
+    async def _del_sound(self, context, action, userid):
+        await self.bot.type()
+
+        server = context.message.server
+        if server.id not in self.settings:
+            self.settings[server.id] = default_settings
+            fileIO(self.settings_path, "save", self.settings)
+
+        path = "{}/{}".format(self.sound_base, server.id)
+        if not os.path.exists(path):
+            await self.bot.reply(cf.warning("There is not a custom {} sound.".format(action)))
+            return
+
+        path = "{}/{}/{}".format(self.sound_base, server.id, userid)
+        if not os.path.exists(path):
+            await self.bot.reply(cf.warning("There is not a custom {} sound.".format(action)))
+            return
+
+        path += "/" + action
+        if not os.path.exists(path):
+            await self.bot.reply(cf.warning("There is not a custom {} sound.".format(action)))
+            return
+
+        os.remove(path)
+        self.bot.reply(cf.info("{} sound deleted.".format(action.capitalize())))
+
     async def voice_state_update(self, before, after):
         bserver = before.server
         aserver = after.server
@@ -197,22 +249,22 @@ class Customjoinleave:
 
         if before.voice.voice_channel != after.voice.voice_channel:
             # went from no channel to a channel
-            if before.voice.voice_channel == None and after.voice.voice_channel != None and self.settings[aserver.id]["join_on"]:
+            if before.voice.voice_channel == None and after.voice.voice_channel != None and self.settings[aserver.id]["join_on"] and after.voice.voice_channel != aserver.afk_channel:
                 path = "{}/{}/{}/join".format(self.sound_base, aserver.id, after.id)
                 if os.path.exists(path):
                     await self.sound_play(aserver, after.voice.voice_channel, path)
             # went from one channel to another
             elif before.voice.voice_channel != None and after.voice.voice_channel != None:
-                if self.settings[bserver.id]["leave_on"]:
+                if self.settings[bserver.id]["leave_on"] and before.voice.voice_channel != bserver.afk_channel:
                     path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
                     if os.path.exists(path):
                         await self.sound_play(bserver, before.voice.voice_channel, path)
-                if self.settings[aserver.id]["join_on"]:
+                if self.settings[aserver.id]["join_on"] and after.voice.voice_channel != aserver.afk_channel:
                     path = "{}/{}/{}/join".format(self.sound_base, aserver.id, after.id)
                     if os.path.exists(path):
                         await self.sound_play(aserver, after.voice.voice_channel, path)
             # went from a channel to no channel
-            elif before.voice.voice_channel != None and after.voice.voice_channel == None and self.settings[bserver.id]["leave_on"]:
+            elif before.voice.voice_channel != None and after.voice.voice_channel == None and self.settings[bserver.id]["leave_on"] and before.voice.voice_channel != bserver.afk_channel:
                 path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
                 if os.path.exists(path):
                     await self.sound_play(bserver, before.voice.voice_channel, path)

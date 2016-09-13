@@ -29,7 +29,7 @@ class Quotes:
     async def _addquote(self, context, *, new_quote):
         """Adds a new quote."""
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
@@ -46,7 +46,7 @@ class Quotes:
     async def _delquote(self, context, number):
         """Deletes an existing quote."""
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
@@ -70,7 +70,7 @@ class Quotes:
     async def _allquotes(self, context):
         """Sends all quotes in a PM."""
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
 
         if server.id not in self.settings:
@@ -100,7 +100,7 @@ class Quotes:
     async def _quote(self, context, *number):
         """Sends a random quote."""
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings

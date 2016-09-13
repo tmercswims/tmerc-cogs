@@ -15,7 +15,7 @@ class Catfact:
     async def _catfact(self, context):
         """Gets a random cat fact."""
 
-        self.bot.type()
+        await self.bot.type()
         async with aiohttp.get(self.url) as response:
             fact = json.loads(await response.text())["facts"][0]
             await self.bot.say(fact)

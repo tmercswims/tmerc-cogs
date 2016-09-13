@@ -23,7 +23,7 @@ class Randimage:
     async def _randimage(self, context, dirname):
         """Chooses a random image from the given directory (inside "data/randimage") and sends it."""
 
-        self.bot.type()
+        await self.bot.type()
         lists = self._list_image_dirs()
 
         if not any(map(lambda l: os.path.split(l)[1] == dirname, lists)):

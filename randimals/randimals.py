@@ -16,7 +16,7 @@ class Randimals:
     async def _cat(self, context):
         """Shows a random cat."""
 
-        self.bot.type()
+        await self.bot.type()
         url = "http://random.cat/meow"
         async with aiohttp.get(url) as response:
             img_url = json.loads(await response.text())["file"]
@@ -28,7 +28,7 @@ class Randimals:
     async def _dog(self, context):
         """Shows a random dog."""
 
-        self.bot.type()
+        await self.bot.type()
         url = "http://random.dog/"
         async with aiohttp.get(url + "woof") as response:
             filename = await response.text()

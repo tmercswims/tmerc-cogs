@@ -42,7 +42,7 @@ class Membership:
         {1} is the server
         """
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         self.settings[server.id]["join_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
@@ -55,7 +55,7 @@ class Membership:
         {1} is the server
         """
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         self.settings[server.id]["leave_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
@@ -68,7 +68,7 @@ class Membership:
         {1} is the server
         """
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         self.settings[server.id]["ban_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
@@ -81,7 +81,7 @@ class Membership:
         {1} is the server
         """
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         self.settings[server.id]["unban_message"] = format_str
         fileIO(self.settings_path, "save", self.settings)
@@ -91,7 +91,7 @@ class Membership:
     async def _toggle(self, context):
         """Turns membership event commands on or off."""
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         self.settings[server.id]["on"] = not self.settings[server.id]["on"]
         if self.settings[server.id]["on"]:
@@ -104,7 +104,7 @@ class Membership:
     async def _channel(self, context, channel: discord.Channel=None):
         """Sets the text channel to which the announcements will be sent. If none is specified, the default will be used."""
 
-        self.bot.type()
+        await self.bot.type()
         server = context.message.server
         
         if not channel:
@@ -119,7 +119,7 @@ class Membership:
         await self.bot.send_message(channel, ("{0.mention}, " + cf.info("I will now send membership announcements to {1.mention}.")).format(context.message.author, channel))
 
     async def member_join(self, member):
-        self.bot.type()
+        await self.bot.type()
 
         server = member.server
         if server.id not in self.settings:
@@ -141,7 +141,7 @@ class Membership:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
     async def member_leave(self, member):
-        self.bot.type()
+        await self.bot.type()
 
         server = member.server
         if server.id not in self.settings:
@@ -163,7 +163,7 @@ class Membership:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
     async def member_ban(self, member):
-        self.bot.type()
+        await self.bot.type()
 
         server = member.server
         if server.id not in self.settings:
@@ -185,7 +185,7 @@ class Membership:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
     async def member_unban(self, member):
-        self.bot.type()
+        await self.bot.type()
 
         server = member.server
         if server.id not in self.settings:
