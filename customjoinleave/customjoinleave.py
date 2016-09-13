@@ -233,7 +233,7 @@ class Customjoinleave:
             return
 
         os.remove(path)
-        self.bot.reply(cf.info("{} sound deleted.".format(action.capitalize())))
+        await self.bot.reply(cf.info("{} sound deleted.".format(action.capitalize())))
 
     async def voice_state_update(self, before, after):
         bserver = before.server
