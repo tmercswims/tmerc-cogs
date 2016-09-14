@@ -5,9 +5,9 @@ from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
 import aiohttp
+import asyncio
 import os
 import os.path
-import threading
 
 default_settings = {
     "join_on": False,
@@ -38,6 +38,11 @@ class Customjoinleave:
             self.audio_player.stop()
         await voice_client.disconnect()
 
+    async def wait_for_disconnect(self, server):
+        while not self.audio_player.is_done():
+            await asyncio.sleep(0.01)
+        await self._leave_voice_channel(server)
+
     async def sound_init(self, server, path):
         options = "-filter \"volume=volume=0.15\""
         voice_client = self.voice_client(server)
@@ -48,26 +53,26 @@ class Customjoinleave:
             if self.voice_connected(server):
                 if not self.audio_player:
                     await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
                 else:
                     if self.audio_player.is_playing():
-                        self.audio_player.pause()
+                        self.audio_player.stop()
                     await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
             else:
                 await self.bot.join_voice_channel(channel)
                 if not self.audio_player:
                     await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
                 else:
                     if self.audio_player.is_playing():
-                        self.audio_player.pause()
+                        self.audio_player.stop()
                     await self.sound_init(server, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, server,)).start()
-
-    def sound_thread(self, t, server):
-        t.run()
-        self.voice_client(server).loop.create_task(self._leave_voice_channel(server))
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
 
     @commands.group(pass_context=True, no_pm=True, name="joinleaveset")
     async def _joinleaveset(self, context):

@@ -4,10 +4,10 @@ from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
 import aiohttp
+import asyncio
 import glob
 import os
 import os.path
-import threading
 
 class Playsound:
     """Play a sound byte."""
@@ -30,8 +30,7 @@ class Playsound:
         if channel:
             await self.bot.join_voice_channel(channel)
 
-    async def _leave_voice_channel(self, context):
-        server = context.message.server
+    async def _leave_voice_channel(self, server):
         if not self.voice_connected(server):
             return
         voice_client = self.voice_client(server)
@@ -39,6 +38,11 @@ class Playsound:
         if self.audio_player:
             self.audio_player.stop()
         await voice_client.disconnect()
+
+    async def wait_for_disconnect(self, server):
+        while not self.audio_player.is_done():
+            await asyncio.sleep(0.01)
+        await self._leave_voice_channel(server)
 
     async def sound_init(self, context, path):
         server = context.message.server
@@ -55,26 +59,26 @@ class Playsound:
             if self.voice_connected(server):
                 if not self.audio_player:
                     await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
                 else:
                     if self.audio_player.is_playing():
-                        self.audio_player.pause()
+                        self.audio_player.stop()
                     await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
             else:
                 await self._join_voice_channel(context)
                 if not self.audio_player:
                     await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
                 else:
                     if self.audio_player.is_playing():
-                        self.audio_player.pause()
+                        self.audio_player.stop()
                     await self.sound_init(context, p)
-                    threading.Thread(target=self.sound_thread, args=(self.audio_player, context,)).start()
-
-    def sound_thread(self, t, context):
-        t.run()
-        self.voice_client(context.message.server).loop.create_task(self._leave_voice_channel(context))
+                    self.audio_player.start()
+                    await self.wait_for_disconnect(server)
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
     async def _playsound(self, context, soundname):
@@ -177,6 +181,9 @@ class Playsound:
             return
 
         await self.bot.upload(f[0])
+
+    def __unload(self):
+        self.clean_task.cancel()
 
 def setup(bot):
     bot.add_cog(Playsound(bot))
