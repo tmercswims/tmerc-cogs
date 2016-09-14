@@ -182,8 +182,5 @@ class Playsound:
 
         await self.bot.upload(f[0])
 
-    def __unload(self):
-        self.clean_task.cancel()
-
 def setup(bot):
     bot.add_cog(Playsound(bot))
