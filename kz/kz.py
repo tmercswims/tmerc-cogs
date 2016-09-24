@@ -355,6 +355,8 @@ class Kz:
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
             return
 
+        await self._update_database(server.id)
+
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
 
