@@ -152,6 +152,7 @@ class Kz:
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
+            return
 
         steamid = None
         try:
@@ -218,6 +219,7 @@ class Kz:
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
+            return
 
         steamid = None
         try:
@@ -281,6 +283,7 @@ class Kz:
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
+            return
 
         lim = None
         try:
@@ -350,6 +353,7 @@ class Kz:
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
+            return
 
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
