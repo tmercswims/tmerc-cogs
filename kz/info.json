@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "Thomas Mercurio",
     "INSTALL_MSG" : "Thanks for installing!",
-    "NAME" : "Survey",
+    "NAME" : "Kz",
     "SHORT" : "Get kz stats.",
     "DESCRIPTION" : "Gets kz (kreedz mod) stats from a configurable kz server."
 }
