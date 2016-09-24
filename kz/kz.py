@@ -346,6 +346,8 @@ class Kz:
     async def _jumptop(self, context):
         """Gets the top stats for the given jump type. Optionally provide a limit (default is 10)."""
 
+        await self.bot.type()
+
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
@@ -355,16 +357,14 @@ class Kz:
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
             return
 
-        await self._update_database(server.id)
-
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
+
+        await self._update_database(server.id)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="blocklj", aliases=["blocklongjump"])
     async def blocklj(self, context, limit=10):
         """Gets the top BlockLJs."""
-
-        await self.bot.type()
 
         lim = None
         try:
@@ -379,8 +379,6 @@ class Kz:
     async def lj(self, context, limit=10):
         """Gets the top LJs."""
 
-        await self.bot.type()
-
         lim = None
         try:
             lim = int(limit)
@@ -393,8 +391,6 @@ class Kz:
     @_jumptop.command(pass_context=True, no_pm=True, name="bhop", aliases=["bunnyhop"])
     async def bhop(self, context, limit=10):
         """Gets the top Bhops."""
-
-        await self.bot.type()
 
         lim = None
         try:
@@ -409,8 +405,6 @@ class Kz:
     async def multibhop(self, context, limit=10):
         """Gets the top MultiBhops."""
 
-        await self.bot.type()
-
         lim = None
         try:
             lim = int(limit)
@@ -423,8 +417,6 @@ class Kz:
     @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop", aliases=["dropbunnyhop"])
     async def dropbhop(self, context, limit=10):
         """Gets the top DropBhops."""
-
-        await self.bot.type()
 
         lim = None
         try:
@@ -439,8 +431,6 @@ class Kz:
     async def wj(self, context, limit=10):
         """Gets the top WJs."""
 
-        await self.bot.type()
-
         lim = None
         try:
             lim = int(limit)
@@ -454,8 +444,6 @@ class Kz:
     async def laj(self, context, limit=10):
         """Gets the top LAJs."""
 
-        await self.bot.type()
-
         lim = None
         try:
             lim = int(limit)
@@ -468,8 +456,6 @@ class Kz:
     @_jumptop.command(pass_context=True, no_pm=True, name="cj", aliases=["countjump"])
     async def cj(self, context, limit=10):
         """Gets the top CJs."""
-
-        await self.bot.type()
 
         lim = None
         try:
