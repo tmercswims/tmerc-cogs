@@ -33,7 +33,7 @@ class Survey:
 
     def _deadline_string_to_datetime(self, deadline):
         dl = dp.parse(deadline, tzinfos=tzd)
-        if dl.tzinfo == None:
+        if dl.tzinfo is None:
             dl.replace(tzinfo=pytz.utc)
         return dl
 
@@ -86,7 +86,7 @@ class Survey:
                     opts[opt_s[0]]["reprompt"] = None
 
                 if len(opt_s) == 4:
-                    if opts[opt_s[0]]["reprompt"] == None:
+                    if opts[opt_s[0]]["reprompt"] is None:
                         await self.bot.reply(cf.error("You cannot link an option without giving a reprompt value. Please try again."))
                         return "return"
                     if opt_s[3] == "":
@@ -224,7 +224,7 @@ class Survey:
             answer = None
             while not answer:
                 r = (await self.bot.wait_for_message(channel=channel, timeout=self._get_timeout(deadline), author=user))
-                if r == None:
+                if r is None:
                     break
                 r = r.content.lower().strip()
                 if rp_opt and r == rp_opt:

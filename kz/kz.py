@@ -270,6 +270,58 @@ class Kz:
 
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
+    @commands.command(pass_context=True, no_pm=True, name="recent", aliases=["latest"])
+    async def _recent(self, context, limit=10):
+        """Gets the recent runs per map and run type."""
+
+        await self.bot.type()
+
+        server = context.message.server
+        if server.id not in self.settings:
+            self.settings[server.id] = default_settings
+            fileIO(self.settings_path, "save", self.settings)
+
+        if not self._check_settings(server.id):
+            await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
+            return
+
+        lim = None
+        try:
+            lim = int(limit)
+        except ValueError:
+            await self.bot.reply(cf.error("The limit you provided is not a number."))
+            return
+
+        await self._update_database(server.id)
+
+        con = sqlite3.connect("data/kz/{}/kztimer-sqlite.sq3".format(server.id))
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+
+        cur.execute(recent_query, (lim,))
+
+        r = cur.fetchone()
+        if not r:
+            await self.bot.say(cf.box("No recent runs found."))
+            return
+
+        headers = ["Map", "Time", "Teleports", "Player"]
+        
+        rows = []
+        count = 0
+        while r:
+            count += 1
+            rows.append([r["map"], self._seconds_to_time_string(r["runtime"]), r["teleports"], r["name"]])
+            r = cur.fetchone()
+
+        cur.close()
+        con.close()
+
+        title = "Recent {} record runs".format(min(count, lim))
+        table = tabulate(rows, headers, tablefmt="orgtbl")
+
+        await self.bot.say(cf.box("{}\n{}".format(title, table)))
+
     @commands.command(pass_context=True, no_pm=True, name="maptop")
     async def _maptop(self, context, mapname, runtype="all", limit=10):
         """Gets the top times for a map. Optionally provide the run type (all by default) and the limit (10 by default)."""
@@ -358,12 +410,52 @@ class Kz:
             return
 
         if context.invoked_subcommand is None:
-            await send_cmd_help(context)
+            await context.invoke(self._all)
 
         await self._update_database(server.id)
 
+    @_jumptop.command(pass_context=True, no_pm=True, name="all", aliases=["records"])
+    async def _all(self, context):
+        """Gets the record for every type of jump."""
+
+        con = sqlite3.connect("data/kz/{}/kztimer-sqlite.sq3".format(context.message.server.id))
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+
+        headers = ["Type", "Distance", "Strafes", "Player"]
+        rows = []
+
+        cur.execute(jumptop_queries["ljblock"], (1,))
+
+        r = cur.fetchone()
+        if r:
+            rows.append(["BlockLJ:", "{}|{}".format(r["ljblockdist"], round(r["ljblockrecord"], 1)), r["ljblockstrafes"], r["name"]])
+        else:
+            rows.append(["BlockLJ:", "--|--", "--" "--" "--", "--", "--"])
+
+        cur.execute(jumprecords_query)
+        r = cur.fetchone()
+        while r:
+            rows.append(["{}:".format(r["jumptype"]), round(r["distance"], 3), r["strafes"], r["name"]])
+            r = cur.fetchone()
+
+        jumps = ["BlockLJ", "LJ", "Bhop", "CJ", "D.-Bhop", "M.-Bhop", "LAJ", "WJ"]
+        in_rows = [x[0] for x in rows]
+
+        for j in jumps:
+            if "{}:".format(j) not in in_rows:
+                rows.append(["{}:".format(j), "--", "--" "--" "--", "--", "--"])
+
+        cur.close()
+        con.close()
+
+        title = "Jumpstat records"
+        table = tabulate(rows, headers, tablefmt="orgtbl")
+
+        await self.bot.say(cf.box("{}\n{}".format(title, table)))
+
     @_jumptop.command(pass_context=True, no_pm=True, name="blocklj", aliases=["blocklongjump"])
-    async def blocklj(self, context, limit=10):
+    async def _blocklj(self, context, limit=10):
         """Gets the top BlockLJs."""
 
         lim = None
@@ -376,7 +468,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "ljblock", "Block Longjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="lj", aliases=["longjump"])
-    async def lj(self, context, limit=10):
+    async def _lj(self, context, limit=10):
         """Gets the top LJs."""
 
         lim = None
@@ -389,7 +481,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "lj", "Longjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="bhop", aliases=["bunnyhop"])
-    async def bhop(self, context, limit=10):
+    async def _bhop(self, context, limit=10):
         """Gets the top Bhops."""
 
         lim = None
@@ -402,7 +494,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "bhop", "Bunnyhop", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="multibhop", aliases=["multibunnyhop"])
-    async def multibhop(self, context, limit=10):
+    async def _multibhop(self, context, limit=10):
         """Gets the top MultiBhops."""
 
         lim = None
@@ -415,7 +507,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "multibhop", "Multi-Bunnyhop", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop", aliases=["dropbunnyhop"])
-    async def dropbhop(self, context, limit=10):
+    async def _dropbhop(self, context, limit=10):
         """Gets the top DropBhops."""
 
         lim = None
@@ -428,7 +520,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "dropbhop", "Drop-Bunnyhop", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="wj", aliases=["weirdjump"])
-    async def wj(self, context, limit=10):
+    async def _wj(self, context, limit=10):
         """Gets the top WJs."""
 
         lim = None
@@ -441,7 +533,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "wj", "Weirdjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="laj", aliases=["ladderjump"])
-    async def laj(self, context, limit=10):
+    async def _laj(self, context, limit=10):
         """Gets the top LAJs."""
 
         lim = None
@@ -454,7 +546,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "ladderjump", "Ladderjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="cj", aliases=["countjump"])
-    async def cj(self, context, limit=10):
+    async def _cj(self, context, limit=10):
         """Gets the top CJs."""
 
         lim = None
@@ -519,15 +611,19 @@ def setup(bot):
 
     bot.add_cog(Kz(bot))
 
+recent_query = "SELECT * FROM (SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports = 0 GROUP BY map HAVING MIN(runtime) UNION SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports > 0 GROUP BY map HAVING MIN(runtime)) ORDER BY date DESC LIMIT ?;" # LIMIT
+
+jumprecords_query = "SELECT * FROM (SELECT 'LJ' as jumptype, db1.name as name, db2.ljrecord as distance, db2.ljstrafes as strafes, db2.ljpre as pre, db2.ljmax as max, db2.ljheight as height, db2.ljsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0 UNION SELECT 'Bhop' as jumptype, db1.name as name, db2.bhoprecord as distance, db2.bhopstrafes as strafes, db2.bhoppre as pre, db2.bhopmax as max, db2.bhopheight as height, db2.bhopsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0 UNION SELECT 'M.-Bhop' as jumptype, db1.name as name, db2.multibhoprecord as distance, db2.multibhopstrafes as strafes, db2.ljpre as pre, db2.multibhopmax as max, db2.multibhopheight as height, db2.multibhopsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0 UNION SELECT 'D.-Bhop' as jumptype, db1.name as name, db2.dropbhoprecord as distance, db2.dropbhopstrafes as strafes, db2.dropbhoppre as pre, db2.dropbhopmax as max, db2.dropbhopheight as height, db2.dropbhopsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0 UNION SELECT 'WJ' as jumptype, db1.name as name, db2.wjrecord as distance, db2.wjstrafes as strafes, db2.wjpre as pre, db2.wjmax as max, db2.wjheight as height, db2.wjsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0 UNION SELECT 'LAJ' as jumptype, db1.name as name, db2.ladderjumprecord as distance, db2.ladderjumpstrafes as strafes, db2.ladderjumppre as pre, db2.ladderjumpmax as max, db2.ladderjumpheight as height, db2.ladderjumpsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0 UNION SELECT 'CJ' as jumptype, db1.name as name, db2.cjrecord as distance, db2.cjstrafes as strafes, db2.cjpre as pre, db2.cjmax as max, db2.cjheight as height, db2.cjsync as sync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE distance > -1.0) GROUP BY jumptype HAVING MAX(distance);"
+
 jumptop_queries = {
-    "ljblock": "SELECT db1.name, db2.ljblockdist, db2.ljblockrecord, db2.ljblockstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid=db1.steamid WHERE ljblockdist > -1 ORDER BY ljblockdist DESC, ljblockrecord DESC LIMIT ?;", # LIMIT
-    "lj": "SELECT db1.name, db2.ljrecord, db2.ljstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid=db1.steamid WHERE ljrecord > -1.0 ORDER BY ljrecord DESC LIMIT ?;", # LIMIT
-    "bhop": "SELECT db1.name, db2.bhoprecord, db2.bhopstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid=db1.steamid WHERE bhoprecord > -1.0 ORDER BY bhoprecord DESC LIMIT ?;", # LIMIT
-    "multibhop": "SELECT db1.name, db2.multibhoprecord, db2.multibhopstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid=db1.steamid WHERE multibhoprecord > -1.0 ORDER BY multibhoprecord DESC LIMIT ?;", # LIMIT
-    "dropbhop": "SELECT db1.name, db2.dropbhoprecord, db2.dropbhopstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.dropbhoprecord > -1.0 ORDER BY db2.dropbhoprecord DESC LIMIT ?;", # LIMIT
-    "wj": "SELECT db1.name, db2.wjrecord, db2.wjstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.wjrecord > -1.0 ORDER BY db2.wjrecord DESC LIMIT ?;", # LIMIT
-    "ladderjump": "SELECT db1.name, db2.ladderjumprecord, db2.ladderjumpstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid=db1.steamid WHERE ladderjumprecord > -1.0 ORDER BY ladderjumprecord DESC LIMIT ?;", # LIMIT
-    "cj": "SELECT db1.name, db2.cjrecord, db2.cjstrafes FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid=db1.steamid WHERE cjrecord > -1.0 ORDER BY cjrecord DESC LIMIT ?;" # LIMIT
+    "ljblock": "SELECT db1.name, db2.ljblockdist, db2.ljblockrecord, db2.ljblockstrafes, db2.ljblockpre, db2.ljblockmax, db2.ljblockheight, db2.ljblocksync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.ljblockdist > -1.0 ORDER BY db2.ljblockdist DESC, db2.ljblockrecord DESC LIMIT ?;", # LIMIT
+    "lj": "SELECT db1.name, db2.ljrecord, db2.ljstrafes, db2.ljpre, db2.ljmax, db2.ljheight, db2.ljsync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.ljrecord > -1.0 ORDER BY db2.ljrecord DESC LIMIT ?;", # LIMIT
+    "bhop": "SELECT db1.name, db2.bhoprecord, db2.bhopstrafes, db2.bhoppre, db2.bhopmax, db2.bhopheight, db2.bhopsync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.bhoprecord > -1.0 ORDER BY db2.bhoprecord DESC LIMIT ?;", # LIMIT
+    "multibhop": "SELECT db1.name, db2.multibhoprecord, db2.multibhopstrafes, db2.multibhoppre, db2.multibhopmax, db2.multibhopheight, db2.ljblocksync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.multibhoprecord > -1.0 ORDER BY db2.multibhoprecord DESC LIMIT ?;", # LIMIT
+    "dropbhop": "SELECT db1.name, db2.dropbhoprecord, db2.dropbhopstrafes, db2.dropbhoppre, db2.dropbhopmax, db2.dropbhopheight, db2.dropbhopsync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.dropbhoprecord > -1.0 ORDER BY db2.dropbhoprecord DESC LIMIT ?;", # LIMIT
+    "wj": "SELECT db1.name, db2.wjrecord, db2.wjstrafes, db2.wjpre, db2.wjmax, db2.wjheight, db2.wjsync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.wjrecord > -1.0 ORDER BY db2.wjrecord DESC LIMIT ?;", # LIMIT
+    "ladderjump": "SELECT db1.name, db2.ladderjumprecord, db2.ladderjumpstrafes, db2.ladderjumppre, db2.ladderjumpmax, db2.ladderjumpheight, db2.ladderjumpsync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.ladderjumprecord > -1.0 ORDER BY db2.ladderjumprecord DESC LIMIT ?;", # LIMIT
+    "cj": "SELECT db1.name, db2.cjrecord, db2.cjstrafes, db2.cjpre, db2.cjmax, db2.cjheight, db2.cjsync FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE db2.cjrecord > -1.0 ORDER BY db2.cjrecord DESC LIMIT ?;" # LIMIT
 }
 
 player_jumps_query = "SELECT db1.name, db2.bhoprecord, db2.bhoppre, db2.bhopmax, db2.bhopstrafes, db2.bhopsync, db2.bhopheight, db2.ljrecord, db2.ljpre, db2.ljmax, db2.ljstrafes, db2.ljsync, db2.ljheight, db2.multibhoprecord, db2.multibhoppre, db2.multibhopmax, db2.multibhopstrafes, db2.multibhopcount, db2.multibhopsync, db2.multibhopheight, db2.wjrecord, db2.wjpre, db2.wjmax, db2.wjstrafes, db2.wjsync, db2.wjheight, db2.dropbhoprecord, db2.dropbhoppre, db2.dropbhopmax, db2.dropbhopstrafes, db2.dropbhopsync, db2.dropbhopheight, db2.ljblockdist, db2.ljblockrecord, db2.ljblockpre, db2.ljblockmax, db2.ljblockstrafes, db2.ljblocksync, db2.ljblockheight, db2.ladderjumprecord, db2.ladderjumppre, db2.ladderjumpmax, db2.ladderjumpstrafes, db2.ladderjumpsync, db2.ladderjumpheight, db2.cjrecord, db2.cjpre, db2.cjmax, db2.cjstrafes, db2.cjsync, db2.cjheight FROM playerjumpstats3 as db2 INNER JOIN playerrank as db1 on db2.steamid = db1.steamid WHERE (db2.ladderjumprecord > -1.0 OR db2.wjrecord > -1.0 OR db2.dropbhoprecord > -1.0 OR db2.ljrecord > -1.0 OR db2.bhoprecord > -1.0 OR db2.multibhoprecord > -1.0 OR db2.cjrecord > -1.0) AND db2.steamid = ?;" # STEAMID
