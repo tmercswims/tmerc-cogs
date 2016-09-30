@@ -131,6 +131,10 @@ class Survey:
         self.surveys[server_id][survey_id]["asked"] = asked
         fileIO(self.surveys_path, "save", self.surveys)
 
+    def _save_prefix(self, server_id, survey_id, prefix):
+        self.surveys[server_id][survey_id]["prefix"] = prefix
+        fileIO(self.surveys_path, "save", self.surveys)
+
     def _save_answer(self, server_id, survey_id, user, answer, change):
         answers = self.surveys[server_id][survey_id]["answers"]
         asked = self.surveys[server_id][survey_id]["asked"]
@@ -154,7 +158,7 @@ class Survey:
         fileIO(self.surveys_path, "save", self.surveys)
         return True
 
-    async def _setup_reprompts(self, server_id, survey_id, prefix):
+    async def _setup_reprompts(self, server_id, survey_id):
         options = self.surveys[server_id][survey_id]["options"]
         timeout = self._get_timeout(self._deadline_string_to_datetime(self.surveys[server_id][survey_id]["deadline"]))
 
@@ -162,12 +166,12 @@ class Survey:
             if settings["reprompt"]:
                 new_handle = None
                 if settings["link"]:
-                    new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname, prefix, settings["link"])
+                    new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname, settings["link"])
                 else:
-                    new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname, prefix)
+                    new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname)
                 self.tasks[survey_id].append(new_handle)
 
-    def _check_reprompt(self, server_id, survey_id, option_name, prefix, link_name=None):
+    def _check_reprompt(self, server_id, survey_id, option_name, link_name=None):
         answers = self.surveys[server_id][survey_id]["answers"]
         options = self.surveys[server_id][survey_id]["options"]
 
@@ -176,7 +180,7 @@ class Survey:
 
         for uid in answers[option_name]:
             user = self.bot.get_server(server_id).get_member(uid)
-            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, prefix, change=True, rp_opt=option_name))
+            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, change=True, rp_opt=option_name))
             self.tasks[survey_id].append(new_task)
 
     async def _update_answers_message(self, server_id, survey_id):
@@ -231,8 +235,9 @@ class Survey:
         new_handle = self.bot.loop.call_later(delay, self._mark_as_closed, survey_id)
         self.tasks[survey_id].append(new_handle)
 
-    async def _send_message_and_wait_for_message(self, server_id, survey_id, user, prefix, change=False, rp_opt=None):
+    async def _send_message_and_wait_for_message(self, server_id, survey_id, user, change=False, rp_opt=None, send_question=True):
         try:
+            prefix = self.surveys[server_id][survey_id]["prefix"]
             question = self.surveys[server_id][survey_id]["question"]
             deadline_hr = self.surveys[server_id][survey_id]["deadline"]
             deadline = self._deadline_string_to_datetime(deadline_hr)
@@ -244,7 +249,12 @@ class Survey:
 
             rp_mes = "(You previously answered {}, but are being asked again. You may not answer the same as last time. If you do not wish to change your answer, you may ignore this message.)".format(cf.bold(rp_opt) if rp_opt else "")
 
-            await self.bot.send_message(user, cf.question("{} (ID {}) *[deadline {}]*\n(options: {}){}".format(cf.bold(question), survey_id, deadline_hr, options_hr, "\n"+cf.italics(rp_mes) if rp_opt else "")))
+            premsg = "A new survey has been posted!\n"
+            if rp_opt:
+                premsg = ""
+
+            if send_question:
+                await self.bot.send_message(user, premsg + cf.question("{}{} *[deadline {}]*\n(options: {}){}".format(cf.bold(question), survey_id, deadline_hr, options_hr, "\n"+cf.italics(rp_mes) if rp_opt else "")))
             
             channel = await self.bot.start_private_message(user)
 
@@ -311,12 +321,13 @@ class Survey:
         self.surveys[server.id][new_survey_id] = {}
         fileIO(self.surveys_path, "save", self.surveys)
 
+        self._save_prefix(server.id, new_survey_id, context.prefix)
         self._save_deadline(server.id, new_survey_id, deadline)
         self._save_channel(server.id, new_survey_id, channel.id)
         self._save_question(server.id, new_survey_id, question)
         self._save_options(server.id, new_survey_id, opts if opts else "any")
 
-        await self._setup_reprompts(server.id, new_survey_id, context.prefix)
+        await self._setup_reprompts(server.id, new_survey_id)
 
         self._schedule_close(server.id, new_survey_id, self._get_timeout(dl))
 
@@ -326,7 +337,7 @@ class Survey:
         await self._update_answers_message(server.id, new_survey_id)
 
         for user in users_with_role:
-            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server.id, new_survey_id, user, context.prefix))
+            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server.id, new_survey_id, user))
             self.tasks[new_survey_id].append(new_task)
 
         await self.bot.reply(cf.info("Survey started."))
@@ -367,7 +378,7 @@ class Survey:
             await self.bot.send_message(user, cf.error("Survey with ID {} not found.".format(survey_id)))
             return
 
-        new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, context.prefix, change=True))
+        new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, change=True))
         self.tasks[survey_id].append(new_task)
 
 def check_folders():
