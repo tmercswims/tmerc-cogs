@@ -243,6 +243,8 @@ class Survey:
             deadline = self._deadline_string_to_datetime(deadline_hr)
             options = self.surveys[server_id][survey_id]["options"]
             options_hr = "any" if options == "any" else "/".join(options.keys())
+            achannel_id = self.surveys[server_id][survey_id]["channel"]
+            achannel = self.bot.get_channel(channel_id)
 
             if rp_opt:
                 options_hr = options_hr.replace(rp_opt, cf.strikethrough(rp_opt))
@@ -278,7 +280,7 @@ class Survey:
                     await self.bot.send_message(user, cf.warning("That answer has reached its limit. Answer could not be {}. To try again, use `{}changeanswer {}` in this DM.".format("changed" if change else "recorded", prefix, survey_id)))
                     return
                 await self._update_answers_message(server_id, survey_id)
-                await self.bot.send_message(user, cf.info("Answer {}. If you want to change it, use `{}changeanswer {}` in this DM.".format("changed" if change else "recorded", prefix, survey_id)))
+                await self.bot.send_message(user, cf.info("Answer {}. If you want to change it, use `{}changeanswer {}` in this DM.\nYou can see all the answers in {}.".format("changed" if change else "recorded", prefix, survey_id, achannel.mention)))
         except asyncio.CancelledError:
             await self.bot.send_message(user, cf.info("Survey {} has been closed.".format(survey_id)))
 
