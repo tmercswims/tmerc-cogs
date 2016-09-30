@@ -89,7 +89,7 @@ class Quotes:
             else:
                 mess += "```"
                 await self.bot.whisper(mess)
-                mess = "```"
+                mess = "```" + line
         if mess != "":
             mess += "```"
             await self.bot.whisper(mess)
