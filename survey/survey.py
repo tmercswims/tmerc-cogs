@@ -244,7 +244,7 @@ class Survey:
             options = self.surveys[server_id][survey_id]["options"]
             options_hr = "any" if options == "any" else "/".join(options.keys())
             achannel_id = self.surveys[server_id][survey_id]["channel"]
-            achannel = self.bot.get_channel(channel_id)
+            achannel = self.bot.get_channel(achannel_id)
 
             if rp_opt:
                 options_hr = options_hr.replace(rp_opt, cf.strikethrough(rp_opt))
@@ -353,13 +353,14 @@ class Survey:
         surver = self._get_server_id_from_survey_id(survey_id)
 
         if not surver or server.id != surver:
-            await self.bot.reply(cf.error("Survey with ID {} not found."))
+            await self.bot.reply(cf.error("Survey with ID {} not found.".format(survey_id)))
 
         if survey_id in self.tasks:
             for t in self.tasks[survey_id]:
                 t.cancel()
+            del self.tasks[survey_id]
         else:
-            await self.bot.reply(cf.error("Survey with ID {} not found."))
+            await self.bot.reply(cf.error("Survey with ID {} has already been closed.".format(survey_id)))
             return
 
         self._mark_as_closed(survey_id)
