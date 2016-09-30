@@ -124,10 +124,16 @@ class Survey:
         if options != "any":
             for opt in options:
                 self.surveys[server_id][survey_id]["answers"][opt] = []
+                fileIO(self.surveys_path, "save", self.surveys)
+
+    def _save_asked(self, server_id, survey_id, users):
+        asked = [u.id for u in users]
+        self.surveys[server_id][survey_id]["asked"] = asked
         fileIO(self.surveys_path, "save", self.surveys)
 
     def _save_answer(self, server_id, survey_id, user, answer, change):
         answers = self.surveys[server_id][survey_id]["answers"]
+        asked = self.surveys[server_id][survey_id]["asked"]
         options = self.surveys[server_id][survey_id]["options"]
         
         if change:
@@ -143,6 +149,8 @@ class Survey:
             return False
 
         answers[answer].append(user.id)
+        if user.id in asked:
+            asked.remove(user.id)
         fileIO(self.surveys_path, "save", self.surveys)
         return True
 
@@ -176,23 +184,42 @@ class Survey:
         channel_id = self.surveys[server_id][survey_id]["channel"]
         channel = self.bot.get_channel(channel_id)
         table = self._make_answer_table(server_id, survey_id)
+        waiting = self._make_waiting_list(server_id, survey_id)
 
-        if "message" not in self.surveys[server_id][survey_id]:
-            new_message = await self.bot.send_message(channel, "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
-            self.surveys[server_id][survey_id]["message"] = new_message.id
+        if "messages" not in self.surveys[server_id][survey_id]:
+            self.surveys[server_id][survey_id]["messages"] = {}
+
+        if "results" not in self.surveys[server_id][survey_id]["messages"]:
+            res_message = await self.bot.send_message(channel, "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
+            self.surveys[server_id][survey_id]["messages"]["results"] = res_message.id
+
+            if waiting:
+                wait_message = await self.bot.send_message(channel, "{}\n{}".format("Waiting on answers from:", cf.box(waiting))) 
+                self.surveys[server_id][survey_id]["messages"]["waiting"] = wait_message.id
+
             fileIO(self.surveys_path, "save", self.surveys)
         else:
-            message_id = self.surveys[server_id][survey_id]["message"]
-            message = await self.bot.get_message(channel, message_id)
-            new_message = await self.bot.edit_message(message, "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
-            self.surveys[server_id][survey_id]["message"] = new_message.id
+            res_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["results"]), "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
+            self.surveys[server_id][survey_id]["messages"]["results"] = res_message.id
+            if waiting:
+                wait_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]), "{}\n{}".format("Waiting on answers from:", cf.box(waiting)))
+                self.surveys[server_id][survey_id]["messages"]["waiting"] = wait_message.id
+            elif self.surveys[server_id][survey_id]["messages"]["waiting"] is not None:
+                await self.bot.delete_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]))
+                self.surveys[server_id][survey_id]["messages"]["waiting"] = None
+
             fileIO(self.surveys_path, "save", self.surveys)
 
     def _make_answer_table(self, server_id, survey_id):
+        server = self.bot.get_server(server_id)
         answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
-        rows = list(zip_longest(*[[self.bot.get_server(server_id).get_member(y).display_name for y in x[1]] for x in answers]))
+        rows = list(zip_longest(*[[server.get_member(y).display_name for y in x[1]] for x in answers]))
         headers = [x[0] for x in answers]
         return tabulate(rows, headers, tablefmt="orgtbl")
+
+    def _make_waiting_list(self, server_id, survey_id):
+        server = self.bot.get_server(server_id)
+        return ", ".join([server.get_member(m).display_name for m in self.surveys[server_id][survey_id]["asked"]])
 
     def _get_server_id_from_survey_id(self, survey_id):
         for server_id, survey_ids in [(ser, sur) for (ser, sur) in self.surveys.items() if ser != "next_id"]:
@@ -289,13 +316,15 @@ class Survey:
         self._save_question(server.id, new_survey_id, question)
         self._save_options(server.id, new_survey_id, opts if opts else "any")
 
-        await self._update_answers_message(server.id, new_survey_id)
-
         await self._setup_reprompts(server.id, new_survey_id, context.prefix)
 
         self._schedule_close(server.id, new_survey_id, self._get_timeout(dl))
 
         users_with_role = self._get_users_with_role(server, role)
+        self._save_asked(server.id, new_survey_id, users_with_role)
+
+        await self._update_answers_message(server.id, new_survey_id)
+
         for user in users_with_role:
             new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server.id, new_survey_id, user, context.prefix))
             self.tasks[new_survey_id].append(new_task)
