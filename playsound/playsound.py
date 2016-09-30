@@ -17,7 +17,7 @@ class Playsound:
         self.sound_base = "data/playsound"
 
     def list_sounds(self):
-        return [os.path.splitext(s)[0] for s in os.listdir(self.sound_base)]
+        return sorted([os.path.splitext(s)[0] for s in os.listdir(self.sound_base)], key=lambda s: s.lower())
 
     def voice_connected(self, server):
         return self.bot.is_voice_connected(server)
