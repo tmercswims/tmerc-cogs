@@ -85,7 +85,7 @@ class Playsound:
         """Plays the specified sound."""
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.reply(cf.error("Sound file not found. Try \"{}allsounds\" for a list.".format(context.prefix)))
+            await self.bot.reply(cf.error("Sound file not found. Try `{}allsounds` for a list.".format(context.prefix)))
             return
         elif len(f) > 1:
             await self.bot.reply(cf.error("There are {} sound files with the same name, but different extensions, and I can't deal with it. Please make filenames (excluding extensions) unique.".format(len(f))))
@@ -158,7 +158,7 @@ class Playsound:
         await self.bot.type()
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.say(cf.error("Sound file not found! Try \"{}allsounds\" for a list.".format(context.prefix)))
+            await self.bot.say(cf.error("Sound file not found! Try `{}allsounds` for a list.".format(context.prefix)))
             return
         elif len(f) > 1:
             await self.bot.say(cf.error("There are {} sound files with the same name, but different extensions, and I can't deal with it. Please make filenames (excluding extensions) unique.".format(len(f))))
@@ -174,7 +174,7 @@ class Playsound:
         await self.bot.type()
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
-            await self.bot.say(cf.error("Sound file not found! Try \"{}allsounds\" for a list.".format(context.prefix)))
+            await self.bot.say(cf.error("Sound file not found! Try `{}allsounds` for a list.".format(context.prefix)))
             return
         elif len(f) > 1:
             await self.bot.say(cf.error("There are {} sound files with the same name, but different extensions, and I can't deal with it. Please make filenames (excluding extensions) unique.".format(len(f))))
