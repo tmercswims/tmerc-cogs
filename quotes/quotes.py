@@ -54,12 +54,12 @@ class Quotes:
         try:
             int(number)
         except (ValueError, TypeError):
-            await self.bot.reply(cf.error("Please provide a quote number to delete. Try \"{}allquotes\" for a list.".format(context.prefix)))
+            await self.bot.reply(cf.error("Please provide a quote number to delete. Try `{}allquotes` for a list.".format(context.prefix)))
 
         try:
             del self.settings[server.id]["quotes"][number]
         except KeyError:
-            await self.bot.reply(cf.error("A quote with that number cannot be found. Try \"{}allquotes for a list.\"".format(context.prefix)))
+            await self.bot.reply(cf.error("A quote with that number cannot be found. Try `{}allquotes` for a list.".format(context.prefix)))
             return
 
         fileIO(self.settings_path, "save", self.settings)
@@ -78,7 +78,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            await self.bot.reply(cf.warning("There are no saved quotes. Use \"{}addquote\" to add one.".format(context.prefix)))
+            await self.bot.reply(cf.warning("There are no saved quotes. Use `{}addquote` to add one.".format(context.prefix)))
             return
 
         strbuffer = self.list_quotes(server)
@@ -107,7 +107,7 @@ class Quotes:
             fileIO(self.settings_path, "save", self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            await self.bot.reply(cf.warning("There are no saved quotes. Use \"{}addquote\" to add one.".format(context.prefix)))
+            await self.bot.reply(cf.warning("There are no saved quotes. Use `{}addquote` to add one.".format(context.prefix)))
             return
 
         # if len(number) > 1:
@@ -118,14 +118,14 @@ class Quotes:
             try:
                 int(number)
             except (ValueError, TypeError):
-                await self.bot.reply(cf.warning("Please provide a number to get that specific quote. If you are trying to add a quote, use \"{}addquote\".".format(context.prefix)))
+                await self.bot.reply(cf.warning("Please provide a number to get that specific quote. If you are trying to add a quote, use `{}addquote`.".format(context.prefix)))
                 return
 
             try:
                 await self.bot.say(self.settings[server.id]["quotes"][number])
                 return
             except KeyError:
-                await self.bot.reply(cf.warning("A quote with that number cannot be found. Try \"{}allquotes\" for a list.".format(context.prefix)))
+                await self.bot.reply(cf.warning("A quote with that number cannot be found. Try `{}allquotes` for a list.".format(context.prefix)))
                 return
 
         await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
