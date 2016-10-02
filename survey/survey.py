@@ -20,7 +20,7 @@ class Survey:
         self.surveys_path = "data/survey/surveys.json"
         self.surveys = fileIO(self.surveys_path, "load")
         self.tasks = defaultdict(list)
-
+        
         self.bot.loop.create_task(self._resume_running_surveys())
 
     async def _resume_running_surveys(self):
