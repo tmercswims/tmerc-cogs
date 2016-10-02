@@ -21,6 +21,25 @@ class Survey:
         self.surveys = fileIO(self.surveys_path, "load")
         self.tasks = defaultdict(list)
 
+        self.bot.loop.create_task(self._resume_running_surveys())
+
+    async def _resume_running_surveys(self):
+        await asyncio.sleep(5)
+        closed = self.surveys["closed"]
+
+        for server_id in self.surveys:
+            if server_id not in ["closed", "next_id"]:
+                server = self.bot.get_server(server_id)
+                for survey_id in self.surveys[server_id]:
+                    if survey_id not in closed:
+                        self._setup_reprompts(server_id, survey_id)
+                        self._schedule_close(server_id, survey_id, self._get_timeout(self._deadline_string_to_datetime(self.surveys[server_id][survey_id]["deadline"])))
+                        await self._update_answers_message(server_id, survey_id)
+                        for uid in self.surveys[server_id][survey_id]["asked"]:
+                            user = server.get_member(uid)
+                            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, send_question=False))
+                            self.tasks[survey_id].append(new_task)
+
     def _member_has_role(self, member, role):
         return role in member.roles
 
@@ -158,7 +177,7 @@ class Survey:
         fileIO(self.surveys_path, "save", self.surveys)
         return True
 
-    async def _setup_reprompts(self, server_id, survey_id):
+    def _setup_reprompts(self, server_id, survey_id):
         options = self.surveys[server_id][survey_id]["options"]
         timeout = self._get_timeout(self._deadline_string_to_datetime(self.surveys[server_id][survey_id]["deadline"]))
 
@@ -198,7 +217,7 @@ class Survey:
             self.surveys[server_id][survey_id]["messages"]["results"] = res_message.id
 
             if waiting:
-                wait_message = await self.bot.send_message(channel, "{}\n{}".format("Waiting on answers from:", cf.box(waiting))) 
+                wait_message = await self.bot.send_message(channel, "{}\n{}".format("Awaiting answers from:", cf.box(waiting))) 
                 self.surveys[server_id][survey_id]["messages"]["waiting"] = wait_message.id
 
             fileIO(self.surveys_path, "save", self.surveys)
@@ -226,7 +245,7 @@ class Survey:
         return ", ".join([server.get_member(m).display_name for m in self.surveys[server_id][survey_id]["asked"]])
 
     def _get_server_id_from_survey_id(self, survey_id):
-        for server_id, survey_ids in [(ser, sur) for (ser, sur) in self.surveys.items() if ser != "next_id"]:
+        for server_id, survey_ids in [(ser, sur) for (ser, sur) in self.surveys.items() if ser not in ["next_id", "closed"]]:
             if survey_id in survey_ids:
                 return server_id
         return None
@@ -249,14 +268,14 @@ class Survey:
             if rp_opt:
                 options_hr = options_hr.replace(rp_opt, cf.strikethrough(rp_opt))
 
-            rp_mes = "(You previously answered {}, but are being asked again. You may not answer the same as last time. If you do not wish to change your answer, you may ignore this message.)".format(cf.bold(rp_opt) if rp_opt else "")
+            rp_mes = "(You previously answered {}, but are being asked again. You may not answer the same as last time, but if you do not wish to change your answer, you may ignore this message.)".format(cf.bold(rp_opt) if rp_opt else "")
 
-            premsg = "A new survey has been posted!\n"
-            if rp_opt:
+            premsg = "A new survey has been posted! (ID {})\n".format(survey_id)
+            if change or rp_opt:
                 premsg = ""
 
             if send_question:
-                await self.bot.send_message(user, premsg + cf.question("{}{} *[deadline {}]*\n(options: {}){}".format(cf.bold(question), survey_id, deadline_hr, options_hr, "\n"+cf.italics(rp_mes) if rp_opt else "")))
+                await self.bot.send_message(user, premsg + cf.question("{} *[deadline {}]*\n(options: {}){}".format(cf.bold(question), deadline_hr, options_hr, ("\n"+rp_mes) if rp_opt else "")))
             
             channel = await self.bot.start_private_message(user)
 
@@ -329,7 +348,7 @@ class Survey:
         self._save_question(server.id, new_survey_id, question)
         self._save_options(server.id, new_survey_id, opts if opts else "any")
 
-        await self._setup_reprompts(server.id, new_survey_id)
+        self._setup_reprompts(server.id, new_survey_id)
 
         self._schedule_close(server.id, new_survey_id, self._get_timeout(dl))
 
@@ -342,7 +361,7 @@ class Survey:
             new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server.id, new_survey_id, user))
             self.tasks[new_survey_id].append(new_task)
 
-        await self.bot.reply(cf.info("Survey started."))
+        await self.bot.reply(cf.info("Survey started. You can close it with `{}closesurvey {}`.".format(context.prefix, new_survey_id)))
 
     @commands.command(pass_context=True, no_pm=True, name="closesurvey")
     @checks.admin_or_permissions(administrator=True)
@@ -354,14 +373,16 @@ class Survey:
 
         if not surver or server.id != surver:
             await self.bot.reply(cf.error("Survey with ID {} not found.".format(survey_id)))
+            return
+
+        if survey_id in self.surveys["closed"]:
+            await self.bot.reply(cf.warning("Survey with ID {} is already closed.".format(survey_id)))
+            return
 
         if survey_id in self.tasks:
             for t in self.tasks[survey_id]:
                 t.cancel()
             del self.tasks[survey_id]
-        else:
-            await self.bot.reply(cf.error("Survey with ID {} has already been closed.".format(survey_id)))
-            return
 
         self._mark_as_closed(survey_id)
 
