@@ -182,21 +182,21 @@ class Kz:
         rows = []
 
         if stats["ljrecord"] != -1:
-            rows.append(["LJ:", round(stats["ljrecord"], 3), stats["ljstrafes"], round(stats["ljpre"], 2), round(stats["ljmax"], 2), round(stats["ljheight"], 1), "{}%".format(stats["ljsync"])])
+            rows.append(["LJ", round(stats["ljrecord"], 3), stats["ljstrafes"], round(stats["ljpre"], 2), round(stats["ljmax"], 2), round(stats["ljheight"], 1), "{}%".format(stats["ljsync"])])
         if stats["ljblockrecord"] != -1:
-            rows.append(["BlockLJ:", "{}|{}".format(stats["ljblockdist"], round(stats["ljblockrecord"], 1)), stats["ljblockstrafes"], round(stats["ljblockpre"], 2), round(stats["ljblockmax"], 2), round(stats["ljblockheight"], 1), "{}%".format(stats["ljblocksync"])])
+            rows.append(["BlockLJ", "{}|{}".format(stats["ljblockdist"], round(stats["ljblockrecord"], 1)), stats["ljblockstrafes"], round(stats["ljblockpre"], 2), round(stats["ljblockmax"], 2), round(stats["ljblockheight"], 1), "{}%".format(stats["ljblocksync"])])
         if stats["bhoprecord"] != -1:
-            rows.append(["Bhop:", round(stats["bhoprecord"], 3), stats["bhopstrafes"], round(stats["bhoppre"], 2), round(stats["bhopmax"], 2), round(stats["bhopheight"], 1), "{}%".format(stats["bhopsync"])])
+            rows.append(["Bhop", round(stats["bhoprecord"], 3), stats["bhopstrafes"], round(stats["bhoppre"], 2), round(stats["bhopmax"], 2), round(stats["bhopheight"], 1), "{}%".format(stats["bhopsync"])])
         if stats["dropbhoprecord"] != -1:
-            rows.append(["D.-Bhop:", round(stats["dropbhoprecord"], 3), stats["dropbhopstrafes"], round(stats["dropbhoppre"], 2), round(stats["dropbhopmax"], 2), round(stats["dropbhopheight"], 1), "{}%".format(stats["dropbhopsync"])])
+            rows.append(["D.-Bhop", round(stats["dropbhoprecord"], 3), stats["dropbhopstrafes"], round(stats["dropbhoppre"], 2), round(stats["dropbhopmax"], 2), round(stats["dropbhopheight"], 1), "{}%".format(stats["dropbhopsync"])])
         if stats["multibhoprecord"] != -1:
-            rows.append(["M.-Bhop:", round(stats["multibhoprecord"], 3), stats["multibhopstrafes"], round(stats["multibhoppre"], 2), round(stats["multibhopmax"], 2), round(stats["multibhopheight"], 1), "{}%".format(stats["multibhopsync"])])
+            rows.append(["M.-Bhop", round(stats["multibhoprecord"], 3), stats["multibhopstrafes"], round(stats["multibhoppre"], 2), round(stats["multibhopmax"], 2), round(stats["multibhopheight"], 1), "{}%".format(stats["multibhopsync"])])
         if stats["wjrecord"] != -1:
-            rows.append(["WJ:", round(stats["wjrecord"], 3), stats["wjstrafes"], round(stats["wjpre"], 2), round(stats["wjmax"], 2), round(stats["wjheight"], 1), "{}%".format(stats["wjsync"])])
+            rows.append(["WJ", round(stats["wjrecord"], 3), stats["wjstrafes"], round(stats["wjpre"], 2), round(stats["wjmax"], 2), round(stats["wjheight"], 1), "{}%".format(stats["wjsync"])])
         if stats["cjrecord"] != -1:
-            rows.append(["CJ:", round(stats["cjrecord"], 3), stats["cjstrafes"], round(stats["cjpre"], 2), round(stats["cjmax"], 2), round(stats["cjheight"], 1), "{}%".format(stats["cjsync"])])
+            rows.append(["CJ", round(stats["cjrecord"], 3), stats["cjstrafes"], round(stats["cjpre"], 2), round(stats["cjmax"], 2), round(stats["cjheight"], 1), "{}%".format(stats["cjsync"])])
         if stats["ladderjumprecord"] != -1:
-            rows.append(["LAJ:", round(stats["ladderjumprecord"], 3), stats["ladderjumpstrafes"], round(stats["ladderjumppre"], 2), round(stats["ladderjumpmax"], 2), round(stats["ladderjumpheight"], 1), "{}%".format(stats["ladderjumpsync"])])
+            rows.append(["LAJ", round(stats["ladderjumprecord"], 3), stats["ladderjumpstrafes"], round(stats["ladderjumppre"], 2), round(stats["ladderjumpmax"], 2), round(stats["ladderjumpheight"], 1), "{}%".format(stats["ladderjumpsync"])])
 
         if len(rows) == 0:
             await self.bot.reply(cf.warning("Player has no jumpstats in the server."))
@@ -409,10 +409,11 @@ class Kz:
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
             return
 
-        if context.invoked_subcommand is None:
-            await context.invoke(self._all)
-
         await self._update_database(server.id)
+
+        if context.invoked_subcommand is None:
+            await self.bot.say("Jump type not understood, showing jump records.")
+            await context.invoke(self._all)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="all", aliases=["records"])
     async def _all(self, context):
@@ -429,22 +430,22 @@ class Kz:
 
         r = cur.fetchone()
         if r:
-            rows.append(["BlockLJ:", "{}|{}".format(r["ljblockdist"], round(r["ljblockrecord"], 1)), r["ljblockstrafes"], r["name"]])
+            rows.append(["BlockLJ", "{}|{}".format(r["ljblockdist"], round(r["ljblockrecord"], 1)), r["ljblockstrafes"], r["name"]])
         else:
-            rows.append(["BlockLJ:", "--|--", "--" "--" "--", "--", "--"])
+            rows.append(["BlockLJ", "--|--", "--" "--" "--", "--", "--"])
 
         cur.execute(jumprecords_query)
         r = cur.fetchone()
         while r:
-            rows.append(["{}:".format(r["jumptype"]), round(r["distance"], 3), r["strafes"], r["name"]])
+            rows.append([r["jumptype"], round(r["distance"], 3), r["strafes"], r["name"]])
             r = cur.fetchone()
 
         jumps = ["BlockLJ", "LJ", "Bhop", "CJ", "D.-Bhop", "M.-Bhop", "LAJ", "WJ"]
         in_rows = [x[0] for x in rows]
 
         for j in jumps:
-            if "{}:".format(j) not in in_rows:
-                rows.append(["{}:".format(j), "--", "--" "--" "--", "--", "--"])
+            if j not in in_rows:
+                rows.append([j, "--", "--" "--" "--", "--", "--"])
 
         cur.close()
         con.close()
@@ -454,7 +455,7 @@ class Kz:
 
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="blocklj", aliases=["blocklongjump"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="blocklj", aliases=["blocklongjump", "BlockLJ", "BlockLj", "BlockLongJump", "BlockLongjump", "Blocklongjump"])
     async def _blocklj(self, context, limit=10):
         """Gets the top BlockLJs."""
 
@@ -467,7 +468,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "ljblock", "Block Longjump", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="lj", aliases=["longjump"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="lj", aliases=["longjump", "LJ", "LongJump", "Longjump", "Lj"])
     async def _lj(self, context, limit=10):
         """Gets the top LJs."""
 
@@ -480,7 +481,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "lj", "Longjump", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="bhop", aliases=["bunnyhop"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="bhop", aliases=["bunnyhop", "Bhop", "BHop", "Bunnyhop", "BunnyHop"])
     async def _bhop(self, context, limit=10):
         """Gets the top Bhops."""
 
@@ -493,7 +494,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "bhop", "Bunnyhop", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="multibhop", aliases=["multibunnyhop"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="multibhop", aliases=["multibunnyhop", "MultiBhop", "MultiBunnyhop", "MultiBunnyHop", "Multibhop", "mbhop", "MBhop"])
     async def _multibhop(self, context, limit=10):
         """Gets the top MultiBhops."""
 
@@ -506,7 +507,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "multibhop", "Multi-Bunnyhop", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop", aliases=["dropbunnyhop"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop", aliases=["dropbunnyhop", "DropBhop", "DropBunnyhop", "DropBunnyHop", "Dropbhop", "dbhop", "DBhop"])
     async def _dropbhop(self, context, limit=10):
         """Gets the top DropBhops."""
 
@@ -519,7 +520,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "dropbhop", "Drop-Bunnyhop", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="wj", aliases=["weirdjump"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="wj", aliases=["weirdjump", "WJ", "WeirdJump", "Weirdjump"])
     async def _wj(self, context, limit=10):
         """Gets the top WJs."""
 
@@ -532,7 +533,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "wj", "Weirdjump", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="laj", aliases=["ladderjump"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="laj", aliases=["ladderjump", "LaJ", "LAJ", "LadderJump", "Ladderjump"])
     async def _laj(self, context, limit=10):
         """Gets the top LAJs."""
 
@@ -545,7 +546,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "ladderjump", "Ladderjump", lim)
 
-    @_jumptop.command(pass_context=True, no_pm=True, name="cj", aliases=["countjump"])
+    @_jumptop.command(pass_context=True, no_pm=True, name="cj", aliases=["countjump", "CJ", "CountJump", "Countjump"])
     async def _cj(self, context, limit=10):
         """Gets the top CJs."""
 
