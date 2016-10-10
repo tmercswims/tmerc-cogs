@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .utils.dataIO import fileIO
+from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
@@ -21,7 +21,7 @@ class Membership:
     def __init__(self, bot):
         self.bot = bot
         self.settings_path = "data/membership/settings.json"
-        self.settings = fileIO(self.settings_path, "load")
+        self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="membershipset")
     @checks.admin_or_permissions(manage_server=True)
@@ -31,7 +31,7 @@ class Membership:
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
 
@@ -45,7 +45,7 @@ class Membership:
         await self.bot.type()
         server = context.message.server
         self.settings[server.id]["join_message"] = format_str
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Join message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="leave", aliases=["farewell"])
@@ -58,7 +58,7 @@ class Membership:
         await self.bot.type()
         server = context.message.server
         self.settings[server.id]["leave_message"] = format_str
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Leave message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="ban")
@@ -71,7 +71,7 @@ class Membership:
         await self.bot.type()
         server = context.message.server
         self.settings[server.id]["ban_message"] = format_str
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Ban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="unban")
@@ -84,7 +84,7 @@ class Membership:
         await self.bot.type()
         server = context.message.server
         self.settings[server.id]["unban_message"] = format_str
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Unban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="toggle")
@@ -98,7 +98,7 @@ class Membership:
             await self.bot.reply(cf.info("Membership events will now be announced."))
         else:
             await self.bot.reply(cf.info("Membership events will no longer be announced."))
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="channel")
     async def _channel(self, context, channel: discord.Channel=None):
@@ -114,7 +114,7 @@ class Membership:
             await self.bot.reply("I don't have permission to send messages in {0.mention}.".format(channel))
             return
         self.settings[server.id]["channel"] = channel.id
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         channel = self.get_welcome_channel(server)
         await self.bot.send_message(channel, ("{0.mention}, " + cf.info("I will now send membership announcements to {1.mention}.")).format(context.message.author, channel))
 
@@ -125,7 +125,7 @@ class Membership:
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self.settings[server.id]["on"]:
             return
@@ -147,7 +147,7 @@ class Membership:
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self.settings[server.id]["on"]:
             return
@@ -169,7 +169,7 @@ class Membership:
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self.settings[server.id]["on"]:
             return
@@ -191,7 +191,7 @@ class Membership:
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self.settings[server.id]["on"]:
             return
@@ -221,9 +221,9 @@ def check_folders():
 
 def check_files():
     f = "data/membership/settings.json"
-    if not fileIO(f, "check"):
+    if not dataIO.is_valid_json(f):
         print("Creating data/membership/settings.json...")
-        fileIO(f, "save", {})
+        dataIO.save_json(f, {})
 
 def setup(bot):
     check_folders()

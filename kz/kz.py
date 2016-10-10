@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .utils.dataIO import fileIO
+from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
@@ -28,7 +28,7 @@ class Kz:
     def __init__(self, bot):
         self.bot = bot
         self.settings_path = "data/kz/settings.json"
-        self.settings = fileIO(self.settings_path, "load")
+        self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="kzset")
     @checks.admin_or_permissions(manage_server=True)
@@ -38,7 +38,7 @@ class Kz:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
             os.makedirs("data/kz/{}".format(server.id))
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
@@ -49,7 +49,7 @@ class Kz:
 
         serv = context.message.server
         self.settings[serv.id]["ftp_server"] = server
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Server set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="username")
@@ -58,7 +58,7 @@ class Kz:
 
         server = context.message.server
         self.settings[server.id]["ftp_username"] = username
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Username set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="password")
@@ -67,7 +67,7 @@ class Kz:
 
         server = context.message.server
         self.settings[server.id]["ftp_password"] = password
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.delete_message(context.message)
 
@@ -79,7 +79,7 @@ class Kz:
 
         server = context.message.server
         self.settings[server.id]["ftp_dbpath"] = dbpath
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Path to database set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="steamkey")
@@ -88,7 +88,7 @@ class Kz:
 
         server = context.message.server
         self.settings[server.id]["steam_api_key"] = steamkey
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.delete_message(context.message)
 
@@ -148,7 +148,7 @@ class Kz:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
@@ -215,7 +215,7 @@ class Kz:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
@@ -279,7 +279,7 @@ class Kz:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
@@ -331,7 +331,7 @@ class Kz:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
@@ -403,7 +403,7 @@ class Kz:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
             await self.bot.reply(cf.error("You need to set up this cog before you can use it. Use `{}kzset`.".format(context.prefix)))
@@ -602,9 +602,9 @@ def check_folders():
 
 def check_files():
     f = "data/kz/settings.json"
-    if not fileIO(f, "check"):
+    if not dataIO.is_valid_json(f):
         print("Creating data/kz/settings.json...")
-        fileIO(f, "save", {})
+        dataIO.save_json(f, {})
 
 def setup(bot):
     check_folders()

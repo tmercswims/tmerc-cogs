@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .utils.dataIO import fileIO
+from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 
 import asyncio
@@ -18,7 +18,7 @@ class Survey:
     def __init__(self, bot):
         self.bot = bot
         self.surveys_path = "data/survey/surveys.json"
-        self.surveys = fileIO(self.surveys_path, "load")
+        self.surveys = dataIO.load_json(self.surveys_path)
         self.tasks = defaultdict(list)
         
         self.bot.loop.create_task(self._resume_running_surveys())
@@ -68,7 +68,7 @@ class Survey:
         if survey_id not in closed:
             closed.append(survey_id)
 
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
     async def _parse_options(self, options):
         opts_list = None if options == "*" else [r.lower().strip() for r in options.split(";")]
@@ -125,34 +125,34 @@ class Survey:
 
     def _save_deadline(self, server_id, survey_id, deadline):
         self.surveys[server_id][survey_id]["deadline"] = deadline
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
     def _save_channel(self, server_id, survey_id, channel_id):
         self.surveys[server_id][survey_id]["channel"] = channel_id
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
     def _save_question(self, server_id, survey_id, question):
         self.surveys[server_id][survey_id]["question"] = question
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
     def _save_options(self, server_id, survey_id, options):
         self.surveys[server_id][survey_id]["options"] = options
         self.surveys[server_id][survey_id]["answers"] = {}
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
         if options != "any":
             for opt in options:
                 self.surveys[server_id][survey_id]["answers"][opt] = []
-                fileIO(self.surveys_path, "save", self.surveys)
+                dataIO.save_json(self.surveys_path, self.surveys)
 
     def _save_asked(self, server_id, survey_id, users):
         asked = [u.id for u in users]
         self.surveys[server_id][survey_id]["asked"] = asked
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
     def _save_prefix(self, server_id, survey_id, prefix):
         self.surveys[server_id][survey_id]["prefix"] = prefix
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
     def _save_answer(self, server_id, survey_id, user, answer, change):
         answers = self.surveys[server_id][survey_id]["answers"]
@@ -174,7 +174,7 @@ class Survey:
         answers[answer].append(user.id)
         if user.id in asked:
             asked.remove(user.id)
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
         return True
 
     def _setup_reprompts(self, server_id, survey_id):
@@ -220,7 +220,7 @@ class Survey:
                 wait_message = await self.bot.send_message(channel, "{}\n{}".format("Awaiting answers from:", cf.box(waiting))) 
                 self.surveys[server_id][survey_id]["messages"]["waiting"] = wait_message.id
 
-            fileIO(self.surveys_path, "save", self.surveys)
+            dataIO.save_json(self.surveys_path, self.surveys)
         else:
             res_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["results"]), "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
             self.surveys[server_id][survey_id]["messages"]["results"] = res_message.id
@@ -231,7 +231,7 @@ class Survey:
                 await self.bot.delete_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]))
                 self.surveys[server_id][survey_id]["messages"]["waiting"] = None
 
-            fileIO(self.surveys_path, "save", self.surveys)
+            dataIO.save_json(self.surveys_path, self.surveys)
 
     def _make_answer_table(self, server_id, survey_id):
         server = self.bot.get_server(server_id)
@@ -322,7 +322,7 @@ class Survey:
 
         if server.id not in self.surveys:
             self.surveys[server.id] = {}
-            fileIO(self.surveys_path, "save", self.surveys)
+            dataIO.save_json(self.surveys_path, self.surveys)
 
         dl = None
         try:
@@ -337,10 +337,10 @@ class Survey:
 
         new_survey_id = str(self.surveys["next_id"])
         self.surveys["next_id"] += 1
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
         self.surveys[server.id][new_survey_id] = {}
-        fileIO(self.surveys_path, "save", self.surveys)
+        dataIO.save_json(self.surveys_path, self.surveys)
 
         self._save_prefix(server.id, new_survey_id, context.prefix)
         self._save_deadline(server.id, new_survey_id, deadline)
@@ -412,9 +412,9 @@ def check_folders():
 
 def check_files():
     f = "data/survey/surveys.json"
-    if not fileIO(f, "check"):
+    if not dataIO.is_valid_json(f):
         print("Creating data/survey/surveys.json...")
-        fileIO(f, "save", {"next_id": 1, "closed": []})
+        dataIO.save_json(f, {"next_id": 1, "closed": []})
 
 def setup(bot):
     check_folders()

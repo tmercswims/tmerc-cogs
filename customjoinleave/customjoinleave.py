@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .utils.dataIO import fileIO
+from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
@@ -21,7 +21,7 @@ class Customjoinleave:
         self.audio_player = False
         self.sound_base = "data/customjoinleave"
         self.settings_path = "data/customjoinleave/settings.json"
-        self.settings = fileIO(self.settings_path, "load")
+        self.settings = dataIO.load_json(self.settings_path)
 
     def voice_connected(self, server):
         return self.bot.is_voice_connected(server)
@@ -81,7 +81,7 @@ class Customjoinleave:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
         if context.invoked_subcommand is None:
             await send_cmd_help(context)
 
@@ -98,7 +98,7 @@ class Customjoinleave:
             await self.bot.reply(cf.info("Custom join sounds are now enabled."))
         else:
             await self.bot.reply(cf.info("Custom join sounds are now disabled."))
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
     @_joinleaveset.command(pass_context=True, no_pm=True, name="toggleleave")
     @checks.admin_or_permissions(manage_server=True)
@@ -113,7 +113,7 @@ class Customjoinleave:
             await self.bot.reply(cf.info("Custom leave sounds are now enabled."))
         else:
             await self.bot.reply(cf.info("Custom leave sounds are now disabled."))
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsound")
     async def _setjoinsound(self, context, *link):
@@ -147,7 +147,7 @@ class Customjoinleave:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         attach = context.message.attachments
         if len(attach) > 1 or (attach and link):
@@ -220,7 +220,7 @@ class Customjoinleave:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         path = "{}/{}".format(self.sound_base, server.id)
         if not os.path.exists(path):
@@ -246,11 +246,11 @@ class Customjoinleave:
 
         if bserver.id not in self.settings:
             self.settings[bserver.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if aserver.id not in self.settings:
             self.settings[aserver.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if before.voice.voice_channel != after.voice.voice_channel:
             # went from no channel to a channel
@@ -281,9 +281,9 @@ def check_folders():
 
 def check_files():
     f = "data/customjoinleave/settings.json"
-    if not fileIO(f, "check"):
+    if not dataIO.is_valid_json(f):
         print("Creating data/customjoinleave/settings.json...")
-        fileIO(f, "save", {})
+        dataIO.save_json(f, {})
 
 def setup(bot):
     check_folders()

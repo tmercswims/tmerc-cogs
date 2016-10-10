@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .utils.dataIO import fileIO
+from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
@@ -18,7 +18,7 @@ class Quotes:
     def __init__(self, bot):
         self.bot = bot
         self.settings_path = "data/quotes/settings.json"
-        self.settings = fileIO(self.settings_path, "load")
+        self.settings = dataIO.load_json(self.settings_path)
 
     def list_quotes(self, server):
         tups = [(int(k), v) for (k,v) in self.settings[server.id]["quotes"].items()]
@@ -33,12 +33,12 @@ class Quotes:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         idx = self.settings[server.id]["next_index"]
         self.settings[server.id]["quotes"][str(idx)] = new_quote
         self.settings[server.id]["next_index"] += 1
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.reply(cf.info("Quote added as number {}.".format(idx)))
 
@@ -62,7 +62,7 @@ class Quotes:
             await self.bot.reply(cf.error("A quote with that number cannot be found. Try `{}allquotes` for a list.".format(context.prefix)))
             return
 
-        fileIO(self.settings_path, "save", self.settings)
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.reply(cf.info("Quote number {} deleted.".format(number)))
 
@@ -75,7 +75,7 @@ class Quotes:
 
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
             await self.bot.reply(cf.warning("There are no saved quotes. Use `{}addquote` to add one.".format(context.prefix)))
@@ -104,7 +104,7 @@ class Quotes:
         server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
-            fileIO(self.settings_path, "save", self.settings)
+            dataIO.save_json(self.settings_path, self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
             await self.bot.reply(cf.warning("There are no saved quotes. Use `{}addquote` to add one.".format(context.prefix)))
@@ -137,9 +137,9 @@ def check_folders():
 
 def check_files():
     f = "data/quotes/settings.json"
-    if not fileIO(f, "check"):
+    if not dataIO.is_valid_json(f):
         print("Creating data/quotes/settings.json...")
-        fileIO(f, "save", {})
+        dataIO.save_json(f, {})
 
 def setup(bot):
     check_folders()
