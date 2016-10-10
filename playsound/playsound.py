@@ -16,6 +16,9 @@ class Playsound:
         self.audio_player = False
         self.sound_base = "data/playsound"
 
+    def voice_channel_full(self, voice_channel):
+        return len(voice_channel.voice_members) >= voice_channel.user_limit
+
     def list_sounds(self):
         return sorted([os.path.splitext(s)[0] for s in os.listdir(self.sound_base)], key=lambda s: s.lower())
 
@@ -55,6 +58,10 @@ class Playsound:
         if not context.message.author.voice_channel:
             await self.bot.reply(cf.warning("You need to join a voice channel first."))
             return
+
+        if self.voice_channel_full(context.message.author.voice_channel):
+            return
+
         if not context.message.channel.is_private:
             if self.voice_connected(server):
                 if not self.audio_player:

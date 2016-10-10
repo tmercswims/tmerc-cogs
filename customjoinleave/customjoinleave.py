@@ -49,6 +49,9 @@ class Customjoinleave:
         self.audio_player = voice_client.create_ffmpeg_player(path, options=options)
 
     async def sound_play(self, server, channel, p):
+        if self.voice_channel_full(channel):
+            return
+
         if not channel.is_private:
             if self.voice_connected(server):
                 if not self.audio_player:
