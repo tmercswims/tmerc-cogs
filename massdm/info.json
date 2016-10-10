@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Thomas Mercurio",
+    "INSTALL_MSG" : "Thanks for installing!",
+    "NAME" : "Massdm",
+    "SHORT" : "DM a Role.",
+    "DESCRIPTION" : "Send a direct message to all members of the specified Role."
+}
