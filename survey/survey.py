@@ -242,7 +242,7 @@ class Survey:
 
     def _make_waiting_list(self, server_id, survey_id):
         server = self.bot.get_server(server_id)
-        return ", ".join([server.get_member(m).display_name for m in self.surveys[server_id][survey_id]["asked"]])
+        return ", ".join(sorted([server.get_member(m).display_name for m in self.surveys[server_id][survey_id]["asked"]]))
 
     def _get_server_id_from_survey_id(self, survey_id):
         for server_id, survey_ids in [(ser, sur) for (ser, sur) in self.surveys.items() if ser not in ["next_id", "closed"]]:

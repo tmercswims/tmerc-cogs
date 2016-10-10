@@ -412,7 +412,6 @@ class Kz:
         await self._update_database(server.id)
 
         if context.invoked_subcommand is None:
-            await self.bot.say("Jump type not understood, showing jump records.")
             await context.invoke(self._all)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="all", aliases=["records"])
