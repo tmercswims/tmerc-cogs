@@ -16,20 +16,23 @@ default_settings = {
 
 class Customjoinleave:
     """Play a sound byte."""
-    def __init__(self, bot):
+    def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.audio_player = False
         self.sound_base = "data/customjoinleave"
         self.settings_path = "data/customjoinleave/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
-    def voice_connected(self, server):
+    def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
+        return len(voice_channel.voice_members) >= voice_channel.user_limit
+
+    def voice_connected(self, server: discord.Server) -> bool:
         return self.bot.is_voice_connected(server)
 
-    def voice_client(self, server):
+    def voice_client(self, server: discord.Server) -> discord.VoiceClient:
         return self.bot.voice_client_in(server)
 
-    async def _leave_voice_channel(self, server):
+    async def _leave_voice_channel(self, server: discord.Server):
         if not self.voice_connected(server):
             return
         voice_client = self.voice_client(server)
@@ -38,17 +41,17 @@ class Customjoinleave:
             self.audio_player.stop()
         await voice_client.disconnect()
 
-    async def wait_for_disconnect(self, server):
+    async def wait_for_disconnect(self, server: discord.Server):
         while not self.audio_player.is_done():
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
-    async def sound_init(self, server, path):
+    async def sound_init(self, server: discord.Server, path: str):
         options = "-filter \"volume=volume=0.15\""
         voice_client = self.voice_client(server)
         self.audio_player = voice_client.create_ffmpeg_player(path, options=options)
 
-    async def sound_play(self, server, channel, p):
+    async def sound_play(self, server: discord.Server, channel: discord.Channel, p: str):
         if self.voice_channel_full(channel):
             return
 
@@ -78,7 +81,7 @@ class Customjoinleave:
                     await self.wait_for_disconnect(server)
 
     @commands.group(pass_context=True, no_pm=True, name="joinleaveset")
-    async def _joinleaveset(self, context):
+    async def _joinleaveset(self, context: commands.context.Context):
         """Sets custom join/leave settings."""
 
         server = context.message.server
@@ -90,7 +93,7 @@ class Customjoinleave:
 
     @_joinleaveset.command(pass_context=True, no_pm=True, name="togglejoin")
     @checks.admin_or_permissions(manage_server=True)
-    async def _togglejoin(self, context):
+    async def _togglejoin(self, context: commands.context.Context):
         """Toggles custom join sounds on/off."""
 
         await self.bot.type()
@@ -105,7 +108,7 @@ class Customjoinleave:
 
     @_joinleaveset.command(pass_context=True, no_pm=True, name="toggleleave")
     @checks.admin_or_permissions(manage_server=True)
-    async def _toggleleave(self, context):
+    async def _toggleleave(self, context: commands.context.Context):
         """Toggles custom join sounds on/off."""
 
         await self.bot.type()
@@ -119,32 +122,32 @@ class Customjoinleave:
         dataIO.save_json(self.settings_path, self.settings)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsound")
-    async def _setjoinsound(self, context, *link):
+    async def _setjoinsound(self, context: commands.context.Context, link: str):
         """Sets the join sound for the calling user."""
 
         await self._set_sound(context, link, "join", context.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesound")
-    async def _setleavesound(self, context, *link):
+    async def _setleavesound(self, context: commands.context.Context, link: str):
         """Sets the leave sound for the calling user."""
 
         await self._set_sound(context, link, "leave", context.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _setjoinsoundfor(self, context, user: discord.User, *link):
+    async def _setjoinsoundfor(self, context: commands.context.Context, user: discord.User, link: str):
         """Sets the join sound for the given user. Must be a mention!"""
 
         await self._set_sound(context, link, "join", user.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _setleavesoundfor(self, context, user: discord.User, *link):
+    async def _setleavesoundfor(self, context: commands.context.Context, user: discord.User, link: str):
         """Sets the leave sound for the given user. Must be a mention!"""
 
         await self._set_sound(context, link, "leave", user.id)
 
-    async def _set_sound(self, context, link, action, userid):
+    async def _set_sound(self, context: commands.context.Context, link: str, action: str, userid: str):
         await self.bot.type()
 
         server = context.message.server
@@ -161,7 +164,7 @@ class Customjoinleave:
         if attach:
             url = attach[0]["url"]
         elif link:
-            url = "".join(link)
+            url = link
         else:
             await self.bot.reply(cf.error("You must provide either a Discord attachment or a direct link to a sound."))
             return
@@ -192,27 +195,27 @@ class Customjoinleave:
             await self.bot.reply("{} sound added.".format(action.capitalize()))
 
     @commands.command(pass_context=True, no_pm=True, name="deljoinsound")
-    async def _deljoinsound(self, context):
+    async def _deljoinsound(self, context: commands.context.Context):
         """Deletes the join sound for the calling user."""
 
         await self._del_sound(context, "join", context.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="delleavesound")
-    async def _delleavesound(self, context):
+    async def _delleavesound(self, context: commands.context.Context):
         """Deletes the leave sound for the calling user."""
 
         await self._del_sound(context, "leave", context.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="deljoinsoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _deljoinsoundfor(self, context, user: discord.User):
+    async def _deljoinsoundfor(self, context: commands.context.Context, user: discord.User):
         """Deletes the join sound for the given user. Must be a mention!"""
 
         await self._del_sound(context, "join", user.id)
 
     @commands.command(pass_context=True, no_pm=True, name="delleavesoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _delleavesoundfor(self, context, user: discord.User):
+    async def _delleavesoundfor(self, context: commands.context.Context, user: discord.User):
         """Deletes the leave sound for the given user. Must be a mention!"""
 
         await self._del_sound(context, "leave", user.id)
@@ -243,7 +246,7 @@ class Customjoinleave:
         os.remove(path)
         await self.bot.reply(cf.info("{} sound deleted.".format(action.capitalize())))
 
-    async def voice_state_update(self, before, after):
+    async def voice_state_update(self, before: discord.Member, after: discord.Member):
         bserver = before.server
         aserver = after.server
 
@@ -257,12 +260,12 @@ class Customjoinleave:
 
         if before.voice.voice_channel != after.voice.voice_channel:
             # went from no channel to a channel
-            if before.voice.voice_channel == None and after.voice.voice_channel != None and self.settings[aserver.id]["join_on"] and after.voice.voice_channel != aserver.afk_channel:
+            if before.voice.voice_channel is None and after.voice.voice_channel is not None and self.settings[aserver.id]["join_on"] and after.voice.voice_channel != aserver.afk_channel:
                 path = "{}/{}/{}/join".format(self.sound_base, aserver.id, after.id)
                 if os.path.exists(path):
                     await self.sound_play(aserver, after.voice.voice_channel, path)
             # went from one channel to another
-            elif before.voice.voice_channel != None and after.voice.voice_channel != None:
+            elif before.voice.voice_channel is not None and after.voice.voice_channel is not None:
                 if self.settings[bserver.id]["leave_on"] and before.voice.voice_channel != bserver.afk_channel:
                     path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
                     if os.path.exists(path):
@@ -272,7 +275,7 @@ class Customjoinleave:
                     if os.path.exists(path):
                         await self.sound_play(aserver, after.voice.voice_channel, path)
             # went from a channel to no channel
-            elif before.voice.voice_channel != None and after.voice.voice_channel == None and self.settings[bserver.id]["leave_on"] and before.voice.voice_channel != bserver.afk_channel:
+            elif before.voice.voice_channel is not None and after.voice.voice_channel is None and self.settings[bserver.id]["leave_on"] and before.voice.voice_channel != bserver.afk_channel:
                 path = "{}/{}/{}/leave".format(self.sound_base, bserver.id, before.id)
                 if os.path.exists(path):
                     await self.sound_play(bserver, before.voice.voice_channel, path)
@@ -288,7 +291,7 @@ def check_files():
         print("Creating data/customjoinleave/settings.json...")
         dataIO.save_json(f, {})
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
     n = Customjoinleave(bot)

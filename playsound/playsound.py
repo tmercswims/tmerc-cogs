@@ -3,6 +3,8 @@ from discord.ext import commands
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
+from typing import List
+
 import aiohttp
 import asyncio
 import glob
@@ -16,24 +18,24 @@ class Playsound:
         self.audio_player = False
         self.sound_base = "data/playsound"
 
-    def voice_channel_full(self, voice_channel):
+    def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return len(voice_channel.voice_members) >= voice_channel.user_limit
 
-    def list_sounds(self):
+    def list_sounds(self) -> List[str]:
         return sorted([os.path.splitext(s)[0] for s in os.listdir(self.sound_base)], key=lambda s: s.lower())
 
-    def voice_connected(self, server):
+    def voice_connected(self, server: discord.Server) -> bool:
         return self.bot.is_voice_connected(server)
 
-    def voice_client(self, server):
+    def voice_client(self, server: discord.Server) -> discord.VoiceClient:
         return self.bot.voice_client_in(server)
 
-    async def _join_voice_channel(self, context):
+    async def _join_voice_channel(self, context: commands.context.Context):
         channel = context.message.author.voice_channel
         if channel:
             await self.bot.join_voice_channel(channel)
 
-    async def _leave_voice_channel(self, server):
+    async def _leave_voice_channel(self, server: discord.Server):
         if not self.voice_connected(server):
             return
         voice_client = self.voice_client(server)
@@ -42,18 +44,18 @@ class Playsound:
             self.audio_player.stop()
         await voice_client.disconnect()
 
-    async def wait_for_disconnect(self, server):
+    async def wait_for_disconnect(self, server: discord.Server):
         while not self.audio_player.is_done():
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
-    async def sound_init(self, context, path):
+    async def sound_init(self, context: commands.context.Context, path: str):
         server = context.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
         self.audio_player = voice_client.create_ffmpeg_player(path, options=options)
 
-    async def sound_play(self, context, p):
+    async def sound_play(self, context: commands.context.Context, p: path):
         server = context.message.server
         if not context.message.author.voice_channel:
             await self.bot.reply(cf.warning("You need to join a voice channel first."))
@@ -88,7 +90,7 @@ class Playsound:
                     await self.wait_for_disconnect(server)
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
-    async def _playsound(self, context, soundname):
+    async def _playsound(self, context: commands.context.Context, soundname: str):
         """Plays the specified sound."""
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
         if len(f) < 1:
@@ -101,7 +103,7 @@ class Playsound:
         await self.sound_play(context, f[0])
 
     @commands.command(pass_context=True, name="allsounds")
-    async def _allsounds(self, context):
+    async def _allsounds(self, context: commands.context.Context):
         """Sends a list of every sound in a PM."""
         
         await self.bot.type()
@@ -122,7 +124,7 @@ class Playsound:
 
     @commands.command(no_pm=True, pass_context=True, name="addsound")
     @checks.mod_or_permissions(administrator=True)
-    async def _addsound(self, context, *link):
+    async def _addsound(self, context: commands.context.Context, link: str):
         """Adds a new sound. Either upload the file as a Discord attachment and make your comment "[p]addsound", or use "[p]addsound direct-URL-to-file". """
         
         await self.bot.type()
@@ -159,7 +161,7 @@ class Playsound:
 
     @commands.command(no_pm=True, pass_context=True, name="delsound")
     @checks.mod_or_permissions(administrator=True)
-    async def _delsound(self, context, soundname):
+    async def _delsound(self, context: commands.context.Context, soundname: str):
         """Deletes an existing sound."""
         
         await self.bot.type()
@@ -175,7 +177,7 @@ class Playsound:
         await self.bot.reply(cf.info("Sound {} deleted.".format(soundname)))
 
     @commands.command(no_pm=True, pass_context=True, name="getsound")
-    async def _getsound(self, context, soundname):
+    async def _getsound(self, context: commands.context.Context, soundname: str):
         """Gets the given sound."""
 
         await self.bot.type()
@@ -189,5 +191,5 @@ class Playsound:
 
         await self.bot.upload(f[0])
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     bot.add_cog(Playsound(bot))

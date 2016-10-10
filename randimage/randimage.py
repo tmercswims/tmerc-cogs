@@ -8,7 +8,7 @@ import random
 class Randimage:
     """Picks a random image from the given directory."""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.base = "data/randimage/"
 
@@ -20,7 +20,7 @@ class Randimage:
         return ret
 
     @commands.command(pass_context=True, no_pm=True, name="randimage")
-    async def _randimage(self, context, dirname):
+    async def _randimage(self, context: commands.context.Context, dirname: str):
         """Chooses a random image from the given directory (inside "data/randimage") and sends it."""
 
         await self.bot.type()
@@ -40,5 +40,5 @@ class Randimage:
 
         await self.bot.upload(os.path.join(direc, random.choice(ls)))
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     bot.add_cog(Randimage(bot))
