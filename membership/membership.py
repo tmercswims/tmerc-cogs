@@ -18,14 +18,14 @@ default_settings = {
 class Membership:
     """Announces membership events on the server."""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.settings_path = "data/membership/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="membershipset")
     @checks.admin_or_permissions(manage_server=True)
-    async def _membershipset(self, context):
+    async def _membershipset(self, context: commands.context.Context):
         """Sets membership settings."""
         server = context.message.server
         if server.id not in self.settings:
@@ -36,7 +36,7 @@ class Membership:
             await send_cmd_help(context)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join", aliases=["greeting", "welcome"])
-    async def _join(self, context, *, format_str):
+    async def _join(self, context: commands.context.Context, *, format_str: str):
         """Sets the join/greeting/welcome message for the server.
         {0} is the member
         {1} is the server
@@ -49,7 +49,7 @@ class Membership:
         await self.bot.reply(cf.info("Join message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="leave", aliases=["farewell"])
-    async def _leave(self, context, *, format_str):
+    async def _leave(self, context: commands.context.Context, *, format_str: str):
         """Sets the leave/farewell message for the server.
         {0} is the member
         {1} is the server
@@ -62,7 +62,7 @@ class Membership:
         await self.bot.reply(cf.info("Leave message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="ban")
-    async def _ban(self, context, *, format_str):
+    async def _ban(self, context: commands.context.Context, *, format_str: str):
         """Sets the ban message for the server.
         {0} is the member
         {1} is the server
@@ -75,7 +75,7 @@ class Membership:
         await self.bot.reply(cf.info("Ban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="unban")
-    async def _unban(self, context, *, format_str):
+    async def _unban(self, context: commands.context.Context, *, format_str: str):
         """Sets the unban message for the server.
         {0} is the member
         {1} is the server
@@ -88,7 +88,7 @@ class Membership:
         await self.bot.reply(cf.info("Unban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="toggle")
-    async def _toggle(self, context):
+    async def _toggle(self, context: commands.context.Context):
         """Turns membership event commands on or off."""
 
         await self.bot.type()
@@ -101,7 +101,7 @@ class Membership:
         dataIO.save_json(self.settings_path, self.settings)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="channel")
-    async def _channel(self, context, channel: discord.Channel=None):
+    async def _channel(self, context: commands.context.Context, channel: discord.Channel=None):
         """Sets the text channel to which the announcements will be sent. If none is specified, the default will be used."""
 
         await self.bot.type()
@@ -118,7 +118,7 @@ class Membership:
         channel = self.get_welcome_channel(server)
         await self.bot.send_message(channel, ("{0.mention}, " + cf.info("I will now send membership announcements to {1.mention}.")).format(context.message.author, channel))
 
-    async def member_join(self, member):
+    async def member_join(self, member: discord.Member):
         await self.bot.type()
 
         server = member.server
@@ -130,7 +130,7 @@ class Membership:
         if not self.settings[server.id]["on"]:
             return
 
-        if server == none:
+        if server is None:
             print("The server was None, so this was either a PM or an error. The user was {}.".format(member.name))
             return
 
@@ -140,7 +140,7 @@ class Membership:
         else:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
-    async def member_leave(self, member):
+    async def member_leave(self, member: discord.Member):
         await self.bot.type()
 
         server = member.server
@@ -152,7 +152,7 @@ class Membership:
         if not self.settings[server.id]["on"]:
             return
 
-        if server == none:
+        if server is None:
             print("The server was None, so this was either a PM or an error. The user was {}.".format(member.name))
             return
 
@@ -162,7 +162,7 @@ class Membership:
         else:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
-    async def member_ban(self, member):
+    async def member_ban(self, member: discord.Member):
         await self.bot.type()
 
         server = member.server
@@ -174,7 +174,7 @@ class Membership:
         if not self.settings[server.id]["on"]:
             return
 
-        if server == none:
+        if server is None:
             print("The server was None, so this was either a PM or an error. The user was {}.".format(member.name))
             return
 
@@ -184,7 +184,7 @@ class Membership:
         else:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
-    async def member_unban(self, member):
+    async def member_unban(self, member: discord.Member):
         await self.bot.type()
 
         server = member.server
@@ -196,7 +196,7 @@ class Membership:
         if not self.settings[server.id]["on"]:
             return
 
-        if server == none:
+        if server is None:
             print("The server was None, so this was either a PM or an error. The user was {}.".format(member.name))
             return
 
@@ -206,10 +206,10 @@ class Membership:
         else:
             print("Tried to send message to channel, but didn't have permission. User was {}.".format(member.name))
 
-    def get_welcome_channel(self, server):
+    def get_welcome_channel(self, server: discord.Server):
         return server.get_channel(self.settings[server.id]["channel"])
 
-    def speak_permissions(self, server, channel=None):
+    def speak_permissions(self, server: discord.Server, channel: discord.Channel=None):
         if not channel:
             channel = self.get_welcome_channel(server)
         return server.get_member(self.bot.user.id).permissions_in(channel).send_messages
@@ -225,7 +225,7 @@ def check_files():
         print("Creating data/membership/settings.json...")
         dataIO.save_json(f, {})
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
     n = Membership(bot)
