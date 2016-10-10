@@ -48,7 +48,7 @@ class Survey:
     def _member_has_role(self, member: discord.Member, role: discord.Role):
         return role in member.roles
 
-    def _get_users_with_role(self, server: discord.Server, role: discord.Role):
+    def _get_users_with_role(self, server: discord.Server, role: discord.Role) -> List[discord.User]:
         roled = []
         for member in server.members:
             if self._member_has_role(member, role):
