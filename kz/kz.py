@@ -66,10 +66,11 @@ class Kz:
         """Set the FTP password."""
 
         server = context.message.server
-        self.settings[server.id]["ftp_password"] = password
-        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.delete_message(context.message)
+        
+        self.settings[server.id]["ftp_password"] = password
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.reply(cf.info("Password set."))
 
@@ -87,10 +88,11 @@ class Kz:
         """Sets the Steam API key."""
 
         server = context.message.server
-        self.settings[server.id]["steam_api_key"] = steamkey
-        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.delete_message(context.message)
+
+        self.settings[server.id]["steam_api_key"] = steamkey
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.reply(cf.info("Steam API key set."))
 
