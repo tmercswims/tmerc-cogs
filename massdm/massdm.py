@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from typing import List
+
 class Massdm:
     """Send a direct message to all members of the specified Role."""
 
