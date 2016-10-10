@@ -12,80 +12,28 @@ class Say:
         """Says what you tell it."""
 
         await self.bot.type()
-        user = context.message.author
-        if hasattr(user, "bot") and user.bot is True:
-            return
-        try:
-            if "__" in text:
-                raise ValueError
-            evald = eval(text, {}, {"message": context.message,
-                                    "channel": context.message.channel,
-                                    "server": context.message.server})
-        except:
-            evald = text
-        if len(str(evald)) > 2000:
-            evald = str(evald)[-1990:] + " you fuck."
-        await self.bot.say(evald)
+        await self.bot.say(text)
 
     @commands.command(no_pm=True, pass_context=True, name="tts")
     async def _tts(self, context, *, text):
         """TTS's what you tell it."""
 
         await self.bot.type()
-        user = context.message.author
-        if hasattr(user, "bot") and user.bot is True:
-            return
-        try:
-            if "__" in text:
-                raise ValueError
-            evald = eval(text, {}, {"message": context.message,
-                                    "channel": context.message.channel,
-                                    "server": context.message.server})
-        except:
-            evald = text
-        if len(str(evald)) > 2000:
-            evald = str(evald)[-1990:] + " you fuck."
-        await self.bot.send_message(context.message.channel, evald, tts=True)
+        await self.bot.send_message(context.message.channel, text, tts=True)
 
     @commands.command(no_pm=True, pass_context=True, name="reply")
     async def _reply(self, context, *, text):
         """Replies to you with what you tell it."""
 
         await self.bot.type()
-        user = context.message.author
-        if hasattr(user, "bot") and user.bot is True:
-            return
-        try:
-            if "__" in text:
-                raise ValueError
-            evald = eval(text, {}, {"message": context.message,
-                                    "channel": context.message.channel,
-                                    "server": context.message.server})
-        except:
-            evald = text
-        if len(str(evald)) > 2000:
-            evald = str(evald)[-1990:] + " you fuck."
-        await self.bot.reply(evald)
+        await self.bot.reply(text)
 
     @commands.command(no_pm=False, pass_context=True, name="pm")
     async def _pm(self, context, *, text):
         """PMs you what you tell it."""
 
         await self.bot.type()
-        user = context.message.author
-        if hasattr(user, "bot") and user.bot is True:
-            return
-        try:
-            if "__" in text:
-                raise ValueError
-            evald = eval(text, {}, {"message": context.message,
-                                    "channel": context.message.channel,
-                                    "server": context.message.server})
-        except:
-            evald = text
-        if len(str(evald)) > 2000:
-            evald = str(evald)[-1990:] + " you fuck."
-        await self.bot.whisper(evald)
+        await self.bot.whisper(text)
 
 def setup(bot):
     bot.add_cog(Say(bot))
