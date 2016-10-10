@@ -3,6 +3,8 @@ from discord.ext import commands
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 
+from typing import Any, Dict, List
+
 import asyncio
 from collections import defaultdict
 from datetime import datetime
@@ -12,10 +14,13 @@ import os
 import pytz
 from tabulate import tabulate
 
+Option = Dict[str, Any]
+Options = Dict[str, Option]
+
 class Survey:
     """Runs surveys for a specific role of people via DM, and prints real-time results to a given text channel.
     Supports changing responses, answer option quotas, and reminders based on initial answer."""
-    def __init__(self, bot):
+    def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.surveys_path = "data/survey/surveys.json"
         self.surveys = dataIO.load_json(self.surveys_path)
@@ -40,26 +45,26 @@ class Survey:
                             new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, send_question=False))
                             self.tasks[survey_id].append(new_task)
 
-    def _member_has_role(self, member, role):
+    def _member_has_role(self, member: discord.Member, role: discord.Role):
         return role in member.roles
 
-    def _get_users_with_role(self, server, role):
+    def _get_users_with_role(self, server: discord.Server, role: discord.Role):
         roled = []
         for member in server.members:
             if self._member_has_role(member, role):
                 roled.append(member)
         return roled
 
-    def _deadline_string_to_datetime(self, deadline):
+    def _deadline_string_to_datetime(self, deadline: str) -> datetime:
         dl = dp.parse(deadline, tzinfos=tzd)
         if dl.tzinfo is None:
             dl.replace(tzinfo=pytz.utc)
         return dl
 
-    def _get_timeout(self, deadline):
+    def _get_timeout(self, deadline: datetime) -> int:
         return (deadline - datetime.utcnow().replace(tzinfo=pytz.utc)).seconds
 
-    def _mark_as_closed(self, survey_id):
+    def _mark_as_closed(self, survey_id: str):
         if not self.surveys["closed"]:
             self.surveys["closed"] = []
 
@@ -70,7 +75,7 @@ class Survey:
 
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    async def _parse_options(self, options):
+    async def _parse_options(self, options: str) -> Options:
         opts_list = None if options == "*" else [r.lower().strip() for r in options.split(";")]
         opt_names = [o[0] for o in [op.split(":") for op in opts_list]]
 
@@ -123,19 +128,19 @@ class Survey:
 
         return opts
 
-    def _save_deadline(self, server_id, survey_id, deadline):
+    def _save_deadline(self, server_id: str, survey_id: str, deadline: str):
         self.surveys[server_id][survey_id]["deadline"] = deadline
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_channel(self, server_id, survey_id, channel_id):
+    def _save_channel(self, server_id: str, survey_id: str, channel_id: str):
         self.surveys[server_id][survey_id]["channel"] = channel_id
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_question(self, server_id, survey_id, question):
+    def _save_question(self, server_id: str, survey_id: str, question: str):
         self.surveys[server_id][survey_id]["question"] = question
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_options(self, server_id, survey_id, options):
+    def _save_options(self, server_id: str, survey_id: str, options: Options):
         self.surveys[server_id][survey_id]["options"] = options
         self.surveys[server_id][survey_id]["answers"] = {}
         dataIO.save_json(self.surveys_path, self.surveys)
@@ -145,16 +150,16 @@ class Survey:
                 self.surveys[server_id][survey_id]["answers"][opt] = []
                 dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_asked(self, server_id, survey_id, users):
+    def _save_asked(self, server_id: str, survey_id: str, users: List[discord.User]):
         asked = [u.id for u in users]
         self.surveys[server_id][survey_id]["asked"] = asked
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_prefix(self, server_id, survey_id, prefix):
+    def _save_prefix(self, server_id: str, survey_id: str, prefix: str):
         self.surveys[server_id][survey_id]["prefix"] = prefix
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_answer(self, server_id, survey_id, user, answer, change):
+    def _save_answer(self, server_id: str, survey_id: str, user: discord.User, answer: str, change: bool) -> bool:
         answers = self.surveys[server_id][survey_id]["answers"]
         asked = self.surveys[server_id][survey_id]["asked"]
         options = self.surveys[server_id][survey_id]["options"]
@@ -168,7 +173,7 @@ class Survey:
         if answer not in answers:
             answers[answer] = []
 
-        if answer in options and limit and len(answers[answer]) == int(limit):
+        if answer in options and limit and len(answers[answer]) >= int(limit):
             return False
 
         answers[answer].append(user.id)
@@ -177,7 +182,7 @@ class Survey:
         dataIO.save_json(self.surveys_path, self.surveys)
         return True
 
-    def _setup_reprompts(self, server_id, survey_id):
+    def _setup_reprompts(self, server_id: str, survey_id: str):
         options = self.surveys[server_id][survey_id]["options"]
         timeout = self._get_timeout(self._deadline_string_to_datetime(self.surveys[server_id][survey_id]["deadline"]))
 
@@ -190,7 +195,7 @@ class Survey:
                     new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname)
                 self.tasks[survey_id].append(new_handle)
 
-    def _check_reprompt(self, server_id, survey_id, option_name, link_name=None):
+    def _check_reprompt(self, server_id: str, survey_id: str, option_name: str, link_name: str=None):
         answers = self.surveys[server_id][survey_id]["answers"]
         options = self.surveys[server_id][survey_id]["options"]
 
@@ -202,7 +207,7 @@ class Survey:
             new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, change=True, rp_opt=option_name))
             self.tasks[survey_id].append(new_task)
 
-    async def _update_answers_message(self, server_id, survey_id):
+    async def _update_answers_message(self, server_id: str, survey_id: str):
         question = self.surveys[server_id][survey_id]["question"]
         channel_id = self.surveys[server_id][survey_id]["channel"]
         channel = self.bot.get_channel(channel_id)
@@ -233,14 +238,14 @@ class Survey:
 
             dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _make_answer_table(self, server_id, survey_id):
+    def _make_answer_table(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
         answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
         rows = list(zip_longest(*[[server.get_member(y).display_name for y in x[1]] for x in answers]))
         headers = [x[0] for x in answers]
         return tabulate(rows, headers, tablefmt="orgtbl")
 
-    def _make_waiting_list(self, server_id, survey_id):
+    def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
         return ", ".join(sorted([server.get_member(m).display_name for m in self.surveys[server_id][survey_id]["asked"]]))
 
@@ -250,11 +255,11 @@ class Survey:
                 return server_id
         return None
 
-    def _schedule_close(self, server_id, survey_id, delay):
+    def _schedule_close(self, server_id: str, survey_id: str, delay: int):
         new_handle = self.bot.loop.call_later(delay, self._mark_as_closed, survey_id)
         self.tasks[survey_id].append(new_handle)
 
-    async def _send_message_and_wait_for_message(self, server_id, survey_id, user, change=False, rp_opt=None, send_question=True):
+    async def _send_message_and_wait_for_message(self, server_id: str, survey_id: str, user: discord.User, change: bool=False, rp_opt: str=None, send_question: bool=True):
         try:
             prefix = self.surveys[server_id][survey_id]["prefix"]
             question = self.surveys[server_id][survey_id]["question"]
@@ -305,7 +310,7 @@ class Survey:
 
     @commands.command(pass_context=True, no_pm=True, name="startsurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _startsurvey(self, context, role: discord.Role, channel: discord.Channel, question, options, deadline):
+    async def _startsurvey(self, context: commands.context.Context, role: discord.Role, channel: discord.Channel, question: str, options: str, deadline: str):
         """Starts a new survey.
         Role is the Discord server role to notify. Should be the @<role>.
         Channel is the channel in which to post results. Should be #<channel>
@@ -365,7 +370,7 @@ class Survey:
 
     @commands.command(pass_context=True, no_pm=True, name="closesurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _closesurvey(self, context, survey_id):
+    async def _closesurvey(self, context: commands.context.Context, survey_id: str):
         """Cancels the given survey. No more answers or changes will be taken."""
 
         server = context.message.server
@@ -389,7 +394,7 @@ class Survey:
         await self.bot.reply(cf.info("Survey with ID {} closed.".format(survey_id)))
 
     @commands.command(pass_context=True, no_pm=False, name="changeanswer")
-    async def _changeanswer(self, context, survey_id):
+    async def _changeanswer(self, context: commands.context.Context, survey_id: str):
         """Changes the calling user's response for the given survey."""
         user = context.message.author
         server_id = self._get_server_id_from_survey_id(survey_id)
@@ -416,7 +421,7 @@ def check_files():
         print("Creating data/survey/surveys.json...")
         dataIO.save_json(f, {"next_id": 1, "closed": []})
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
 

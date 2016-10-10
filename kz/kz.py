@@ -25,14 +25,14 @@ class SteamUrlError(Exception):
 class Kz:
     """Gets KZ stats from a server. Use [p]kzset to set parameters."""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.settings_path = "data/kz/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="kzset")
     @checks.admin_or_permissions(manage_server=True)
-    async def _kzset(self, context):
+    async def _kzset(self, context: commands.context.Context):
         """Sets KZ settings."""
 
         server = context.message.server
@@ -44,7 +44,7 @@ class Kz:
             await send_cmd_help(context)
 
     @_kzset.command(pass_context=True, no_pm=True, name="server")
-    async def _server(self, context, server):
+    async def _server(self, context: commands.context.Context, server: str):
         """Set the FTP server."""
 
         serv = context.message.server
@@ -53,7 +53,7 @@ class Kz:
         await self.bot.reply(cf.info("Server set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="username")
-    async def _username(self, context, username):
+    async def _username(self, context: commands.context.Context, username: str):
         """Set the FTP username."""
 
         server = context.message.server
@@ -62,7 +62,7 @@ class Kz:
         await self.bot.reply(cf.info("Username set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="password")
-    async def _password(self, context, password):
+    async def _password(self, context: commands.context.Context, password: str):
         """Set the FTP password."""
 
         server = context.message.server
@@ -74,7 +74,7 @@ class Kz:
         await self.bot.reply(cf.info("Password set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="dbpath")
-    async def _dbpath(self, context, dbpath):
+    async def _dbpath(self, context: commands.context.Context, dbpath: str):
         """Set the server path to the database."""
 
         server = context.message.server
@@ -83,7 +83,7 @@ class Kz:
         await self.bot.reply(cf.info("Path to database set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="steamkey")
-    async def _steamkey(self, context, steamkey):
+    async def _steamkey(self, context: commands.context.Context, steamkey: str):
         """Sets the Steam API key."""
 
         server = context.message.server
@@ -94,11 +94,11 @@ class Kz:
 
         await self.bot.reply(cf.info("Steam API key set."))
 
-    def _check_settings(self, server_id):
+    def _check_settings(self, server_id: str) -> bool:
         server_settings = self.settings[server_id]
         return server_settings["ftp_server"] and server_settings["ftp_username"] and server_settings["ftp_password"] and server_settings["ftp_dbpath"] and server_settings["steam_api_key"]
 
-    async def _update_database(self, server_id):
+    async def _update_database(self, server_id: str):
         info = self.settings[server_id]
 
         ftp = aioftp.Client()
@@ -109,7 +109,7 @@ class Kz:
 
         await ftp.quit()
 
-    async def _steam_url_to_text_id(self, server_id, vanityurl):
+    async def _steam_url_to_text_id(self, server_id: str, vanityurl: str) -> str:
         api_key = self.settings[server_id]["steam_api_key"]
 
         url = "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={}&vanityurl={}".format(api_key, vanityurl)
@@ -130,7 +130,7 @@ class Kz:
 
         return "STEAM_{}:{}:{}".format(I, J, K)
 
-    def _seconds_to_time_string(self, seconds):
+    def _seconds_to_time_string(self, seconds: int) -> str:
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
 
@@ -140,7 +140,7 @@ class Kz:
             return "%d:%05.2f" % (m, s)
 
     @commands.command(pass_context=True, no_pm=True, name="playerjumps")
-    async def _playerjumps(self, context, player_url):
+    async def _playerjumps(self, context: commands.context.Context, player_url: str):
         """Gets a player's best jumps. You must provide the STEAM VANITY URL of the player, NOT the in-game name."""
 
         await self.bot.type()
@@ -207,7 +207,7 @@ class Kz:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="playermap")
-    async def _playermap(self, context, player_url, mapname):
+    async def _playermap(self, context: commands.context.Context, player_url: str, mapname: str):
         """Gets a certain player's times on the given map."""
 
         await self.bot.type()
@@ -271,7 +271,7 @@ class Kz:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="recent", aliases=["latest"])
-    async def _recent(self, context, limit=10):
+    async def _recent(self, context: commands.context.Context, limit: str="10"):
         """Gets the recent runs per map and run type."""
 
         await self.bot.type()
@@ -323,7 +323,7 @@ class Kz:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="maptop")
-    async def _maptop(self, context, mapname, runtype="all", limit=10):
+    async def _maptop(self, context: commands.context.Context, mapname: str, runtype: str="all", limit: str="10"):
         """Gets the top times for a map. Optionally provide the run type (all by default) and the limit (10 by default)."""
 
         await self.bot.type()
@@ -395,7 +395,7 @@ class Kz:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.group(pass_context=True, no_pm=True, name="jumptop")
-    async def _jumptop(self, context):
+    async def _jumptop(self, context: commands.context.Context):
         """Gets the top stats for the given jump type. Optionally provide a limit (default is 10)."""
 
         await self.bot.type()
@@ -415,7 +415,7 @@ class Kz:
             await context.invoke(self._all)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="all", aliases=["records"])
-    async def _all(self, context):
+    async def _all(self, context: commands.context.Context):
         """Gets the record for every type of jump."""
 
         con = sqlite3.connect("data/kz/{}/kztimer-sqlite.sq3".format(context.message.server.id))
@@ -455,7 +455,7 @@ class Kz:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @_jumptop.command(pass_context=True, no_pm=True, name="blocklj", aliases=["blocklongjump", "BlockLJ", "BlockLj", "BlockLongJump", "BlockLongjump", "Blocklongjump"])
-    async def _blocklj(self, context, limit=10):
+    async def _blocklj(self, context: commands.context.Context, limit: str="10"):
         """Gets the top BlockLJs."""
 
         lim = None
@@ -468,7 +468,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "ljblock", "Block Longjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="lj", aliases=["longjump", "LJ", "LongJump", "Longjump", "Lj"])
-    async def _lj(self, context, limit=10):
+    async def _lj(self, context: commands.context.Context, limit: str="10"):
         """Gets the top LJs."""
 
         lim = None
@@ -481,7 +481,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "lj", "Longjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="bhop", aliases=["bunnyhop", "Bhop", "BHop", "Bunnyhop", "BunnyHop"])
-    async def _bhop(self, context, limit=10):
+    async def _bhop(self, context: commands.context.Context, limit: str="10"):
         """Gets the top Bhops."""
 
         lim = None
@@ -494,7 +494,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "bhop", "Bunnyhop", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="multibhop", aliases=["multibunnyhop", "MultiBhop", "MultiBunnyhop", "MultiBunnyHop", "Multibhop", "mbhop", "MBhop"])
-    async def _multibhop(self, context, limit=10):
+    async def _multibhop(self, context: commands.context.Context, limit: str="10"):
         """Gets the top MultiBhops."""
 
         lim = None
@@ -507,7 +507,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "multibhop", "Multi-Bunnyhop", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop", aliases=["dropbunnyhop", "DropBhop", "DropBunnyhop", "DropBunnyHop", "Dropbhop", "dbhop", "DBhop"])
-    async def _dropbhop(self, context, limit=10):
+    async def _dropbhop(self, context: commands.context.Context, limit: str="10"):
         """Gets the top DropBhops."""
 
         lim = None
@@ -520,7 +520,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "dropbhop", "Drop-Bunnyhop", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="wj", aliases=["weirdjump", "WJ", "WeirdJump", "Weirdjump"])
-    async def _wj(self, context, limit=10):
+    async def _wj(self, context: commands.context.Context, limit: str="10"):
         """Gets the top WJs."""
 
         lim = None
@@ -533,7 +533,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "wj", "Weirdjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="laj", aliases=["ladderjump", "LaJ", "LAJ", "LadderJump", "Ladderjump"])
-    async def _laj(self, context, limit=10):
+    async def _laj(self, context: commands.context.Context, limit: str="10"):
         """Gets the top LAJs."""
 
         lim = None
@@ -546,7 +546,7 @@ class Kz:
         await self._jumptop_helper(context.message.server.id, "ladderjump", "Ladderjump", lim)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="cj", aliases=["countjump", "CJ", "CountJump", "Countjump"])
-    async def _cj(self, context, limit=10):
+    async def _cj(self, context: commands.context.Context, limit: str="10"):
         """Gets the top CJs."""
 
         lim = None
@@ -558,7 +558,7 @@ class Kz:
 
         await self._jumptop_helper(context.message.server.id, "cj", "Countjump", lim)
 
-    async def _jumptop_helper(self, server_id, jumptype, jumpname, lim):
+    async def _jumptop_helper(self, server_id: str, jumptype: str, jumpname: str, lim: int):
         con = sqlite3.connect("data/kz/{}/kztimer-sqlite.sq3".format(server_id))
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -605,7 +605,7 @@ def check_files():
         print("Creating data/kz/settings.json...")
         dataIO.save_json(f, {})
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
 
