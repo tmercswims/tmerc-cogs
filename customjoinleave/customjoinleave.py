@@ -24,7 +24,7 @@ class Customjoinleave:
         self.settings = dataIO.load_json(self.settings_path)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
-        return voice_channel.user_limit == 0 or len(voice_channel.voice_members) >= voice_channel.user_limit
+        return voice_channel.user_limit != 0 and len(voice_channel.voice_members) >= voice_channel.user_limit
 
     def voice_connected(self, server: discord.Server) -> bool:
         return self.bot.is_voice_connected(server)
