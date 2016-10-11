@@ -19,7 +19,7 @@ class Playsound:
         self.sound_base = "data/playsound"
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
-        return len(voice_channel.voice_members) >= voice_channel.user_limit
+        return voice_channel.user_limit == 0 or len(voice_channel.voice_members) >= voice_channel.user_limit
 
     def list_sounds(self) -> List[str]:
         return sorted([os.path.splitext(s)[0] for s in os.listdir(self.sound_base)], key=lambda s: s.lower())
