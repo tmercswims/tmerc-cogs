@@ -122,27 +122,27 @@ class Customjoinleave:
         dataIO.save_json(self.settings_path, self.settings)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsound")
-    async def _setjoinsound(self, context: commands.context.Context, link: str):
+    async def _setjoinsound(self, context: commands.context.Context, link: str=None):
         """Sets the join sound for the calling user."""
 
         await self._set_sound(context, link, "join", context.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesound")
-    async def _setleavesound(self, context: commands.context.Context, link: str):
+    async def _setleavesound(self, context: commands.context.Context, link: str=None):
         """Sets the leave sound for the calling user."""
 
         await self._set_sound(context, link, "leave", context.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _setjoinsoundfor(self, context: commands.context.Context, user: discord.User, link: str):
+    async def _setjoinsoundfor(self, context: commands.context.Context, user: discord.User, link: str=None):
         """Sets the join sound for the given user. Must be a mention!"""
 
         await self._set_sound(context, link, "join", user.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _setleavesoundfor(self, context: commands.context.Context, user: discord.User, link: str):
+    async def _setleavesoundfor(self, context: commands.context.Context, user: discord.User, link: str=None):
         """Sets the leave sound for the given user. Must be a mention!"""
 
         await self._set_sound(context, link, "leave", user.id)
