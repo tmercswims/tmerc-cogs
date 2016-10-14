@@ -29,7 +29,8 @@ class Survey:
         self.bot.loop.create_task(self._resume_running_surveys())
 
     async def _resume_running_surveys(self):
-        await asyncio.sleep(5)
+        await self.bot.wait_until_ready()
+
         closed = self.surveys["closed"]
 
         for server_id in self.surveys:
