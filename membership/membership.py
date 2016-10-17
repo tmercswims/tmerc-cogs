@@ -19,81 +19,81 @@ default_settings = {
 class Membership:
     """Announces membership events on the server."""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.settings_path = "data/membership/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="membershipset")
     @checks.admin_or_permissions(manage_server=True)
-    async def _membershipset(self, ctx):
+    async def _membershipset(self, context: commands.context.Context):
         """Sets membership settings."""
-        server = ctx.message.server
+        server = context.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
+        if context.invoked_subcommand is None:
+            await send_cmd_help(context)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join", aliases=["greeting", "welcome"])
-    async def _join(self, ctx, *, format_str: str):
+    async def _join(self, context: commands.context.Context, *, format_str: str):
         """Sets the join/greeting/welcome message for the server.
         {0} is the member
         {1} is the server
         """
 
         await self.bot.type()
-        server = ctx.message.server
+        server = context.message.server
         self.settings[server.id]["join_message"] = format_str
         dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Join message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="leave", aliases=["farewell"])
-    async def _leave(self, ctx, *, format_str: str):
+    async def _leave(self, context: commands.context.Context, *, format_str: str):
         """Sets the leave/farewell message for the server.
         {0} is the member
         {1} is the server
         """
 
         await self.bot.type()
-        server = ctx.message.server
+        server = context.message.server
         self.settings[server.id]["leave_message"] = format_str
         dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Leave message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="ban")
-    async def _ban(self, ctx, *, format_str: str):
+    async def _ban(self, context: commands.context.Context, *, format_str: str):
         """Sets the ban message for the server.
         {0} is the member
         {1} is the server
         """
 
         await self.bot.type()
-        server = ctx.message.server
+        server = context.message.server
         self.settings[server.id]["ban_message"] = format_str
         dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Ban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="unban")
-    async def _unban(self, ctx, *, format_str: str):
+    async def _unban(self, context: commands.context.Context, *, format_str: str):
         """Sets the unban message for the server.
         {0} is the member
         {1} is the server
         """
 
         await self.bot.type()
-        server = ctx.message.server
+        server = context.message.server
         self.settings[server.id]["unban_message"] = format_str
         dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Unban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="toggle")
-    async def _toggle(self, ctx):
+    async def _toggle(self, context: commands.context.Context):
         """Turns membership event commands on or off."""
 
         await self.bot.type()
-        server = ctx.message.server
+        server = context.message.server
         self.settings[server.id]["on"] = not self.settings[server.id]["on"]
         if self.settings[server.id]["on"]:
             await self.bot.reply(cf.info("Membership events will now be announced."))
@@ -102,12 +102,12 @@ class Membership:
         dataIO.save_json(self.settings_path, self.settings)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="channel")
-    async def _channel(self, ctx, channel: discord.Channel=None):
+    async def _channel(self, context: commands.context.Context, channel: discord.Channel=None):
         """Sets the text channel to which the announcements will be sent.
          If none is specified, the default will be used."""
 
         await self.bot.type()
-        server = ctx.message.server
+        server = context.message.server
 
         if not channel:
             channel = server.default_channel
@@ -121,7 +121,7 @@ class Membership:
         await self.bot.send_message(channel,
                                     ("{0.mention}, "
                                      + cf.info("I will now send membership announcements to {1.mention}."))
-                                    .format(ctx.message.author, channel))
+                                    .format(context.message.author, channel))
 
     async def member_join(self, member: discord.Member):
         server = member.server
@@ -233,7 +233,7 @@ def check_files():
         dataIO.save_json(f, {})
 
 
-def setup(bot):
+def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
     n = Membership(bot)
