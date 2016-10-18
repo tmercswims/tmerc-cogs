@@ -133,13 +133,17 @@ class Survey:
 
                 if len(opt_s) == 4:
                     if opts[opt_s[0]]["reprompt"] is None:
-                        await self.bot.reply(cf.error("You cannot link an option without giving a reprompt value. Please try again."))
+                        await self.bot.reply(cf.error(
+                            "You cannot link an option without giving a"
+                            " reprompt value. Please try again."))
                         return "return"
                     if opt_s[3] == "":
                         opts[opt_s[0]]["link"] = None
                     else:
                         if opt_s[3] not in opt_names:
-                            await self.bot.reply(cf.error("A link that you gave is not the name of an option. Please try again."))
+                            await self.bot.reply(cf.error(
+                                "A link that you gave is not the name of"
+                                " an option. Please try again."))
                             return "return"
                         opts[opt_s[0]]["link"] = opt_s[3]
                 else:
@@ -172,7 +176,8 @@ class Survey:
                 self.surveys[server_id][survey_id]["answers"][opt] = []
                 dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_asked(self, server_id: str, survey_id: str, users: List[discord.User]):
+    def _save_asked(self, server_id: str, survey_id: str,
+                    users: List[discord.User]):
         asked = [u.id for u in users]
         self.surveys[server_id][survey_id]["asked"] = asked
         dataIO.save_json(self.surveys_path, self.surveys)
@@ -181,7 +186,8 @@ class Survey:
         self.surveys[server_id][survey_id]["prefix"] = prefix
         dataIO.save_json(self.surveys_path, self.surveys)
 
-    def _save_answer(self, server_id: str, survey_id: str, user: discord.User, answer: str, change: bool) -> bool:
+    def _save_answer(self, server_id: str, survey_id: str, user: discord.User,
+                     answer: str, change: bool) -> bool:
         answers = self.surveys[server_id][survey_id]["answers"]
         asked = self.surveys[server_id][survey_id]["asked"]
         options = self.surveys[server_id][survey_id]["options"]
@@ -214,23 +220,29 @@ class Survey:
                 new_handle = None
                 if settings["link"]:
                     new_handle = self.bot.loop.call_later(
-                        timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname, settings["link"])
+                        timeout - settings["reprompt"], self._check_reprompt,
+                        server_id, survey_id, optname, settings["link"])
                 else:
                     new_handle = self.bot.loop.call_later(
-                        timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname)
+                        timeout - settings["reprompt"], self._check_reprompt,
+                        server_id, survey_id, optname)
                 self.tasks[survey_id].append(new_handle)
 
-    def _check_reprompt(self, server_id: str, survey_id: str, option_name: str, link_name: str=None):
+    def _check_reprompt(self, server_id: str, survey_id: str, option_name: str,
+                        link_name: str=None):
         answers = self.surveys[server_id][survey_id]["answers"]
         options = self.surveys[server_id][survey_id]["options"]
 
-        if link_name and len(answers[link_name]) == int(options[link_name]["limit"]):
+        if (link_name and
+                len(answers[link_name]) == int(options[link_name]["limit"])):
             return
 
         for uid in answers[option_name]:
             user = self.bot.get_server(server_id).get_member(uid)
-            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(
-                server_id, survey_id, user, change=True, rp_opt=option_name))
+            new_task = self.bot.loop.create_task(
+                self._send_message_and_wait_for_message(
+                    server_id, survey_id, user, change=True,
+                    rp_opt=option_name))
             self.tasks[survey_id].append(new_task)
 
     async def _update_answers_message(self, server_id: str, survey_id: str):
@@ -244,26 +256,47 @@ class Survey:
             self.surveys[server_id][survey_id]["messages"] = {}
 
         if "results" not in self.surveys[server_id][survey_id]["messages"]:
-            res_message = await self.bot.send_message(channel, "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
+            res_message = await self.bot.send_message(
+                channel,
+                "{} (ID {})\n{}"
+                .format(cf.bold(question), survey_id, cf.box(table)))
             self.surveys[server_id][survey_id][
                 "messages"]["results"] = res_message.id
 
             if waiting:
-                wait_message = await self.bot.send_message(channel, "{}\n{}".format("Awaiting answers from:", cf.box(waiting)))
+                wait_message = await self.bot.send_message(
+                    channel,
+                    "{}\n{}".format("Awaiting answers from:", cf.box(waiting)))
                 self.surveys[server_id][survey_id][
                     "messages"]["waiting"] = wait_message.id
 
             dataIO.save_json(self.surveys_path, self.surveys)
         else:
-            res_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["results"]), "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
+            res_message = await self.bot.edit_message(
+                await self.bot.get_message(
+                    channel,
+                    self.surveys[server_id][survey_id]["messages"]["results"]),
+                "{} (ID {})\n{}"
+                .format(cf.bold(question), survey_id, cf.box(table)))
             self.surveys[server_id][survey_id][
                 "messages"]["results"] = res_message.id
             if waiting:
-                wait_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]), "{}\n{}".format("Waiting on answers from:", cf.box(waiting)))
+                wait_message = await self.bot.edit_message(
+                    await self.bot.get_message(
+                        channel,
+                        self.surveys[server_id][survey_id]["messages"]
+                        ["waiting"]),
+                    "{}\n{}"
+                    .format("Waiting on answers from:", cf.box(waiting)))
                 self.surveys[server_id][survey_id][
                     "messages"]["waiting"] = wait_message.id
-            elif self.surveys[server_id][survey_id]["messages"]["waiting"] is not None:
-                await self.bot.delete_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]))
+            elif (self.surveys[server_id][survey_id]["messages"]["waiting"]
+                  is not None):
+                await self.bot.delete_message(
+                    await self.bot.get_message(
+                        channel,
+                        self.surveys[server_id][survey_id]["messages"]
+                        ["waiting"]))
                 self.surveys[server_id][survey_id][
                     "messages"]["waiting"] = None
 
@@ -273,16 +306,21 @@ class Survey:
         server = self.bot.get_server(server_id)
         answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
         rows = list(zip_longest(
-            *[[server.get_member(y).display_name for y in x[1]] for x in answers]))
+            *[[server.get_member(y).display_name for y in x[1]]
+              for x in answers]))
         headers = [x[0] for x in answers]
         return tabulate(rows, headers, tablefmt="orgtbl")
 
     def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
-        return ", ".join(sorted([server.get_member(m).display_name for m in self.surveys[server_id][survey_id]["asked"]]))
+        return ", ".join(sorted(
+            [server.get_member(m).display_name
+             for m in self.surveys[server_id][survey_id]["asked"]]))
 
     def _get_server_id_from_survey_id(self, survey_id):
-        for server_id, survey_ids in [(ser, sur) for (ser, sur) in self.surveys.items() if ser not in ["next_id", "closed"]]:
+        for server_id, survey_ids in
+        [(ser, sur) for (ser, sur) in self.surveys.items()
+         if ser not in ["next_id", "closed"]]:
             if survey_id in survey_ids:
                 return server_id
         return None
@@ -292,7 +330,12 @@ class Survey:
             delay, self._mark_as_closed, survey_id)
         self.tasks[survey_id].append(new_handle)
 
-    async def _send_message_and_wait_for_message(self, server_id: str, survey_id: str, user: discord.User, change: bool=False, rp_opt: str=None, send_question: bool=True):
+    async def _send_message_and_wait_for_message(self, server_id: str,
+                                                 survey_id: str,
+                                                 user: discord.User,
+                                                 change: bool=False,
+                                                 rp_opt: str=None,
+                                                 send_question: bool=True):
         try:
             prefix = self.surveys[server_id][survey_id]["prefix"]
             question = self.surveys[server_id][survey_id]["question"]
@@ -308,8 +351,10 @@ class Survey:
                 options_hr = options_hr.replace(
                     rp_opt, cf.strikethrough(rp_opt))
 
-            rp_mes = "(You previously answered {}, but are being asked again. You may not answer the same as last time, but if you do not wish to change your answer, you may ignore this message.)".format(
-                cf.bold(rp_opt) if rp_opt else "")
+            rp_mes = "(You previously answered {}, but are being asked again."
+            " You may not answer the same as last time, but if you do not wish"
+            " to change your answer, you may ignore this message.)"
+            .format(cf.bold(rp_opt) if rp_opt else "")
 
             premsg = "A new survey has been posted! (ID {})\n".format(
                 survey_id)
@@ -317,37 +362,74 @@ class Survey:
                 premsg = ""
 
             if send_question:
-                await self.bot.send_message(user, premsg + cf.question("{} *[deadline {}]*\n(options: {}){}".format(cf.bold(question), deadline_hr, options_hr, ("\n"+rp_mes) if rp_opt else "")))
+                await self.bot.send_message(user, premsg + cf.question(
+                    "{} *[deadline {}]*\n(options: {}){}".format(
+                        cf.bold(question), deadline_hr, options_hr,
+                        ("\n"+rp_mes) if rp_opt else "")))
 
             channel = await self.bot.start_private_message(user)
 
             answer = None
             while not answer:
-                r = (await self.bot.wait_for_message(channel=channel, timeout=self._get_timeout(deadline), author=user))
+                r = (await self.bot.wait_for_message(channel=channel,
+                                                     timeout=self._get_timeout(
+                                                         deadline),
+                                                     author=user))
                 if r is None:
                     break
                 r = r.content.lower().strip()
                 if rp_opt and r == rp_opt:
-                    await self.bot.send_message(user, cf.warning("You are be asked again, and may not choose the same answer as last time.\nPlease choose one of the other available options: ({})".format(options_hr)))
+                    await self.bot.send_message(
+                        user,
+                        cf.warning(
+                            "You are be asked again, and may not choose the"
+                            " same answer as last time.\nPlease choose one of"
+                            " the other available options: ({})".format(
+                                options_hr)))
                 elif options is "any" or r in options:
                     answer = r
                 else:
-                    await self.bot.send_message(user, cf.warning("Please choose one of the available options: ({})".format(cf.bold(options_hr))))
+                    await self.bot.send_message(
+                        user,
+                        cf.warning(
+                            "Please choose one of the available options: ({})"
+                            .format(cf.bold(options_hr))))
 
             if not answer:
-                await self.bot.send_message(user, cf.info("Survey {} is now closed.".format(survey_id)))
+                await self.bot.send_message(
+                    user,
+                    cf.info("Survey {} is now closed.".format(survey_id)))
             else:
-                if not self._save_answer(server_id, survey_id, user, answer, change):
-                    await self.bot.send_message(user, cf.warning("That answer has reached its limit. Answer could not be {}. To try again, use `{}changeanswer {}` in this DM.".format("changed" if change else "recorded", prefix, survey_id)))
+                if not self._save_answer(
+                        server_id, survey_id, user, answer, change):
+                    await self.bot.send_message(
+                        user,
+                        cf.warning(
+                            "That answer has reached its limit. Answer could"
+                            " not be {}. To try again, use `{}changeanswer {}`"
+                            " in this DM.".format(
+                                "changed" if change else "recorded",
+                                prefix, survey_id)))
                     return
                 await self._update_answers_message(server_id, survey_id)
-                await self.bot.send_message(user, cf.info("Answer {}. If you want to change it, use `{}changeanswer {}` in this DM.\nYou can see all the answers in {}.".format("changed" if change else "recorded", prefix, survey_id, achannel.mention)))
+                await self.bot.send_message(
+                    user,
+                    cf.info(
+                        "Answer {}. If you want to change it, use"
+                        " `{}changeanswer {}` in this DM.\nYou can see all the"
+                        " answers in {}.".format(
+                            "changed" if change else "recorded",
+                            prefix, survey_id, achannel.mention)))
         except asyncio.CancelledError:
-            await self.bot.send_message(user, cf.info("Survey {} has been closed.".format(survey_id)))
+            await self.bot.send_message(
+                user,
+                cf.info("Survey {} has been closed.".format(survey_id)))
 
     @commands.command(pass_context=True, no_pm=True, name="startsurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _startsurvey(self, ctx: commands.context.Context, role: discord.Role, channel: discord.Channel, question: str, options: str, deadline: str):
+    async def _startsurvey(self, ctx: commands.context.Context,
+                           role: discord.Role, channel: discord.Channel,
+                           question: str, options: str, deadline: str):
         """Starts a new survey.
         Role is the Discord server role to notify. Should be the @<role>.
         Channel is the channel in which to post results. Should be #<channel>
@@ -370,7 +452,9 @@ class Survey:
         try:
             dl = self._deadline_string_to_datetime(deadline)
         except ValueError:
-            await self.bot.reply(cf.error("Your deadline format could not be understood. Please try again."))
+            await self.bot.reply(cf.error(
+                "Your deadline format could not be understood."
+                " Please try again."))
             return
 
         opts = await self._parse_options(options)
@@ -401,25 +485,31 @@ class Survey:
 
         for user in users_with_role:
             new_task = self.bot.loop.create_task(
-                self._send_message_and_wait_for_message(server.id, new_survey_id, user))
+                self._send_message_and_wait_for_message(server.id,
+                                                        new_survey_id, user))
             self.tasks[new_survey_id].append(new_task)
 
-        await self.bot.reply(cf.info("Survey started. You can close it with `{}closesurvey {}`.".format(ctx.prefix, new_survey_id)))
+        await self.bot.reply(cf.info("Survey started. You can close it with"
+                                     " `{}closesurvey {}`.".format(
+                                         ctx.prefix, new_survey_id)))
 
     @commands.command(pass_context=True, no_pm=True, name="closesurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _closesurvey(self, ctx: commands.context.Context, survey_id: str):
-        """Cancels the given survey. No more answers or changes will be taken."""
+    async def _closesurvey(self, ctx: commands.context.Context,
+                           survey_id: str):
+        """Cancels the given survey."""
 
         server = ctx.message.server
         surver = self._get_server_id_from_survey_id(survey_id)
 
         if not surver or server.id != surver:
-            await self.bot.reply(cf.error("Survey with ID {} not found.".format(survey_id)))
+            await self.bot.reply(cf.error("Survey with ID {} not found."
+                                          .format(survey_id)))
             return
 
         if survey_id in self.surveys["closed"]:
-            await self.bot.reply(cf.warning("Survey with ID {} is already closed.".format(survey_id)))
+            await self.bot.reply(cf.warning(
+                "Survey with ID {} is already closed.".format(survey_id)))
             return
 
         if survey_id in self.tasks:
@@ -429,24 +519,30 @@ class Survey:
 
         self._mark_as_closed(survey_id)
 
-        await self.bot.reply(cf.info("Survey with ID {} closed.".format(survey_id)))
+        await self.bot.reply(cf.info("Survey with ID {} closed."
+                                     .format(survey_id)))
 
     @commands.command(pass_context=True, no_pm=False, name="changeanswer")
-    async def _changeanswer(self, ctx: commands.context.Context, survey_id: str):
+    async def _changeanswer(self, ctx: commands.context.Context,
+                            survey_id: str):
         """Changes the calling user's response for the given survey."""
         user = ctx.message.author
         server_id = self._get_server_id_from_survey_id(survey_id)
 
         if survey_id in self.surveys["closed"]:
-            await self.bot.send_message(user, cf.error("That survey is closed."))
+            await self.bot.send_message(user,
+                                        cf.error("That survey is closed."))
             return
 
         if not server_id:
-            await self.bot.send_message(user, cf.error("Survey with ID {} not found.".format(survey_id)))
+            await self.bot.send_message(user, cf.error(
+                "Survey with ID {} not found.".format(survey_id)))
             return
 
         new_task = self.bot.loop.create_task(
-            self._send_message_and_wait_for_message(server_id, survey_id, user, change=True))
+            self._send_message_and_wait_for_message(server_id,
+                                                    survey_id, user,
+                                                    change=True))
         self.tasks[survey_id].append(new_task)
 
 
