@@ -3,6 +3,7 @@ from discord.ext import commands
 from .utils import chat_formatting as cf
 
 import aiohttp
+import asyncio
 import json
 
 
@@ -34,6 +35,7 @@ class Catfact:
         async with aiohttp.get(self.url.format(number)) as response:
             for fact in json.loads(await response.text())["facts"]:
                 await self.bot.say(fact)
+                await asyncio.sleep(0.25)
 
 
 def setup(bot: commands.bot.Bot):
