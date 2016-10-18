@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "Thomas Mercurio",
-    "INSTALL_MSG" : "Thanks for adding my repository! Please keep your expectations low.",
+    "INSTALL_MSG" : "Thanks for adding my repository! If you have any issues, please open an issue on GitHub.",
     "NAME" : "tmerc-cogs",
-    "SHORT" : "Miscellaneous cogs that do miscellaneous things.",
+    "SHORT" : "Miscellaneous cogs that add a variety of functionality.",
     "DESCRIPTION" : "Assorted cogs which vary from bot control to random images to sounds."
 }
