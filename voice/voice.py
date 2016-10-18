@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from .utils import checks
 from __main__ import send_cmd_help
 
@@ -8,7 +9,7 @@ class Voice:
 
     """Tools for controlling the bot's voice connections."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.audio_player = False
 
@@ -20,15 +21,16 @@ class Voice:
 
     @commands.group(pass_context=True, no_pm=True, name="voice",
                     aliases=["vc"])
-    async def _voice(self, ctx: commands.context.Context):
+    async def _voice(self, ctx: commands.Context):
         """[join/leave]"""
+
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
     @_voice.command(hidden=True, pass_context=True, no_pm=True, name="join",
                     aliases=["connect"])
     @checks.admin_or_permissions(administrator=True)
-    async def _join(self, ctx: commands.context.Context):
+    async def _join(self, ctx: commands.Context):
         """Joins your voice channel."""
         author = ctx.message.author
         server = ctx.message.server
@@ -39,8 +41,8 @@ class Voice:
     @_voice.command(hidden=True, pass_context=True, no_pm=True, name="leave",
                     aliases=["disconnect"])
     @checks.admin_or_permissions(administrator=True)
-    async def _leave(self, ctx: commands.context.Context):
-        """Leaves your voice channel."""
+    async def _leave(self, ctx: commands.Context):
+        """Leaves its voice channel."""
         server = ctx.message.server
         if not self.voice_connected(server):
             return
@@ -50,5 +52,5 @@ class Voice:
         await voice_client.disconnect()
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     bot.add_cog(Voice(bot))

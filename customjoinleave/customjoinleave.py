@@ -1,13 +1,15 @@
+import asyncio
+import os
+import os.path
+
+import aiohttp
 import discord
 from discord.ext import commands
+
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
-import aiohttp
-import asyncio
-import os
-import os.path
 
 default_settings = {
     "join_on": False,
@@ -19,7 +21,7 @@ class CustomJoinLeave:
 
     """Play a sound byte."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.audio_player = False
         self.sound_base = "data/customjoinleave"
@@ -87,7 +89,7 @@ class CustomJoinLeave:
                     await self.wait_for_disconnect(server)
 
     @commands.group(pass_context=True, no_pm=True, name="joinleaveset")
-    async def _joinleaveset(self, ctx: commands.context.Context):
+    async def _joinleaveset(self, ctx: commands.Context):
         """Sets custom join/leave settings."""
 
         server = ctx.message.server
@@ -99,7 +101,7 @@ class CustomJoinLeave:
 
     @_joinleaveset.command(pass_context=True, no_pm=True, name="togglejoin")
     @checks.admin_or_permissions(manage_server=True)
-    async def _togglejoin(self, ctx: commands.context.Context):
+    async def _togglejoin(self, ctx: commands.Context):
         """Toggles custom join sounds on/off."""
 
         await self.bot.type()
@@ -117,7 +119,7 @@ class CustomJoinLeave:
 
     @_joinleaveset.command(pass_context=True, no_pm=True, name="toggleleave")
     @checks.admin_or_permissions(manage_server=True)
-    async def _toggleleave(self, ctx: commands.context.Context):
+    async def _toggleleave(self, ctx: commands.Context):
         """Toggles custom join sounds on/off."""
 
         await self.bot.type()
@@ -134,14 +136,14 @@ class CustomJoinLeave:
         dataIO.save_json(self.settings_path, self.settings)
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsound")
-    async def _setjoinsound(self, ctx: commands.context.Context,
+    async def _setjoinsound(self, ctx: commands.Context,
                             link: str=None):
         """Sets the join sound for the calling user."""
 
         await self._set_sound(ctx, link, "join", ctx.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesound")
-    async def _setleavesound(self, ctx: commands.context.Context,
+    async def _setleavesound(self, ctx: commands.Context,
                              link: str=None):
         """Sets the leave sound for the calling user."""
 
@@ -149,7 +151,7 @@ class CustomJoinLeave:
 
     @commands.command(pass_context=True, no_pm=True, name="setjoinsoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _setjoinsoundfor(self, ctx: commands.context.Context,
+    async def _setjoinsoundfor(self, ctx: commands.Context,
                                user: discord.User, link: str=None):
         """Sets the join sound for the given user."""
 
@@ -157,13 +159,13 @@ class CustomJoinLeave:
 
     @commands.command(pass_context=True, no_pm=True, name="setleavesoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _setleavesoundfor(self, ctx: commands.context.Context,
+    async def _setleavesoundfor(self, ctx: commands.Context,
                                 user: discord.User, link: str=None):
         """Sets the leave sound for the given user."""
 
         await self._set_sound(ctx, link, "leave", user.id)
 
-    async def _set_sound(self, ctx: commands.context.Context, link: str,
+    async def _set_sound(self, ctx: commands.Context, link: str,
                          action: str, userid: str):
         await self.bot.type()
 
@@ -218,20 +220,20 @@ class CustomJoinLeave:
             await self.bot.reply("{} sound added.".format(action.capitalize()))
 
     @commands.command(pass_context=True, no_pm=True, name="deljoinsound")
-    async def _deljoinsound(self, ctx: commands.context.Context):
+    async def _deljoinsound(self, ctx: commands.Context):
         """Deletes the join sound for the calling user."""
 
         await self._del_sound(ctx, "join", ctx.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="delleavesound")
-    async def _delleavesound(self, ctx: commands.context.Context):
+    async def _delleavesound(self, ctx: commands.Context):
         """Deletes the leave sound for the calling user."""
 
         await self._del_sound(ctx, "leave", ctx.message.author.id)
 
     @commands.command(pass_context=True, no_pm=True, name="deljoinsoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _deljoinsoundfor(self, ctx: commands.context.Context,
+    async def _deljoinsoundfor(self, ctx: commands.Context,
                                user: discord.User):
         """Deletes the join sound for the given user."""
 
@@ -239,7 +241,7 @@ class CustomJoinLeave:
 
     @commands.command(pass_context=True, no_pm=True, name="delleavesoundfor")
     @checks.admin_or_permissions(Administrator=True)
-    async def _delleavesoundfor(self, ctx: commands.context.Context,
+    async def _delleavesoundfor(self, ctx: commands.Context,
                                 user: discord.User):
         """Deletes the leave sound for the given user."""
 
@@ -341,7 +343,7 @@ def check_files():
         dataIO.save_json(f, {})
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     check_folders()
     check_files()
     n = CustomJoinLeave(bot)

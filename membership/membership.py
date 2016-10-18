@@ -1,10 +1,12 @@
+import os
+
 import discord
 from discord.ext import commands
+
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
-import os
 
 default_settings = {
     "join_message": "{0.mention} has joined the server.",
@@ -20,14 +22,14 @@ class Membership:
 
     """Announces membership events on the server."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.settings_path = "data/membership/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="membershipset")
     @checks.admin_or_permissions(manage_server=True)
-    async def _membershipset(self, ctx: commands.context.Context):
+    async def _membershipset(self, ctx: commands.Context):
         """Sets membership settings."""
 
         server = ctx.message.server
@@ -40,7 +42,7 @@ class Membership:
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join",
                             aliases=["greeting", "welcome"])
-    async def _join(self, ctx: commands.context.Context, *,
+    async def _join(self, ctx: commands.Context, *,
                     format_str: str):
         """Sets the join/greeting/welcome message for the server.
         {0} is the member
@@ -55,7 +57,7 @@ class Membership:
 
     @_membershipset.command(pass_context=True, no_pm=True, name="leave",
                             aliases=["farewell"])
-    async def _leave(self, ctx: commands.context.Context, *,
+    async def _leave(self, ctx: commands.Context, *,
                      format_str: str):
         """Sets the leave/farewell message for the server.
         {0} is the member
@@ -69,7 +71,7 @@ class Membership:
         await self.bot.reply(cf.info("Leave message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="ban")
-    async def _ban(self, ctx: commands.context.Context, *, format_str: str):
+    async def _ban(self, ctx: commands.Context, *, format_str: str):
         """Sets the ban message for the server.
         {0} is the member
         {1} is the server
@@ -82,7 +84,7 @@ class Membership:
         await self.bot.reply(cf.info("Ban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="unban")
-    async def _unban(self, ctx: commands.context.Context, *, format_str: str):
+    async def _unban(self, ctx: commands.Context, *, format_str: str):
         """Sets the unban message for the server.
         {0} is the member
         {1} is the server
@@ -95,7 +97,7 @@ class Membership:
         await self.bot.reply(cf.info("Unban message set."))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="toggle")
-    async def _toggle(self, ctx: commands.context.Context):
+    async def _toggle(self, ctx: commands.Context):
         """Turns membership event commands on or off."""
 
         await self.bot.type()
@@ -110,7 +112,7 @@ class Membership:
         dataIO.save_json(self.settings_path, self.settings)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="channel")
-    async def _channel(self, ctx: commands.context.Context,
+    async def _channel(self, ctx: commands.Context,
                        channel: discord.Channel=None):
         """Sets the text channel to which the announcements will be sent.
 
@@ -276,7 +278,7 @@ def check_files():
         dataIO.save_json(f, {})
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     check_folders()
     check_files()
     n = Membership(bot)

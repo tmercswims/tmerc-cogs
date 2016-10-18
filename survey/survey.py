@@ -1,18 +1,31 @@
-import discord
-from discord.ext import commands
-from .utils.dataIO import dataIO
-from .utils import checks, chat_formatting as cf
-
-from typing import Any, Dict, List
-
 import asyncio
 from collections import defaultdict
 from datetime import datetime
-from dateutil import parser as dp
 from itertools import zip_longest
 import os
-import pytz
-from tabulate import tabulate
+from typing import Any, Dict, List
+
+try:
+    from dateutil import parser as dp
+    dateutil_available = True
+except:
+    dateutil_available = False
+import discord
+from discord.ext import commands
+try:
+    import pytz
+    pytz_available = True
+except:
+    pytz_available = False
+try:
+    from tabulate import tabulate
+    tabulate_available = True
+except:
+    tabulate_available = False
+
+from .utils.dataIO import dataIO
+from .utils import checks, chat_formatting as cf
+
 
 Option = Dict[str, Any]
 Options = Dict[str, Option]
@@ -27,7 +40,7 @@ class Survey:
     and reminders based on initial answer.
     """
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.surveys_path = "data/survey/surveys.json"
         self.surveys = dataIO.load_json(self.surveys_path)
@@ -427,7 +440,7 @@ class Survey:
 
     @commands.command(pass_context=True, no_pm=True, name="startsurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _startsurvey(self, ctx: commands.context.Context,
+    async def _startsurvey(self, ctx: commands.Context,
                            role: discord.Role, channel: discord.Channel,
                            question: str, options: str, deadline: str):
         """Starts a new survey.
@@ -495,7 +508,7 @@ class Survey:
 
     @commands.command(pass_context=True, no_pm=True, name="closesurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _closesurvey(self, ctx: commands.context.Context,
+    async def _closesurvey(self, ctx: commands.Context,
                            survey_id: str):
         """Cancels the given survey."""
 
@@ -523,7 +536,7 @@ class Survey:
                                      .format(survey_id)))
 
     @commands.command(pass_context=True, no_pm=False, name="changeanswer")
-    async def _changeanswer(self, ctx: commands.context.Context,
+    async def _changeanswer(self, ctx: commands.Context,
                             survey_id: str):
         """Changes the calling user's response for the given survey."""
         user = ctx.message.author
@@ -559,11 +572,20 @@ def check_files():
         dataIO.save_json(f, {"next_id": 1, "closed": []})
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     check_folders()
     check_files()
 
-    bot.add_cog(Survey(bot))
+    if dateutil_available:
+        if pytz_available:
+            if tabulate_available:
+                bot.add_cog(Survey(bot))
+            else:
+                raise RuntimeError("You need to install `tabulate`: `pip install tabulate`.")
+        else:
+            raise RuntimeError("You need to install `pytz`: `pip install pytz`.")
+    else:
+        raise RuntimeError("You need to install `python-dateutil`: `pip install python-dateutil`.")
 
 tz_str = """-12 Y
 -11 X NUT SST

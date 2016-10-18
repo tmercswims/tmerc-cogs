@@ -1,13 +1,14 @@
-import discord
-from discord.ext import commands
-from .utils.dataIO import dataIO
-from .utils import chat_formatting as cf
-from __main__ import send_cmd_help
-
 import asyncio
 import os
 import os.path
 import random
+
+import discord
+from discord.ext import commands
+
+from .utils.dataIO import dataIO
+from .utils import chat_formatting as cf
+from __main__ import send_cmd_help
 
 
 default_settings = {

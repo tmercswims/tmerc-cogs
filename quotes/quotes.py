@@ -1,12 +1,13 @@
+import os
+import random
+from typing import List
+
 import discord
 from discord.ext import commands
+
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 
-from typing import List
-
-import os
-import random
 
 default_settings = {
     "next_index": 1,
@@ -18,7 +19,7 @@ class Quotes:
 
     """Stores and shows quotes."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.settings_path = "data/quotes/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
@@ -30,7 +31,7 @@ class Quotes:
         return ["{}. {}".format(n, q) for (n, q) in tups]
 
     @commands.command(pass_context=True, no_pm=True, name="addquote")
-    async def _addquote(self, ctx: commands.context.Context, *,
+    async def _addquote(self, ctx: commands.Context, *,
                         new_quote: str):
         """Adds a new quote."""
 
@@ -49,7 +50,7 @@ class Quotes:
             cf.info("Quote added as number {}.".format(idx)))
 
     @commands.command(pass_context=True, no_pm=True, name="delquote")
-    async def _delquote(self, ctx: commands.context.Context, number: str):
+    async def _delquote(self, ctx: commands.Context, number: str):
         """Deletes an existing quote."""
 
         await self.bot.type()
@@ -79,7 +80,7 @@ class Quotes:
             cf.info("Quote number {} deleted.".format(number)))
 
     @commands.command(pass_context=True, no_pm=False, name="allquotes")
-    async def _allquotes(self, ctx: commands.context.Context):
+    async def _allquotes(self, ctx: commands.Context):
         """Sends all quotes in a PM."""
 
         await self.bot.type()
@@ -111,7 +112,7 @@ class Quotes:
         await self.bot.reply("Check your PMs!")
 
     @commands.command(pass_context=True, no_pm=True, name="quote")
-    async def _quote(self, ctx: commands.context.Context, *, number: str=None):
+    async def _quote(self, ctx: commands.Context, *, number: str=None):
         """Sends a random quote."""
 
         await self.bot.type()
@@ -162,7 +163,7 @@ def check_files():
         dataIO.save_json(f, {})
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     check_folders()
     check_files()
     bot.add_cog(Quotes(bot))

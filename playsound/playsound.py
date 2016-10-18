@@ -1,22 +1,22 @@
-import discord
-from discord.ext import commands
-from .utils import checks, chat_formatting as cf
-from __main__ import send_cmd_help
-
-from typing import List
-
-import aiohttp
 import asyncio
 import glob
 import os
 import os.path
+from typing import List
+
+import aiohttp
+import discord
+from discord.ext import commands
+
+from .utils import checks, chat_formatting as cf
+from __main__ import send_cmd_help
 
 
 class PlaySound:
 
     """Play a sound byte."""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.audio_player = False
         self.sound_base = "data/playsound"
@@ -36,7 +36,7 @@ class PlaySound:
     def voice_client(self, server: discord.Server) -> discord.VoiceClient:
         return self.bot.voice_client_in(server)
 
-    async def _join_voice_channel(self, ctx: commands.context.Context):
+    async def _join_voice_channel(self, ctx: commands.Context):
         channel = ctx.message.author.voice_channel
         if channel:
             await self.bot.join_voice_channel(channel)
@@ -55,14 +55,14 @@ class PlaySound:
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
-    async def sound_init(self, ctx: commands.context.Context, path: str):
+    async def sound_init(self, ctx: commands.Context, path: str):
         server = ctx.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
         self.audio_player = voice_client.create_ffmpeg_player(
             path, options=options)
 
-    async def sound_play(self, ctx: commands.context.Context, p: str):
+    async def sound_play(self, ctx: commands.Context, p: str):
         server = ctx.message.server
         if not ctx.message.author.voice_channel:
             await self.bot.reply(
@@ -98,7 +98,7 @@ class PlaySound:
                     await self.wait_for_disconnect(server)
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
-    async def _playsound(self, ctx: commands.context.Context, soundname: str):
+    async def _playsound(self, ctx: commands.Context, soundname: str):
         """Plays the specified sound."""
 
         f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
@@ -117,7 +117,7 @@ class PlaySound:
         await self.sound_play(ctx, f[0])
 
     @commands.command(pass_context=True, name="allsounds")
-    async def _allsounds(self, ctx: commands.context.Context):
+    async def _allsounds(self, ctx: commands.Context):
         """Sends a list of every sound in a PM."""
 
         await self.bot.type()
@@ -138,7 +138,7 @@ class PlaySound:
 
     @commands.command(no_pm=True, pass_context=True, name="addsound")
     @checks.mod_or_permissions(administrator=True)
-    async def _addsound(self, ctx: commands.context.Context, link: str=None):
+    async def _addsound(self, ctx: commands.Context, link: str=None):
         """Adds a new sound.
 
         Either upload the file as a Discord attachment and make your comment
@@ -186,7 +186,7 @@ class PlaySound:
 
     @commands.command(no_pm=True, pass_context=True, name="delsound")
     @checks.mod_or_permissions(administrator=True)
-    async def _delsound(self, ctx: commands.context.Context, soundname: str):
+    async def _delsound(self, ctx: commands.Context, soundname: str):
         """Deletes an existing sound."""
 
         await self.bot.type()
@@ -207,7 +207,7 @@ class PlaySound:
         await self.bot.reply(cf.info("Sound {} deleted.".format(soundname)))
 
     @commands.command(no_pm=True, pass_context=True, name="getsound")
-    async def _getsound(self, ctx: commands.context.Context, soundname: str):
+    async def _getsound(self, ctx: commands.Context, soundname: str):
         """Gets the given sound."""
 
         await self.bot.type()
@@ -227,5 +227,5 @@ class PlaySound:
         await self.bot.upload(f[0])
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     bot.add_cog(PlaySound(bot))

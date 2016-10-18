@@ -1,21 +1,21 @@
-import discord
-from discord.ext import commands
-
-import aiohttp
 import io
 import json
 import os.path
+
+import aiohttp
+import discord
+from discord.ext import commands
 
 
 class Randimals:
 
     """Shows random animals."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.command(pass_context=True, no_pm=True, name="cat")
-    async def _cat(self, ctx: commands.context.Context):
+    async def _cat(self, ctx: commands.Context):
         """Shows a random cat."""
 
         await self.bot.type()
@@ -28,7 +28,7 @@ class Randimals:
                     io.BytesIO(await image.read()), filename=filename)
 
     @commands.command(pass_context=True, no_pm=True, name="dog")
-    async def _dog(self, ctx: commands.context.Context):
+    async def _dog(self, ctx: commands.Context):
         """Shows a random dog."""
 
         await self.bot.type()
@@ -40,5 +40,5 @@ class Randimals:
                     io.BytesIO(await image.read()), filename=filename)
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     bot.add_cog(Randimals(bot))

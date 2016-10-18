@@ -1,15 +1,20 @@
-import discord
-from discord.ext import commands
-from .utils.dataIO import dataIO
-from .utils import checks, chat_formatting as cf
-from __main__ import send_cmd_help
-
-import aiohttp
 import ftplib
 import json
 import os
 import sqlite3
-from tabulate import tabulate
+
+import aiohttp
+from discord.ext import commands
+try:
+    from tabulate import tabulate
+    tabulate_available = True
+except:
+    tabulate_available = False
+
+from .utils.dataIO import dataIO
+from .utils import checks, chat_formatting as cf
+from __main__ import send_cmd_help
+
 
 default_settings = {
     "ftp_server": None,
@@ -28,14 +33,14 @@ class KZ:
 
     """Gets KZ stats from a server. Use [p]kzset to set parameters."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.settings_path = "data/kz/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="kzset")
     @checks.admin_or_permissions(manage_server=True)
-    async def _kzset(self, ctx: commands.context.Context):
+    async def _kzset(self, ctx: commands.Context):
         """Sets KZ settings."""
 
         server = ctx.message.server
@@ -47,7 +52,7 @@ class KZ:
             await send_cmd_help(ctx)
 
     @_kzset.command(pass_context=True, no_pm=True, name="server")
-    async def _server(self, ctx: commands.context.Context, server: str):
+    async def _server(self, ctx: commands.Context, server: str):
         """Set the FTP server."""
 
         serv = ctx.message.server
@@ -56,7 +61,7 @@ class KZ:
         await self.bot.reply(cf.info("Server set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="username")
-    async def _username(self, ctx: commands.context.Context,
+    async def _username(self, ctx: commands.Context,
                         username: str):
         """Set the FTP username."""
 
@@ -66,7 +71,7 @@ class KZ:
         await self.bot.reply(cf.info("Username set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="password")
-    async def _password(self, ctx: commands.context.Context,
+    async def _password(self, ctx: commands.Context,
                         password: str):
         """Set the FTP password."""
 
@@ -80,7 +85,7 @@ class KZ:
         await self.bot.reply(cf.info("Password set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="dbpath")
-    async def _dbpath(self, ctx: commands.context.Context,
+    async def _dbpath(self, ctx: commands.Context,
                       dbpath: str):
         """Set the server path to the database."""
 
@@ -90,7 +95,7 @@ class KZ:
         await self.bot.reply(cf.info("Path to database set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="steamkey")
-    async def _steamkey(self, ctx: commands.context.Context,
+    async def _steamkey(self, ctx: commands.Context,
                         steamkey: str):
         """Sets the Steam API key."""
 
@@ -156,7 +161,7 @@ class KZ:
             return "%d:%05.2f" % (m, s)
 
     @commands.command(pass_context=True, no_pm=True, name="playerjumps")
-    async def _playerjumps(self, ctx: commands.context.Context,
+    async def _playerjumps(self, ctx: commands.Context,
                            player_url: str):
         """Gets a player's best jumps.
 
@@ -284,7 +289,7 @@ class KZ:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="playermap")
-    async def _playermap(self, ctx: commands.context.Context,
+    async def _playermap(self, ctx: commands.Context,
                          player_url: str, mapname: str):
         """Gets a certain player's times on the given map."""
 
@@ -363,7 +368,7 @@ class KZ:
 
     @commands.command(pass_context=True, no_pm=True, name="recent",
                       aliases=["latest"])
-    async def _recent(self, ctx: commands.context.Context,
+    async def _recent(self, ctx: commands.Context,
                       limit: int=10):
         """Gets the recent runs per map and run type."""
 
@@ -415,7 +420,7 @@ class KZ:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="maptop")
-    async def _maptop(self, ctx: commands.context.Context, mapname: str,
+    async def _maptop(self, ctx: commands.Context, mapname: str,
                       runtype: str="all", limit: int=10):
         """Gets the top times for a map.
 
@@ -498,7 +503,7 @@ class KZ:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.group(pass_context=True, no_pm=True, name="jumptop")
-    async def _jumptop(self, ctx: commands.context.Context):
+    async def _jumptop(self, ctx: commands.Context):
         """Gets the top stats for the given jump type.
 
         Optionally provide a limit (default is 10).
@@ -524,7 +529,7 @@ class KZ:
 
     @_jumptop.command(pass_context=True, no_pm=True, name="all",
                       aliases=["records"])
-    async def _all(self, ctx: commands.context.Context):
+    async def _all(self, ctx: commands.Context):
         """Gets the record for every type of jump."""
 
         con = sqlite3.connect(
@@ -577,7 +582,7 @@ class KZ:
                       aliases=["blocklongjump", "BlockLJ", "BlockLj",
                                "BlockLongJump", "BlockLongjump",
                                "Blocklongjump"])
-    async def _blocklj(self, ctx: commands.context.Context,
+    async def _blocklj(self, ctx: commands.Context,
                        limit: int=10):
         """Gets the top BlockLJs."""
 
@@ -586,7 +591,7 @@ class KZ:
 
     @_jumptop.command(pass_context=True, no_pm=True, name="lj",
                       aliases=["longjump", "LJ", "LongJump", "Longjump", "Lj"])
-    async def _lj(self, ctx: commands.context.Context, limit: int=10):
+    async def _lj(self, ctx: commands.Context, limit: int=10):
         """Gets the top LJs."""
 
         await self._jumptop_helper(ctx.message.server.id,
@@ -595,7 +600,7 @@ class KZ:
     @_jumptop.command(pass_context=True, no_pm=True, name="bhop",
                       aliases=["bunnyhop", "Bhop", "BHop",
                                "Bunnyhop", "BunnyHop"])
-    async def _bhop(self, ctx: commands.context.Context, limit: int=10):
+    async def _bhop(self, ctx: commands.Context, limit: int=10):
         """Gets the top Bhops."""
 
         await self._jumptop_helper(ctx.message.server.id,
@@ -604,7 +609,7 @@ class KZ:
     @_jumptop.command(pass_context=True, no_pm=True, name="multibhop",
                       aliases=["multibunnyhop", "MultiBhop", "MultiBunnyhop",
                                "MultiBunnyHop", "Multibhop", "mbhop", "MBhop"])
-    async def _multibhop(self, ctx: commands.context.Context,
+    async def _multibhop(self, ctx: commands.Context,
                          limit: int=10):
         """Gets the top MultiBhops."""
 
@@ -614,7 +619,7 @@ class KZ:
     @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop",
                       aliases=["dropbunnyhop", "DropBhop", "DropBunnyhop",
                                "DropBunnyHop", "Dropbhop", "dbhop", "DBhop"])
-    async def _dropbhop(self, ctx: commands.context.Context,
+    async def _dropbhop(self, ctx: commands.Context,
                         limit: int=10):
         """Gets the top DropBhops."""
 
@@ -623,7 +628,7 @@ class KZ:
 
     @_jumptop.command(pass_context=True, no_pm=True, name="wj",
                       aliases=["weirdjump", "WJ", "WeirdJump", "Weirdjump"])
-    async def _wj(self, ctx: commands.context.Context, limit: int=10):
+    async def _wj(self, ctx: commands.Context, limit: int=10):
         """Gets the top WJs."""
 
         await self._jumptop_helper(ctx.message.server.id,
@@ -632,7 +637,7 @@ class KZ:
     @_jumptop.command(pass_context=True, no_pm=True, name="laj",
                       aliases=["ladderjump", "LaJ", "LAJ",
                                "LadderJump", "Ladderjump"])
-    async def _laj(self, ctx: commands.context.Context, limit: int=10):
+    async def _laj(self, ctx: commands.Context, limit: int=10):
         """Gets the top LAJs."""
 
         await self._jumptop_helper(ctx.message.server.id,
@@ -640,7 +645,7 @@ class KZ:
 
     @_jumptop.command(pass_context=True, no_pm=True, name="cj",
                       aliases=["countjump", "CJ", "CountJump", "Countjump"])
-    async def _cj(self, ctx: commands.context.Context, limit: int=10):
+    async def _cj(self, ctx: commands.Context, limit: int=10):
         """Gets the top CJs."""
 
         await self._jumptop_helper(ctx.message.server.id,
@@ -705,11 +710,14 @@ def check_files():
         dataIO.save_json(f, {})
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     check_folders()
     check_files()
 
-    bot.add_cog(KZ(bot))
+    if tabulate_available:
+        bot.add_cog(KZ(bot))
+    else:
+        raise RuntimeError("You need to install `tabulate`: `pip install tabulate`.")
 
 # LIMIT
 recent_query = "SELECT * FROM(SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports=0 GROUP BY map HAVING MIN(runtime) UNION SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports > 0 GROUP BY map HAVING MIN(runtime)) ORDER BY date DESC LIMIT ?"

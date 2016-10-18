@@ -1,16 +1,22 @@
-import discord
-from discord.ext import commands
-from .utils.dataIO import dataIO
-from .utils import checks, chat_formatting as cf
-
-import aiohttp
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 import imghdr
 import os
 import os.path
 import shutil
 import time
+
+import aiohttp
+try:
+    from dateutil.relativedelta import relativedelta
+    dateutil_available = True
+except:
+    dateutil_available = False
+import discord
+from discord.ext import commands
+
+from .utils.dataIO import dataIO
+from .utils import checks, chat_formatting as cf
+
 
 server_default = {
     "submissions": {},
@@ -22,7 +28,7 @@ class ReviewEmoji:
 
     """Allows for submission and review of custom emojis."""
 
-    def __init__(self, bot: commands.bot.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.data_base = "data/reviewemoji"
         self.submissions_path = "data/reviewemoji/submissions.json"
@@ -78,7 +84,7 @@ class ReviewEmoji:
                 .format(sub["name"], server.name,
                         server.get_member(sub["approver"]).mention))
 
-    async def _approve_emoji(self, ctx: commands.context.Context, subid: str):
+    async def _approve_emoji(self, ctx: commands.Context, subid: str):
         sub = self.submissions[ctx.message.server.id]["submissions"][subid]
 
         with open(sub["image"], "rb") as img:
@@ -93,7 +99,7 @@ class ReviewEmoji:
 
         await self._send_update_pm(ctx.message.server, subid)
 
-    async def _reject_emoji(self, ctx: commands.context.Context, subid: str,
+    async def _reject_emoji(self, ctx: commands.Context, subid: str,
                             reason: str):
 
         sub = self.submissions[ctx.message.server.id]["submissions"][subid]
@@ -107,7 +113,7 @@ class ReviewEmoji:
         await self._send_update_pm(ctx.message.server, subid)
 
     @commands.command(pass_context=True, no_pm=True, name="submitemoji")
-    async def _submitemoji(self, ctx: commands.context.Context, name: str,
+    async def _submitemoji(self, ctx: commands.Context, name: str,
                            image_url: str=None):
         """Submits a new emoji for review.
 
@@ -205,7 +211,7 @@ class ReviewEmoji:
             .format(new_emoji_id, ctx.prefix, new_emoji_id)))
 
     @commands.command(pass_context=True, no_pm=True, name="checkemoji")
-    async def _checkemoji(self, ctx: commands.context.Context,
+    async def _checkemoji(self, ctx: commands.Context,
                           submission_id: str):
         """Check the status of a submitted emoji."""
 
@@ -245,7 +251,7 @@ class ReviewEmoji:
 
     @commands.command(pass_context=True, no_pm=True, name="reviewemoji")
     @checks.admin_or_permissions(manage_emojis=True)
-    async def _reviewemoji(self, ctx: commands.context.Context):
+    async def _reviewemoji(self, ctx: commands.Context):
         """Review emoji submissions."""
 
         server = ctx.message.server
@@ -344,8 +350,11 @@ def check_files():
         dataIO.save_json(f, {})
 
 
-def setup(bot: commands.bot.Bot):
+def setup(bot: commands.Bot):
     check_folders()
     check_files()
 
-    bot.add_cog(ReviewEmoji(bot))
+    if dateutil_available:
+        bot.add_cog(ReviewEmoji(bot))
+    else:
+        raise RuntimeError("You need to install `python-dateutil`: `pip install python-dateutil`.")
