@@ -19,7 +19,7 @@ default_settings = {
 
 class CustomJoinLeave:
 
-    """Play a sound byte."""
+    """Play a sound byte when you join or leave a channel."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
