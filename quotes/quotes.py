@@ -64,6 +64,7 @@ class Quotes:
             await self.bot.reply(cf.error(
                 "Please provide a quote number to delete."
                 " Try `{}allquotes` for a list.".format(ctx.prefix)))
+            return
 
         try:
             del self.settings[server.id]["quotes"][number]

@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "Thomas Mercurio",
     "INSTALL_MSG" : "Thanks for installing!",
-    "NAME" : "Customjoinleave",
+    "NAME" : "CustomJoinLeave",
     "SHORT" : "Set a sound to play when a user joins a voice channel.",
     "DESCRIPTION" : "Users can set a sound for the bot to play when they join/leave a channel, in the channel that they joined/left. Recommend to disable Discord's own sounds for these events."
 }

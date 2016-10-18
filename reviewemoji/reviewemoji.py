@@ -18,7 +18,7 @@ server_default = {
 }
 
 
-class Reviewemoji:
+class ReviewEmoji:
 
     """Allows for submission and review of custom emojis."""
 
@@ -348,4 +348,4 @@ def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
 
-    bot.add_cog(Reviewemoji(bot))
+    bot.add_cog(ReviewEmoji(bot))

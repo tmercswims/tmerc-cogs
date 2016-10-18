@@ -15,7 +15,7 @@ default_settings = {
 }
 
 
-class Customjoinleave:
+class CustomJoinLeave:
 
     """Play a sound byte."""
 
@@ -204,7 +204,7 @@ class Customjoinleave:
             answer = await self.bot.wait_for_message(timeout=15,
                                                      author=ctx.message.author)
 
-            if answer.content.lower().strip() != "yes":
+            if answer is not None and answer.content.lower().strip() != "yes":
                 await self.bot.reply(
                     "{} sound not replaced.".format(action.capitalize()))
                 return
@@ -344,7 +344,7 @@ def check_files():
 def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
-    n = Customjoinleave(bot)
+    n = CustomJoinLeave(bot)
     bot.add_listener(n.voice_state_update, "on_voice_state_update")
 
     bot.add_cog(n)

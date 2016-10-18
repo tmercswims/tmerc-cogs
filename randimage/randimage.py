@@ -6,7 +6,7 @@ import os
 import random
 
 
-class Randimage:
+class RandImage:
 
     """Picks a random image from the given directory."""
 
@@ -48,4 +48,4 @@ class Randimage:
 
 
 def setup(bot: commands.bot.Bot):
-    bot.add_cog(Randimage(bot))
+    bot.add_cog(RandImage(bot))

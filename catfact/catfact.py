@@ -7,7 +7,7 @@ import asyncio
 import json
 
 
-class Catfact:
+class CatFact:
 
     """Gets random cat facts."""
 
@@ -15,18 +15,12 @@ class Catfact:
         self.bot = bot
         self.url = "https://catfacts-api.appspot.com/api/facts?number={}"
 
-    @commands.command(pass_context=True, no_pm=True, name="catfact")
-    async def _catfact(self, ctx: commands.context.Context, number: str="1"):
+    @commands.command(pass_context=True, no_pm=True, name="catfact",
+                      aliases=["catfacts"])
+    async def _catfact(self, ctx: commands.context.Context, number: int=1):
         """Gets random cat facts."""
 
         await self.bot.type()
-
-        n = 0
-        try:
-            n = int(number)
-        except ValueError:
-            await self.bot.reply(cf.error("That is not a number!"))
-            return
 
         if n > 10:
             await self.bot.reply(cf.warning("Be reasonable, please."))
@@ -39,4 +33,4 @@ class Catfact:
 
 
 def setup(bot: commands.bot.Bot):
-    bot.add_cog(Catfact(bot))
+    bot.add_cog(CatFact(bot))

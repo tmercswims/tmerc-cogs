@@ -1,7 +1,7 @@
 {
     "AUTHOR" : "Thomas Mercurio",
     "INSTALL_MSG" : "Thanks for installing! Add audio files to \"data/playsound\" or with \"!addsound\".",
-    "NAME" : "Playsound",
+    "NAME" : "PlaySound",
     "SHORT" : "Join, play a sound, and leave.",
     "DESCRIPTION" : "Cog for soundbytes, includes ability to add via chat (Discord attachment or direct link)."
 }

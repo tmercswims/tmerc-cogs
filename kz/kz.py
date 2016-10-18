@@ -24,7 +24,7 @@ class SteamUrlError(Exception):
     pass
 
 
-class Kz:
+class KZ:
 
     """Gets KZ stats from a server. Use [p]kzset to set parameters."""
 
@@ -364,7 +364,7 @@ class Kz:
     @commands.command(pass_context=True, no_pm=True, name="recent",
                       aliases=["latest"])
     async def _recent(self, ctx: commands.context.Context,
-                      limit: str="10"):
+                      limit: int=10):
         """Gets the recent runs per map and run type."""
 
         await self.bot.type()
@@ -380,14 +380,6 @@ class Kz:
                          " Use `{}kzset`.".format(ctx.prefix)))
             return
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._update_database(server.id)
 
         con = sqlite3.connect(
@@ -395,7 +387,7 @@ class Kz:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
 
-        cur.execute(recent_query, (lim,))
+        cur.execute(recent_query, (limit,))
 
         r = cur.fetchone()
         if not r:
@@ -417,14 +409,14 @@ class Kz:
         cur.close()
         con.close()
 
-        title = "Recent {} record runs".format(min(count, lim))
+        title = "Recent {} record runs".format(min(count, limit))
         table = tabulate(rows, headers, tablefmt="orgtbl")
 
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="maptop")
     async def _maptop(self, ctx: commands.context.Context, mapname: str,
-                      runtype: str="all", limit: str="10"):
+                      runtype: str="all", limit: int=10):
         """Gets the top times for a map.
 
         Optionally provide the run type (all by default)
@@ -444,14 +436,6 @@ class Kz:
                          " Use `{}kzset`.".format(ctx.prefix)))
             return
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         rt = runtype.strip().lower()
 
         if rt not in ["all", "tp", "pro"]:
@@ -469,9 +453,9 @@ class Kz:
         cur = con.cursor()
 
         if rt == "all":
-            cur.execute(maptop_queries[rt], (mn, mn, lim))
+            cur.execute(maptop_queries[rt], (mn, mn, limit))
         else:
-            cur.execute(maptop_queries[rt], (mn, lim))
+            cur.execute(maptop_queries[rt], (mn, limit))
 
         r = cur.fetchone()
         if not r:
@@ -504,7 +488,7 @@ class Kz:
         cur.close()
         con.close()
 
-        title = "Top {} {}time{} on {}".format(min(rank, lim),
+        title = "Top {} {}time{} on {}".format(min(rank, limit),
                                                ("" if rt == "all"
                                                 else rt.upper() + " "),
                                                "s" if rank > 1 else "",
@@ -594,146 +578,82 @@ class Kz:
                                "BlockLongJump", "BlockLongjump",
                                "Blocklongjump"])
     async def _blocklj(self, ctx: commands.context.Context,
-                       limit: str="10"):
+                       limit: int=10):
         """Gets the top BlockLJs."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "ljblock", "Block Longjump", lim)
+                                   "ljblock", "Block Longjump", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="lj",
                       aliases=["longjump", "LJ", "LongJump", "Longjump", "Lj"])
-    async def _lj(self, ctx: commands.context.Context, limit: str="10"):
+    async def _lj(self, ctx: commands.context.Context, limit: int=10):
         """Gets the top LJs."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "lj", "Longjump", lim)
+                                   "lj", "Longjump", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="bhop",
                       aliases=["bunnyhop", "Bhop", "BHop",
                                "Bunnyhop", "BunnyHop"])
-    async def _bhop(self, ctx: commands.context.Context, limit: str="10"):
+    async def _bhop(self, ctx: commands.context.Context, limit: int=10):
         """Gets the top Bhops."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "bhop", "Bunnyhop", lim)
+                                   "bhop", "Bunnyhop", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="multibhop",
                       aliases=["multibunnyhop", "MultiBhop", "MultiBunnyhop",
                                "MultiBunnyHop", "Multibhop", "mbhop", "MBhop"])
     async def _multibhop(self, ctx: commands.context.Context,
-                         limit: str="10"):
+                         limit: int=10):
         """Gets the top MultiBhops."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "multibhop", "Multi-Bunnyhop", lim)
+                                   "multibhop", "Multi-Bunnyhop", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="dropbhop",
                       aliases=["dropbunnyhop", "DropBhop", "DropBunnyhop",
                                "DropBunnyHop", "Dropbhop", "dbhop", "DBhop"])
     async def _dropbhop(self, ctx: commands.context.Context,
-                        limit: str="10"):
+                        limit: int=10):
         """Gets the top DropBhops."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "dropbhop", "Drop-Bunnyhop", lim)
+                                   "dropbhop", "Drop-Bunnyhop", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="wj",
                       aliases=["weirdjump", "WJ", "WeirdJump", "Weirdjump"])
-    async def _wj(self, ctx: commands.context.Context, limit: str="10"):
+    async def _wj(self, ctx: commands.context.Context, limit: int=10):
         """Gets the top WJs."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "wj", "Weirdjump", lim)
+                                   "wj", "Weirdjump", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="laj",
                       aliases=["ladderjump", "LaJ", "LAJ",
                                "LadderJump", "Ladderjump"])
-    async def _laj(self, ctx: commands.context.Context, limit: str="10"):
+    async def _laj(self, ctx: commands.context.Context, limit: int=10):
         """Gets the top LAJs."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "ladderjump", "Ladderjump", lim)
+                                   "ladderjump", "Ladderjump", limit)
 
     @_jumptop.command(pass_context=True, no_pm=True, name="cj",
                       aliases=["countjump", "CJ", "CountJump", "Countjump"])
-    async def _cj(self, ctx: commands.context.Context, limit: str="10"):
+    async def _cj(self, ctx: commands.context.Context, limit: int=10):
         """Gets the top CJs."""
 
-        lim = None
-        try:
-            lim = int(limit)
-        except ValueError:
-            await self.bot.reply(
-                cf.error("The limit you provided is not a number."))
-            return
-
         await self._jumptop_helper(ctx.message.server.id,
-                                   "cj", "Countjump", lim)
+                                   "cj", "Countjump", limit)
 
     async def _jumptop_helper(self, server_id: str, jumptype: str,
-                              jumpname: str, lim: int):
+                              jumpname: str, limit: int):
         con = sqlite3.connect(
             "data/kz/{}/kztimer-sqlite.sq3".format(server_id))
         con.row_factory = sqlite3.Row
         cur = con.cursor()
 
-        cur.execute(jumptop_queries[jumptype], (lim,))
+        cur.execute(jumptop_queries[jumptype], (limit,))
 
         r = cur.fetchone()
         if not r:
@@ -766,7 +686,7 @@ class Kz:
         cur.close()
         con.close()
 
-        title = "Top {} {}".format(min(rank, lim), jumpname)
+        title = "Top {} {}".format(min(rank, limit), jumpname)
         table = tabulate(rows, headers, tablefmt="orgtbl")
 
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
@@ -789,7 +709,7 @@ def setup(bot: commands.bot.Bot):
     check_folders()
     check_files()
 
-    bot.add_cog(Kz(bot))
+    bot.add_cog(KZ(bot))
 
 # LIMIT
 recent_query = "SELECT * FROM(SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports=0 GROUP BY map HAVING MIN(runtime) UNION SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports > 0 GROUP BY map HAVING MIN(runtime)) ORDER BY date DESC LIMIT ?"

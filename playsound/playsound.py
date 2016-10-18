@@ -12,7 +12,7 @@ import os
 import os.path
 
 
-class Playsound:
+class PlaySound:
 
     """Play a sound byte."""
 
@@ -138,7 +138,7 @@ class Playsound:
 
     @commands.command(no_pm=True, pass_context=True, name="addsound")
     @checks.mod_or_permissions(administrator=True)
-    async def _addsound(self, ctx: commands.context.Context, link: str):
+    async def _addsound(self, ctx: commands.context.Context, link: str=None):
         """Adds a new sound.
 
         Either upload the file as a Discord attachment and make your comment
@@ -228,4 +228,4 @@ class Playsound:
 
 
 def setup(bot: commands.bot.Bot):
-    bot.add_cog(Playsound(bot))
+    bot.add_cog(PlaySound(bot))
