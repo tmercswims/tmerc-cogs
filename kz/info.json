@@ -3,5 +3,5 @@
     "INSTALL_MSG" : "Thanks for installing!",
     "NAME" : "Kz",
     "SHORT" : "Get kz stats.",
-    "DESCRIPTION" : "Gets kz (kreedz mod) stats from a configurable kz server."
+    "DESCRIPTION" : "Gets kz (kreedz mod) stats from a configurable kz server (via FTP)."
 }
