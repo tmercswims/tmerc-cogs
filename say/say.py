@@ -30,7 +30,7 @@ class Say:
         await self.bot.type()
         await self.bot.reply(text)
 
-    @commands.command(no_pm=False, pass_context=True, name="pm")
+    @commands.command(no_pm=False, pass_context=True, name="pm", aliases=["dm"])
     async def _pm(self, ctx: commands.context.Context, *, text: str):
         """PMs you what you tell it."""
 
