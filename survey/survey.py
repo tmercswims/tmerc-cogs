@@ -318,9 +318,9 @@ class Survey:
              for m in self.surveys[server_id][survey_id]["asked"]]))
 
     def _get_server_id_from_survey_id(self, survey_id):
-        for server_id, survey_ids in
-        [(ser, sur) for (ser, sur) in self.surveys.items()
-         if ser not in ["next_id", "closed"]]:
+        for server_id, survey_ids in [
+                (ser, sur) for (ser, sur) in self.surveys.items()
+                if ser not in ["next_id", "closed"]]:
             if survey_id in survey_ids:
                 return server_id
         return None
