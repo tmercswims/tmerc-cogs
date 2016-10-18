@@ -3,8 +3,11 @@ from discord.ext import commands
 from .utils import checks
 from __main__ import send_cmd_help
 
+
 class Voice:
+
     """Tools for controlling the bot's voice connections."""
+
     def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.audio_player = False
@@ -15,33 +18,37 @@ class Voice:
     def voice_client(self, server: discord.Server) -> discord.VoiceClient:
         return self.bot.voice_client_in(server)
 
-    @commands.group(pass_context=True, no_pm=True, name="voice", aliases=["vc"])
-    async def _voice(self, context: commands.context.Context):
+    @commands.group(pass_context=True, no_pm=True, name="voice",
+                    aliases=["vc"])
+    async def _voice(self, ctx: commands.context.Context):
         """[join/leave]"""
-        if context.invoked_subcommand is None:
-            await send_cmd_help(context)
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
 
-    @_voice.command(hidden=True, pass_context=True, no_pm=True, name="join", aliases=["connect"])
+    @_voice.command(hidden=True, pass_context=True, no_pm=True, name="join",
+                    aliases=["connect"])
     @checks.admin_or_permissions(administrator=True)
-    async def _join(self, context: commands.context.Context):
+    async def _join(self, ctx: commands.context.Context):
         """Joins your voice channel."""
-        author = context.message.author
-        server = context.message.server
+        author = ctx.message.author
+        server = ctx.message.server
         channel = author.voice_channel
         if not self.voice_connected(server):
             await self.bot.join_voice_channel(channel)
 
-    @_voice.command(hidden=True, pass_context=True, no_pm=True, name="leave", aliases=["disconnect"])
+    @_voice.command(hidden=True, pass_context=True, no_pm=True, name="leave",
+                    aliases=["disconnect"])
     @checks.admin_or_permissions(administrator=True)
-    async def _leave(self, context: commands.context.Context):
+    async def _leave(self, ctx: commands.context.Context):
         """Leaves your voice channel."""
-        server = context.message.server
+        server = ctx.message.server
         if not self.voice_connected(server):
             return
         voice_client = self.voice_client(server)
         if self.audio_player:
             self.audio_player.stop()
         await voice_client.disconnect()
+
 
 def setup(bot: commands.bot.Bot):
     bot.add_cog(Voice(bot))
