@@ -14,7 +14,9 @@ default_settings = {
     "quotes": {}
 }
 
+
 class Quotes:
+
     """Stores and shows quotes."""
 
     def __init__(self, bot: commands.bot.Bot):
@@ -23,16 +25,18 @@ class Quotes:
         self.settings = dataIO.load_json(self.settings_path)
 
     def list_quotes(self, server: discord.Server) -> List[str]:
-        tups = [(int(k), v) for (k,v) in self.settings[server.id]["quotes"].items()]
+        tups = [(int(k), v)
+                for (k, v) in self.settings[server.id]["quotes"].items()]
         tups.sort(key=lambda x: x[0])
         return ["{}. {}".format(n, q) for (n, q) in tups]
 
     @commands.command(pass_context=True, no_pm=True, name="addquote")
-    async def _addquote(self, context: commands.context.Context, *, new_quote: str):
+    async def _addquote(self, ctx: commands.context.Context, *,
+                        new_quote: str):
         """Adds a new quote."""
 
         await self.bot.type()
-        server = context.message.server
+        server = ctx.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
@@ -42,45 +46,53 @@ class Quotes:
         self.settings[server.id]["next_index"] += 1
         dataIO.save_json(self.settings_path, self.settings)
 
-        await self.bot.reply(cf.info("Quote added as number {}.".format(idx)))
+        await self.bot.reply(
+            cf.info("Quote added as number {}.".format(idx)))
 
     @commands.command(pass_context=True, no_pm=True, name="delquote")
-    async def _delquote(self, context: commands.context.Context, number: str):
+    async def _delquote(self, ctx: commands.context.Context, number: str):
         """Deletes an existing quote."""
 
         await self.bot.type()
-        server = context.message.server
+        server = ctx.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
 
         try:
             int(number)
         except (ValueError, TypeError):
-            await self.bot.reply(cf.error("Please provide a quote number to delete. Try `{}allquotes` for a list.".format(context.prefix)))
+            await self.bot.reply(cf.error(
+                "Please provide a quote number to delete."
+                " Try `{}allquotes` for a list.".format(ctx.prefix)))
 
         try:
             del self.settings[server.id]["quotes"][number]
         except KeyError:
-            await self.bot.reply(cf.error("A quote with that number cannot be found. Try `{}allquotes` for a list.".format(context.prefix)))
+            await self.bot.reply(cf.error(
+                "A quote with that number cannot be found."
+                " Try `{}allquotes` for a list.".format(ctx.prefix)))
             return
 
         dataIO.save_json(self.settings_path, self.settings)
 
-        await self.bot.reply(cf.info("Quote number {} deleted.".format(number)))
+        await self.bot.reply(
+            cf.info("Quote number {} deleted.".format(number)))
 
     @commands.command(pass_context=True, no_pm=False, name="allquotes")
-    async def _allquotes(self, context: commands.context.Context):
+    async def _allquotes(self, ctx: commands.context.Context):
         """Sends all quotes in a PM."""
 
         await self.bot.type()
-        server = context.message.server
+        server = ctx.message.server
 
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            await self.bot.reply(cf.warning("There are no saved quotes. Use `{}addquote` to add one.".format(context.prefix)))
+            await self.bot.reply(cf.warning(
+                "There are no saved quotes."
+                " Use `{}addquote` to add one.".format(ctx.prefix)))
             return
 
         strbuffer = self.list_quotes(server)
@@ -99,45 +111,56 @@ class Quotes:
         await self.bot.reply("Check your PMs!")
 
     @commands.command(pass_context=True, no_pm=True, name="quote")
-    async def _quote(self, context: commands.context.Context, *, number: str=None):
+    async def _quote(self, ctx: commands.context.Context, *, number: str=None):
         """Sends a random quote."""
 
         await self.bot.type()
-        server = context.message.server
+        server = ctx.message.server
         if server.id not in self.settings:
             self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
-            await self.bot.reply(cf.warning("There are no saved quotes. Use `{}addquote` to add one.".format(context.prefix)))
+            await self.bot.reply(cf.warning(
+                "There are no saved quotes."
+                " Use `{}addquote` to add one.".format(ctx.prefix)))
             return
 
         if number:
             try:
                 int(number)
             except (ValueError, TypeError):
-                await self.bot.reply(cf.warning("Please provide a number to get that specific quote. If you are trying to add a quote, use `{}addquote`.".format(context.prefix)))
+                await self.bot.reply(cf.warning(
+                    "Please provide a number to get that specific quote."
+                    " If you are trying to add a quote, use `{}addquote`."
+                    .format(ctx.prefix)))
                 return
 
             try:
                 await self.bot.say(self.settings[server.id]["quotes"][number])
                 return
             except KeyError:
-                await self.bot.reply(cf.warning("A quote with that number cannot be found. Try `{}allquotes` for a list.".format(context.prefix)))
+                await self.bot.reply(cf.warning(
+                    "A quote with that number cannot be found."
+                    " Try `{}allquotes` for a list.".format(ctx.prefix)))
                 return
 
-        await self.bot.say(random.choice(list(self.settings[server.id]["quotes"].values())))
+        await self.bot.say(random.choice(
+            list(self.settings[server.id]["quotes"].values())))
+
 
 def check_folders():
     if not os.path.exists("data/quotes"):
         print("Creating data/quotes directory...")
         os.makedirs("data/quotes")
 
+
 def check_files():
     f = "data/quotes/settings.json"
     if not dataIO.is_valid_json(f):
         print("Creating data/quotes/settings.json...")
         dataIO.save_json(f, {})
+
 
 def setup(bot: commands.bot.Bot):
     check_folders()

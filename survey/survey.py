@@ -17,15 +17,22 @@ from tabulate import tabulate
 Option = Dict[str, Any]
 Options = Dict[str, Option]
 
+
 class Survey:
-    """Runs surveys for a specific role of people via DM, and prints real-time results to a given text channel.
-    Supports changing responses, answer option quotas, and reminders based on initial answer."""
+
+    """Runs surveys for a specific role of people via DM,
+    and prints real-time results to a given text channel.
+
+    Supports changing responses, answer option quotas,
+    and reminders based on initial answer.
+    """
+
     def __init__(self, bot: commands.bot.Bot):
         self.bot = bot
         self.surveys_path = "data/survey/surveys.json"
         self.surveys = dataIO.load_json(self.surveys_path)
         self.tasks = defaultdict(list)
-        
+
         self.bot.loop.create_task(self._resume_running_surveys())
 
     async def _resume_running_surveys(self):
@@ -39,17 +46,26 @@ class Survey:
                 for survey_id in self.surveys[server_id]:
                     if survey_id not in closed:
                         self._setup_reprompts(server_id, survey_id)
-                        self._schedule_close(server_id, survey_id, self._get_timeout(self._deadline_string_to_datetime(self.surveys[server_id][survey_id]["deadline"])))
-                        await self._update_answers_message(server_id, survey_id)
+                        self._schedule_close(
+                            server_id, survey_id, self._get_timeout(
+                                self._deadline_string_to_datetime(
+                                    self.surveys[server_id][survey_id]
+                                    ["deadline"])))
+                        await self._update_answers_message(
+                            server_id, survey_id)
                         for uid in self.surveys[server_id][survey_id]["asked"]:
                             user = server.get_member(uid)
-                            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, send_question=False))
+                            new_task = self.bot.loop.create_task(
+                                self._send_message_and_wait_for_message(
+                                    server_id, survey_id, user,
+                                    send_question=False))
                             self.tasks[survey_id].append(new_task)
 
     def _member_has_role(self, member: discord.Member, role: discord.Role):
         return role in member.roles
 
-    def _get_users_with_role(self, server: discord.Server, role: discord.Role) -> List[discord.User]:
+    def _get_users_with_role(self, server: discord.Server,
+                             role: discord.Role) -> List[discord.User]:
         roled = []
         for member in server.members:
             if self._member_has_role(member, role):
@@ -77,7 +93,8 @@ class Survey:
         dataIO.save_json(self.surveys_path, self.surveys)
 
     async def _parse_options(self, options: str) -> Options:
-        opts_list = None if options == "*" else [r.lower().strip() for r in options.split(";")]
+        opts_list = None if options == "*" else [
+            r.lower().strip() for r in options.split(";")]
         opt_names = [o[0] for o in [op.split(":") for op in opts_list]]
 
         opts = {}
@@ -85,7 +102,8 @@ class Survey:
             for opt in opts_list:
                 opt_s = opt.split(":")
                 if len(opt_s) == 1:
-                    opts[opt_s[0]] = {"limit": None, "reprompt": None, "link": None}
+                    opts[opt_s[0]] = {
+                        "limit": None, "reprompt": None, "link": None}
                 elif len(opt_s) > 1:
                     if opt_s[1] == "":
                         opts[opt_s[0]] = {"limit": None}
@@ -93,7 +111,8 @@ class Survey:
                         try:
                             int(opt_s[1])
                         except ValueError:
-                            await self.bot.reply(cf.error("A limit you provided was not a number. Please try again."))
+                            await self.bot.reply(cf.error(
+                                "A limit you provided was not a number."))
                             return "return"
                         opts[opt_s[0]] = {"limit": opt_s[1]}
 
@@ -104,7 +123,9 @@ class Survey:
                         try:
                             int(opt_s[2])
                         except ValueError:
-                            await self.bot.reply(cf.error("A reprompt value you provided was not a number. Please try again."))
+                            await self.bot.reply(cf.error(
+                                "A reprompt value you provided was"
+                                " not a number."))
                             return "return"
                         opts[opt_s[0]]["reprompt"] = int(opt_s[2]) * 60
                 else:
@@ -164,7 +185,7 @@ class Survey:
         answers = self.surveys[server_id][survey_id]["answers"]
         asked = self.surveys[server_id][survey_id]["asked"]
         options = self.surveys[server_id][survey_id]["options"]
-        
+
         if change:
             for a in answers.values():
                 if user.id in a:
@@ -185,15 +206,18 @@ class Survey:
 
     def _setup_reprompts(self, server_id: str, survey_id: str):
         options = self.surveys[server_id][survey_id]["options"]
-        timeout = self._get_timeout(self._deadline_string_to_datetime(self.surveys[server_id][survey_id]["deadline"]))
+        timeout = self._get_timeout(self._deadline_string_to_datetime(
+            self.surveys[server_id][survey_id]["deadline"]))
 
         for optname, settings in options.items():
             if settings["reprompt"]:
                 new_handle = None
                 if settings["link"]:
-                    new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname, settings["link"])
+                    new_handle = self.bot.loop.call_later(
+                        timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname, settings["link"])
                 else:
-                    new_handle = self.bot.loop.call_later(timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname)
+                    new_handle = self.bot.loop.call_later(
+                        timeout - settings["reprompt"], self._check_reprompt, server_id, survey_id, optname)
                 self.tasks[survey_id].append(new_handle)
 
     def _check_reprompt(self, server_id: str, survey_id: str, option_name: str, link_name: str=None):
@@ -205,7 +229,8 @@ class Survey:
 
         for uid in answers[option_name]:
             user = self.bot.get_server(server_id).get_member(uid)
-            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, change=True, rp_opt=option_name))
+            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(
+                server_id, survey_id, user, change=True, rp_opt=option_name))
             self.tasks[survey_id].append(new_task)
 
     async def _update_answers_message(self, server_id: str, survey_id: str):
@@ -220,29 +245,35 @@ class Survey:
 
         if "results" not in self.surveys[server_id][survey_id]["messages"]:
             res_message = await self.bot.send_message(channel, "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
-            self.surveys[server_id][survey_id]["messages"]["results"] = res_message.id
+            self.surveys[server_id][survey_id][
+                "messages"]["results"] = res_message.id
 
             if waiting:
-                wait_message = await self.bot.send_message(channel, "{}\n{}".format("Awaiting answers from:", cf.box(waiting))) 
-                self.surveys[server_id][survey_id]["messages"]["waiting"] = wait_message.id
+                wait_message = await self.bot.send_message(channel, "{}\n{}".format("Awaiting answers from:", cf.box(waiting)))
+                self.surveys[server_id][survey_id][
+                    "messages"]["waiting"] = wait_message.id
 
             dataIO.save_json(self.surveys_path, self.surveys)
         else:
             res_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["results"]), "{} (ID {})\n{}".format(cf.bold(question), survey_id, cf.box(table)))
-            self.surveys[server_id][survey_id]["messages"]["results"] = res_message.id
+            self.surveys[server_id][survey_id][
+                "messages"]["results"] = res_message.id
             if waiting:
                 wait_message = await self.bot.edit_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]), "{}\n{}".format("Waiting on answers from:", cf.box(waiting)))
-                self.surveys[server_id][survey_id]["messages"]["waiting"] = wait_message.id
+                self.surveys[server_id][survey_id][
+                    "messages"]["waiting"] = wait_message.id
             elif self.surveys[server_id][survey_id]["messages"]["waiting"] is not None:
                 await self.bot.delete_message(await self.bot.get_message(channel, self.surveys[server_id][survey_id]["messages"]["waiting"]))
-                self.surveys[server_id][survey_id]["messages"]["waiting"] = None
+                self.surveys[server_id][survey_id][
+                    "messages"]["waiting"] = None
 
             dataIO.save_json(self.surveys_path, self.surveys)
 
     def _make_answer_table(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
         answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
-        rows = list(zip_longest(*[[server.get_member(y).display_name for y in x[1]] for x in answers]))
+        rows = list(zip_longest(
+            *[[server.get_member(y).display_name for y in x[1]] for x in answers]))
         headers = [x[0] for x in answers]
         return tabulate(rows, headers, tablefmt="orgtbl")
 
@@ -257,7 +288,8 @@ class Survey:
         return None
 
     def _schedule_close(self, server_id: str, survey_id: str, delay: int):
-        new_handle = self.bot.loop.call_later(delay, self._mark_as_closed, survey_id)
+        new_handle = self.bot.loop.call_later(
+            delay, self._mark_as_closed, survey_id)
         self.tasks[survey_id].append(new_handle)
 
     async def _send_message_and_wait_for_message(self, server_id: str, survey_id: str, user: discord.User, change: bool=False, rp_opt: str=None, send_question: bool=True):
@@ -267,22 +299,26 @@ class Survey:
             deadline_hr = self.surveys[server_id][survey_id]["deadline"]
             deadline = self._deadline_string_to_datetime(deadline_hr)
             options = self.surveys[server_id][survey_id]["options"]
-            options_hr = "any" if options == "any" else "/".join(options.keys())
+            options_hr = "any" if options == "any" else "/".join(
+                options.keys())
             achannel_id = self.surveys[server_id][survey_id]["channel"]
             achannel = self.bot.get_channel(achannel_id)
 
             if rp_opt:
-                options_hr = options_hr.replace(rp_opt, cf.strikethrough(rp_opt))
+                options_hr = options_hr.replace(
+                    rp_opt, cf.strikethrough(rp_opt))
 
-            rp_mes = "(You previously answered {}, but are being asked again. You may not answer the same as last time, but if you do not wish to change your answer, you may ignore this message.)".format(cf.bold(rp_opt) if rp_opt else "")
+            rp_mes = "(You previously answered {}, but are being asked again. You may not answer the same as last time, but if you do not wish to change your answer, you may ignore this message.)".format(
+                cf.bold(rp_opt) if rp_opt else "")
 
-            premsg = "A new survey has been posted! (ID {})\n".format(survey_id)
+            premsg = "A new survey has been posted! (ID {})\n".format(
+                survey_id)
             if change or rp_opt:
                 premsg = ""
 
             if send_question:
                 await self.bot.send_message(user, premsg + cf.question("{} *[deadline {}]*\n(options: {}){}".format(cf.bold(question), deadline_hr, options_hr, ("\n"+rp_mes) if rp_opt else "")))
-            
+
             channel = await self.bot.start_private_message(user)
 
             answer = None
@@ -311,7 +347,7 @@ class Survey:
 
     @commands.command(pass_context=True, no_pm=True, name="startsurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _startsurvey(self, context: commands.context.Context, role: discord.Role, channel: discord.Channel, question: str, options: str, deadline: str):
+    async def _startsurvey(self, ctx: commands.context.Context, role: discord.Role, channel: discord.Channel, question: str, options: str, deadline: str):
         """Starts a new survey.
         Role is the Discord server role to notify. Should be the @<role>.
         Channel is the channel in which to post results. Should be #<channel>
@@ -324,7 +360,7 @@ class Survey:
             <link> is the name of a different option. If set, reprompt will only happen if the given option has not hit its limit of responses. Requires that <reprompt> is set.
         Deadline should be of a sane time format, date optional, but timezone abbreviation is strongly recommended (otherwise UTC is assumed)."""
 
-        server = context.message.server
+        server = ctx.message.server
 
         if server.id not in self.surveys:
             self.surveys[server.id] = {}
@@ -348,7 +384,7 @@ class Survey:
         self.surveys[server.id][new_survey_id] = {}
         dataIO.save_json(self.surveys_path, self.surveys)
 
-        self._save_prefix(server.id, new_survey_id, context.prefix)
+        self._save_prefix(server.id, new_survey_id, ctx.prefix)
         self._save_deadline(server.id, new_survey_id, deadline)
         self._save_channel(server.id, new_survey_id, channel.id)
         self._save_question(server.id, new_survey_id, question)
@@ -364,17 +400,18 @@ class Survey:
         await self._update_answers_message(server.id, new_survey_id)
 
         for user in users_with_role:
-            new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server.id, new_survey_id, user))
+            new_task = self.bot.loop.create_task(
+                self._send_message_and_wait_for_message(server.id, new_survey_id, user))
             self.tasks[new_survey_id].append(new_task)
 
-        await self.bot.reply(cf.info("Survey started. You can close it with `{}closesurvey {}`.".format(context.prefix, new_survey_id)))
+        await self.bot.reply(cf.info("Survey started. You can close it with `{}closesurvey {}`.".format(ctx.prefix, new_survey_id)))
 
     @commands.command(pass_context=True, no_pm=True, name="closesurvey")
     @checks.admin_or_permissions(administrator=True)
-    async def _closesurvey(self, context: commands.context.Context, survey_id: str):
+    async def _closesurvey(self, ctx: commands.context.Context, survey_id: str):
         """Cancels the given survey. No more answers or changes will be taken."""
 
-        server = context.message.server
+        server = ctx.message.server
         surver = self._get_server_id_from_survey_id(survey_id)
 
         if not surver or server.id != surver:
@@ -395,9 +432,9 @@ class Survey:
         await self.bot.reply(cf.info("Survey with ID {} closed.".format(survey_id)))
 
     @commands.command(pass_context=True, no_pm=False, name="changeanswer")
-    async def _changeanswer(self, context: commands.context.Context, survey_id: str):
+    async def _changeanswer(self, ctx: commands.context.Context, survey_id: str):
         """Changes the calling user's response for the given survey."""
-        user = context.message.author
+        user = ctx.message.author
         server_id = self._get_server_id_from_survey_id(survey_id)
 
         if survey_id in self.surveys["closed"]:
@@ -408,19 +445,23 @@ class Survey:
             await self.bot.send_message(user, cf.error("Survey with ID {} not found.".format(survey_id)))
             return
 
-        new_task = self.bot.loop.create_task(self._send_message_and_wait_for_message(server_id, survey_id, user, change=True))
+        new_task = self.bot.loop.create_task(
+            self._send_message_and_wait_for_message(server_id, survey_id, user, change=True))
         self.tasks[survey_id].append(new_task)
+
 
 def check_folders():
     if not os.path.exists("data/survey"):
         print("Creating data/survey directory...")
         os.makedirs("data/survey")
 
+
 def check_files():
     f = "data/survey/surveys.json"
     if not dataIO.is_valid_json(f):
         print("Creating data/survey/surveys.json...")
         dataIO.save_json(f, {"next_id": 1, "closed": []})
+
 
 def setup(bot: commands.bot.Bot):
     check_folders()
