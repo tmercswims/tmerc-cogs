@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
-from __main__ import send_cmd_help
 
 from typing import List
 

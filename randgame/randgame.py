@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from .utils.dataIO import dataIO
 from .utils import chat_formatting as cf
+from __main__ import send_cmd_help
 
 import asyncio
 import os
@@ -44,27 +45,31 @@ class RandGame:
         await self.bot.wait_until_ready()
         while True:
             delay = self.settings["delay"]
-            servers = list(self.bot.servers)
 
-            if len(servers) > 0:
-                current_game = servers[0].get_member(self.bot.user.id).game
-                current_game_name = ""
-                if current_game is not None:
-                    current_game_name = current_game.name
-
-                new_game_name = self._random_game_name(current_game_name)
-                if new_game_name is not None:
-                    if (current_game_name in self.settings["games"] or
-                            current_game_name == "" or
-                            current_game_name in self.settings["del"]):
-                        await self.bot.change_presence(
-                            game=discord.Game(name=new_game_name))
-                        self.settings["del"] = []
-                        dataIO.save_json(self.settings_path, self.settings)
-                else:
-                    await self.bot.change_presence(game=None)
+            await self._cycle_game()
 
             await asyncio.sleep(delay)
+
+    async def _cycle_game(self):
+        servers = list(self.bot.servers)
+
+        if len(servers) > 0:
+            current_game = servers[0].get_member(self.bot.user.id).game
+            current_game_name = ""
+            if current_game is not None:
+                current_game_name = current_game.name
+
+            new_game_name = self._random_game_name(current_game_name)
+            if new_game_name is not None:
+                if (current_game_name in self.settings["games"] or
+                        current_game_name == "" or
+                        current_game_name in self.settings["del"]):
+                    await self.bot.change_presence(
+                        game=discord.Game(name=new_game_name))
+                    self.settings["del"] = []
+                    dataIO.save_json(self.settings_path, self.settings)
+            else:
+                await self.bot.change_presence(game=None)
 
     def _random_game_name(self, current_name):
         new_name = current_name
@@ -114,7 +119,7 @@ class RandGame:
 
     @_randgame.command(pass_context=True, no_pm=True, name="del")
     async def _del(self, ctx: commands.context.Context, *, game: str):
-        """Adds a game to the list."""
+        """Removes a game from the list."""
 
         try:
             self.settings["games"].remove(game)
@@ -161,6 +166,12 @@ class RandGame:
         games = ", ".join(sorted(self.settings["games"]))
 
         await self.bot.reply(cf.box(games))
+
+    @_randgame.command(pass_context=True, no_pm=True, name="cycle")
+    async def _cycle(self, ctx: commands.context.Context):
+        """Cycles the current game."""
+
+        await self._cycle_game()
 
 
 def check_folders():
