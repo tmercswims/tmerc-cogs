@@ -10,8 +10,10 @@ Cogs for Twentysix26's [Red Discord bot](https://github.com/Twentysix26/Red-Disc
 Gets random cat facts.
 #### Commands
   * `catfact [number]` - Gets `number` random facts about cats. `number` defaults to `1`, and must be no greater than `10`.
+
 #### Extra Dependencies
   * None.
+
 #### Additional Information
   * Cog uses a small amount of network traffic to retrieve facts.
 
