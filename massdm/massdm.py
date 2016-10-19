@@ -24,7 +24,8 @@ class MassDM:
                 roled.append(member)
         return roled
 
-    @commands.command(no_pm=True, pass_context=True, name="mdm", aliases=["massdm"])
+    @commands.command(no_pm=True, pass_context=True, name="mdm",
+                      aliases=["massdm"])
     @checks.mod_or_permissions(administrator=True)
     async def _mdm(self, ctx: commands.Context,
                    role: discord.Role, *, message: str):
