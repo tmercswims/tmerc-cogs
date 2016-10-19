@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 from .utils.dataIO import dataIO
-from .utils import chat_formatting as cf
+from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
 
 
@@ -84,6 +84,7 @@ class RandGame:
         return new_name
 
     @commands.group(pass_context=True, no_pm=True, name="randgame")
+    @checks.mod_or_permissions(administrator=True)
     async def _randgame(self, ctx: commands.context.Context):
         """Adjust settings and game list."""
 
