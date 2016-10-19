@@ -192,17 +192,6 @@ Run surveys via Discord DMs, and display the results in a text channel. Can be u
   * There is currently a bug with deadlines that are more than 24 hours in the future, which (I think) may be a limitation of Python itself. (I swear I remember reading something in some documentation that the limit for waiting was one day, but I could be wrong.) I will be investigating this at some point.
   * Cog creates a *lot* of background tasks to listen for answers from people. Most of the time they are sleeping, so it should not affect performance.
 
-### Voice
-Simple controls for connecting and disconnecting the bot to and from voice channels.
-#### Commands
-  * `voice <command>` (Bot admin only)
-    * `join` - Connects the bot to the caller's voice channel.
-    * `leave` - Disconnects the bot from its current voice channel.
-#### Extra Dependencies
-  * None.
-#### Additional Information
-  * None.
-
 
 ## Support
 If you are having issues with any of these cogs, please [open an issue on GitHub](https://github.com/tmercswims/tmerc-cogs/issues/new) and I will do my best to help you out.
