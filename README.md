@@ -205,21 +205,6 @@ Allows for users to submit emoji, and then moderators to approve/reject them.
   * Cog uses network to retrieve images for new emoji.
 
 
-### Say
-Echoes the input in a variety of ways.
-#### Commands
-  * `say <text>` - Says `text`.
-  * `tts <text>` - Says `text` with TTS.
-  * `reply <text>` - Says `text` as an @reply to the caller.
-  * `pm <text>` - Sends `text` as a DM to the caller.
-
-#### Extra Dependencies
-  * None.
-
-#### Additional Information
-  * None.
-
-
 ### Survey
 Run surveys via Discord DMs, and display the results in a text channel. Can be used for surveys, polls, or signups for an event.
 #### Commands
