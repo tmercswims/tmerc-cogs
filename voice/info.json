@@ -1,7 +1,0 @@
-{
-    "AUTHOR" : "Thomas Mercurio",
-    "INSTALL_MSG" : "Thanks for installing!",
-    "NAME" : "Voice",
-    "SHORT" : "Tools for controlling the bot's voice connections.",
-    "DESCRIPTION" : "A pair of commands that control the bot's voice connections. Can be used to force it to join or leave voice channels."
-}

@@ -205,21 +205,6 @@ Allows for users to submit emoji, and then moderators to approve/reject them.
   * Cog uses network to retrieve images for new emoji.
 
 
-### Say
-Echoes the input in a variety of ways.
-#### Commands
-  * `say <text>` - Says `text`.
-  * `tts <text>` - Says `text` with TTS.
-  * `reply <text>` - Says `text` as an @reply to the caller.
-  * `pm <text>` - Sends `text` as a DM to the caller.
-
-#### Extra Dependencies
-  * None.
-
-#### Additional Information
-  * None.
-
-
 ### Survey
 Run surveys via Discord DMs, and display the results in a text channel. Can be used for surveys, polls, or signups for an event.
 #### Commands
@@ -235,20 +220,6 @@ Run surveys via Discord DMs, and display the results in a text channel. Can be u
 #### Additional Information
   * There is currently a bug with deadlines that are more than 24 hours in the future, which (I think) may be a limitation of Python itself. (I swear I remember reading something in some documentation that the limit for waiting was one day, but I could be wrong.) I will be investigating this at some point.
   * Cog creates a *lot* of background tasks to listen for answers from people. Most of the time they are sleeping, so it should not affect performance.
-
-
-### Voice
-Simple controls for connecting and disconnecting the bot to and from voice channels.
-#### Commands
-  * `voice <command>` (Bot admin only)
-    * `join` - Connects the bot to the caller's voice channel.
-    * `leave` - Disconnects the bot from its current voice channel.
-
-#### Extra Dependencies
-  * None.
-
-#### Additional Information
-  * None.
 
 
 ## Support
