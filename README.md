@@ -4,6 +4,12 @@
 
 Cogs for Twentysix26's [Red Discord bot](https://github.com/Twentysix26/Red-DiscordBot).
 
+## Installation
+To add this repository to your bot, use the following command:
+```
+[p]cog repo add tmerc-cogs https://github.com/tmercswims/tmerc-cogs
+```
+
 ## The Cogs
 
 ### CatFact
