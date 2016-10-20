@@ -168,13 +168,17 @@ Cycles the bot's game randomly among a list at a regular interval.
 ### RandImage
 Gets a random image from a local directory.
 #### Commands
-  * `randimage <directory>` - Uploads a random image from the `directory`, which must be inside `data/randimage/`.
+  * `randimage <category>` - Uploads a random image from `category`.
+  * `addcategory <new_category>` (Bot mod only) - Creates a new category.
+  * `delcategory <category>` (Bot mod only) - Deletes a category and all images in it.
+  * `allcategories` - Sends a DM to the calling user with a list of all the categories, and the number of images in each.
+  * `addimage <category> [image_url]` (Bot mod only) - Adds a new image to the specified category. Must be called either as the comment on an uploaded file (Discord attachment) **or** a direct link to an image file must be provided.
 
 #### Extra Dependencies
   * None.
 
 #### Additional Information
-  * Cog can potentially use an *enormous* amount of disk space, but images must be added directly by the owner (for now), so it is easily controlled.
+  * Cog can potentially use an *enormous* amount of disk space, depending on how many images are uploaded.
 
 
 ### Randimals
