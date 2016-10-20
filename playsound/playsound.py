@@ -47,7 +47,7 @@ class PlaySound:
             return
         voice_client = self.voice_client(server)
 
-        if self.audio_players[server.id]:
+        if server.id in self.audio_players:
             self.audio_players[server.id].stop()
         await voice_client.disconnect()
 

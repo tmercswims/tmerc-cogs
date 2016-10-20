@@ -23,7 +23,7 @@ class CustomJoinLeave:
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.audio_player = False
+        self.audio_players = {}
         self.sound_base = "data/customjoinleave"
         self.settings_path = "data/customjoinleave/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
@@ -43,19 +43,19 @@ class CustomJoinLeave:
             return
         voice_client = self.voice_client(server)
 
-        if self.audio_player:
-            self.audio_player.stop()
+        if server.id in self.audio_players:
+            self.audio_players[server.id].stop()
         await voice_client.disconnect()
 
     async def wait_for_disconnect(self, server: discord.Server):
-        while not self.audio_player.is_done():
+        while not self.audio_players[server.id].is_done():
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
     async def sound_init(self, server: discord.Server, path: str):
         options = "-filter \"volume=volume=0.15\""
         voice_client = self.voice_client(server)
-        self.audio_player = voice_client.create_ffmpeg_player(
+        self.audio_players[server.id] = voice_client.create_ffmpeg_player(
             path, options=options)
 
     async def sound_play(self, server: discord.Server,
@@ -65,27 +65,27 @@ class CustomJoinLeave:
 
         if not channel.is_private:
             if self.voice_connected(server):
-                if not self.audio_player:
+                if server.id not in self.audio_players:
                     await self.sound_init(server, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
                 else:
-                    if self.audio_player.is_playing():
-                        self.audio_player.stop()
+                    if self.audio_players[server.id].is_playing():
+                        self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
             else:
                 await self.bot.join_voice_channel(channel)
-                if not self.audio_player:
+                if server.id not in self.audio_players:
                     await self.sound_init(server, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
                 else:
-                    if self.audio_player.is_playing():
-                        self.audio_player.stop()
+                    if self.audio_players[server.id].is_playing():
+                        self.audio_players[server.id].stop()
                     await self.sound_init(server, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
 
     @commands.group(pass_context=True, no_pm=True, name="joinleaveset")
