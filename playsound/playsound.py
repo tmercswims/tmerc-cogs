@@ -18,7 +18,7 @@ class PlaySound:
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.audio_player = False
+        self.audio_players = {}
         self.sound_base = "data/playsound"
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
@@ -47,12 +47,12 @@ class PlaySound:
             return
         voice_client = self.voice_client(server)
 
-        if self.audio_player:
-            self.audio_player.stop()
+        if self.audio_players[server.id]:
+            self.audio_players[server.id].stop()
         await voice_client.disconnect()
 
     async def wait_for_disconnect(self, server: discord.Server):
-        while not self.audio_player.is_done():
+        while not self.audio_players[server.id].is_done():
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
@@ -60,7 +60,7 @@ class PlaySound:
         server = ctx.message.server
         options = "-filter \"volume=volume=0.25\""
         voice_client = self.voice_client(server)
-        self.audio_player = voice_client.create_ffmpeg_player(
+        self.audio_players[server.id] = voice_client.create_ffmpeg_player(
             path, options=options)
 
     async def sound_play(self, ctx: commands.Context, p: str):
@@ -75,27 +75,27 @@ class PlaySound:
 
         if not ctx.message.channel.is_private:
             if self.voice_connected(server):
-                if not self.audio_player:
+                if server.id not in self.audio_players:
                     await self.sound_init(ctx, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
                 else:
-                    if self.audio_player.is_playing():
-                        self.audio_player.stop()
+                    if self.audio_players[server.id].is_playing():
+                        self.audio_players[server.id].stop()
                     await self.sound_init(ctx, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
             else:
                 await self._join_voice_channel(ctx)
-                if not self.audio_player:
+                if server.id not in self.audio_players:
                     await self.sound_init(ctx, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
                 else:
-                    if self.audio_player.is_playing():
-                        self.audio_player.stop()
+                    if self.audio_players[server.id].is_playing():
+                        self.audio_players[server.id].stop()
                     await self.sound_init(ctx, p)
-                    self.audio_player.start()
+                    self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
 
     @commands.command(no_pm=True, pass_context=True, name="playsound")
@@ -139,7 +139,7 @@ class PlaySound:
         if len(strbuffer) == 0:
             await self.bot.reply(cf.warning(
                 "No sounds found. Use `{}addsound` to add one.".format(
-                     ctx.prefix)))
+                    ctx.prefix)))
             return
 
         mess = "```"
