@@ -150,7 +150,7 @@ class ReviewEmoji:
         else:
             await self.bot.reply(cf.error(
                 "You must provide either a Discord attachment"
-                " or a direct link to a sound."))
+                " or a direct link to an image."))
             return
 
         if len(server.emojis) == 50:
