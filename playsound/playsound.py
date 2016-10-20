@@ -25,9 +25,10 @@ class PlaySound:
         return (voice_channel.user_limit != 0 and
                 len(voice_channel.voice_members) >= voice_channel.user_limit)
 
-    def list_sounds(self) -> List[str]:
+    def list_sounds(self, server_id: str) -> List[str]:
         return sorted(
-            [os.path.splitext(s)[0] for s in os.listdir(self.sound_base)],
+            [os.path.splitext(s)[0] for s in os.listdir(os.path.join(
+                self.sound_base, server_id))],
             key=lambda s: s.lower())
 
     def voice_connected(self, server: discord.Server) -> bool:
@@ -101,11 +102,17 @@ class PlaySound:
     async def _playsound(self, ctx: commands.Context, soundname: str):
         """Plays the specified sound."""
 
-        f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
+        server = ctx.message.server
+
+        if server.id not in os.listdir(self.sound_base):
+            os.makedirs(os.path.join(self.sound_base, server.id))
+
+        f = glob.glob(os.path.join(
+            self.sound_base, server.id, soundname + ".*"))
         if len(f) < 1:
             await self.bot.reply(cf.error(
-                "Sound file not found. Try `{}allsounds` for a list."
-                .format(ctx.prefix)))
+                "Sound file not found. Try `{}allsounds` for a list.".format(
+                    ctx.prefix)))
             return
         elif len(f) > 1:
             await self.bot.reply(cf.error(
@@ -121,7 +128,20 @@ class PlaySound:
         """Sends a list of every sound in a PM."""
 
         await self.bot.type()
-        strbuffer = self.list_sounds()
+
+        server = ctx.message.server
+
+        if server.id not in os.listdir(self.sound_base):
+            os.makedirs(os.path.join(self.sound_base, server.id))
+
+        strbuffer = self.list_sounds(server.id)
+
+        if len(strbuffer) == 0:
+            await self.bot.reply(cf.warning(
+                "No sounds found. Use `{}addsound` to add one.".format(
+                     ctx.prefix)))
+            return
+
         mess = "```"
         for line in strbuffer:
             if len(mess) + len(line) + 4 < 2000:
@@ -146,6 +166,12 @@ class PlaySound:
         """
 
         await self.bot.type()
+
+        server = ctx.message.server
+
+        if server.id not in os.listdir(self.sound_base):
+            os.makedirs(os.path.join(self.sound_base, server.id))
+
         attach = ctx.message.attachments
         if len(attach) > 1 or (attach and link):
             await self.bot.reply(
@@ -168,9 +194,9 @@ class PlaySound:
                          " direct link to a sound."))
             return
 
-        filepath = os.path.join(self.sound_base, filename)
+        filepath = os.path.join(self.sound_base, server.id, filename)
 
-        if os.path.splitext(filename)[0] in self.list_sounds():
+        if os.path.splitext(filename)[0] in self.list_sounds(server.id):
             await self.bot.reply(
                 cf.error("A sound with that filename already exists."
                          " Please change the filename and try again."))
@@ -190,11 +216,18 @@ class PlaySound:
         """Deletes an existing sound."""
 
         await self.bot.type()
-        f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
+
+        server = ctx.message.server
+
+        if server.id not in os.listdir(self.sound_base):
+            os.makedirs(os.path.join(self.sound_base, server.id))
+
+        f = glob.glob(os.path.join(self.sound_base, server.id,
+                                   soundname + ".*"))
         if len(f) < 1:
-            await self.bot.say(
-                cf.error("Sound file not found! Try `{}allsounds` for a list."
-                         .format(ctx.prefix)))
+            await self.bot.say(cf.error(
+                "Sound file not found. Try `{}allsounds` for a list.".format(
+                    ctx.prefix)))
             return
         elif len(f) > 1:
             await self.bot.say(cf.error(
@@ -211,11 +244,19 @@ class PlaySound:
         """Gets the given sound."""
 
         await self.bot.type()
-        f = glob.glob(os.path.join(self.sound_base, soundname + ".*"))
+
+        server = ctx.message.server
+
+        if server.id not in os.listdir(self.sound_base):
+            os.makedirs(os.path.join(self.sound_base, server.id))
+
+        f = glob.glob(os.path.join(self.sound_base, server.id,
+                                   soundname + ".*"))
+
         if len(f) < 1:
-            await self.bot.say(
-                cf.error("Sound file not found! Try `{}allsounds` for a list."
-                         .format(ctx.prefix)))
+            await self.bot.say(cf.error(
+                "Sound file not found. Try `{}allsounds` for a list.".format(
+                    ctx.prefix)))
             return
         elif len(f) > 1:
             await self.bot.say(cf.error(
@@ -227,5 +268,13 @@ class PlaySound:
         await self.bot.upload(f[0])
 
 
+def check_folders():
+    if not os.path.exists("data/playsound"):
+        print("Creating data/playsound directory...")
+        os.makedirs("data/playsound")
+
+
 def setup(bot: commands.Bot):
+    check_folders()
+
     bot.add_cog(PlaySound(bot))
