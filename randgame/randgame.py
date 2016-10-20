@@ -145,7 +145,8 @@ class RandGame:
 
         await self.bot.reply(cf.question(
             "You are about to replace the current game list with this:{}"
-            "Are you sure you want to proceed? (yes/no)".format(cf.box(games_str))))
+            "Are you sure you want to proceed? (yes/no)".format(
+                cf.box(games_str))))
 
         answer = await self.bot.wait_for_message(timeout=15,
                                                  author=ctx.message.author)
