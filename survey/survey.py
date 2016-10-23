@@ -92,7 +92,8 @@ class Survey:
         return dl
 
     def _get_timeout(self, deadline: datetime) -> int:
-        return (deadline - datetime.utcnow().replace(tzinfo=pytz.utc)).seconds
+        return (deadline - datetime.utcnow().replace(
+            tzinfo=pytz.utc)).total_seconds()
 
     def _mark_as_closed(self, survey_id: str):
         if not self.surveys["closed"]:
@@ -581,11 +582,15 @@ def setup(bot: commands.Bot):
             if tabulate_available:
                 bot.add_cog(Survey(bot))
             else:
-                raise RuntimeError("You need to install `tabulate`: `pip install tabulate`.")
+                raise RuntimeError(
+                    "You need to install `tabulate`: `pip install tabulate`.")
         else:
-            raise RuntimeError("You need to install `pytz`: `pip install pytz`.")
+            raise RuntimeError(
+                "You need to install `pytz`: `pip install pytz`.")
     else:
-        raise RuntimeError("You need to install `python-dateutil`: `pip install python-dateutil`.")
+        raise RuntimeError(
+            "You need to install `python-dateutil`:"
+            " `pip install python-dateutil`.")
 
 tz_str = """-12 Y
 -11 X NUT SST
