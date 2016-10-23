@@ -92,7 +92,7 @@ class Survey:
         return dl
 
     def _get_timeout(self, deadline: datetime) -> int:
-        return (deadline - datetime.utcnow().replace(tzinfo=pytz.utc)).seconds
+        return (deadline - datetime.utcnow().replace(tzinfo=pytz.utc)).total_seconds()
 
     def _mark_as_closed(self, survey_id: str):
         if not self.surveys["closed"]:
