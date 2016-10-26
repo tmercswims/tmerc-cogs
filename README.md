@@ -229,4 +229,4 @@ Run surveys via Discord DMs, and display the results in a text channel. Can be u
 ## Support
 If you are having issues with any of these cogs, please [open an issue on GitHub](https://github.com/tmercswims/tmerc-cogs/issues/new) and I will do my best to help you out.
 
-I am also available on Discord, `tmerc#2986`. I am a member of both TwentySix26's Red server and the Discord API server.
+I am also available on Discord, `tmerc#2986`. I am a member of both [TwentySix26's Red server](https://discord.me/Red-DiscordBot) and the [Discord API server](https://discord.gg/discord-api).
