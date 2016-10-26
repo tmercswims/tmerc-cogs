@@ -88,7 +88,7 @@ class Survey:
     def _deadline_string_to_datetime(self, deadline: str) -> datetime:
         dl = dp.parse(deadline, tzinfos=tzd)
         if dl.tzinfo is None:
-            dl.replace(tzinfo=pytz.utc)
+            dl = dl.replace(tzinfo=pytz.utc)
         return dl
 
     def _get_timeout(self, deadline: datetime) -> int:
