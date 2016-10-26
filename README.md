@@ -222,7 +222,7 @@ Run surveys via Discord DMs, and display the results in a text channel. Can be u
   * `tabulate`
 
 #### Additional Information
-  * There is currently a bug with deadlines that are more than 24 hours in the future, which (I think) may be a limitation of Python itself. (I swear I remember reading something in some documentation that the limit for waiting was one day, but I could be wrong.) I will be investigating this at some point.
+  * There is currently a problem with deadlines that are too far in the future. This is a limitation of Python itself, and I can do nothing to get around it. The documentation says delays should not be over one day, but the actual limitation is integer overflow, so delays can be longer than that. See https://docs.python.org/3/library/asyncio-eventloop.html#delayed-calls and https://bugs.python.org/issue20493 for more information
   * Cog creates a *lot* of background tasks to listen for answers from people. Most of the time they are sleeping, so it should not affect performance.
 
 
