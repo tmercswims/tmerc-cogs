@@ -239,15 +239,21 @@ class PlaySound:
             f.write(await new_sound.read())
             f.close()
 
-        self.settings[server.id][os.path.splitext(filename)[0]] = {"volume": default_volume}
+        self.settings[server.id][
+            os.path.splitext(filename)[0]] = {"volume": default_volume}
+        dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.reply(
             cf.info("Sound {} added.".format(os.path.splitext(filename)[0])))
 
-    @commands.command(no+pm=True, pass_context=True, name="soundvol")
+    @commands.command(no_pm=True, pass_context=True, name="soundvol")
     @checks.mod_or_permissions(administrator=True)
-    async def _soundvol(self, ctx: commands.Context, soundname: str, percent: int=None):
-        """Sets the volume for the specified sound."""
+    async def _soundvol(self, ctx: commands.Context, soundname: str,
+                        percent: int=None):
+        """Sets the volume for the specified sound.
+
+        If no value is given, the current volume for the sound is printed.
+        """
 
         await self.bot.type()
 
@@ -260,7 +266,34 @@ class PlaySound:
             self.settings[server.id] = {}
             dataIO.save_json(self.settings_path, self.settings)
 
-        if server.id not in self.settings
+        f = glob.glob(os.path.join(self.sound_base, server.id,
+                                   soundname + ".*"))
+        if len(f) < 1:
+            await self.bot.say(cf.error(
+                "Sound file not found. Try `{}allsounds` for a list.".format(
+                    ctx.prefix)))
+            return
+        elif len(f) > 1:
+            await self.bot.say(cf.error(
+                "There are {} sound files with the same name, but different"
+                " extensions, and I can't deal with it. Please make filenames"
+                " (excluding extensions) unique.".format(len(f))))
+            return
+
+        if soundname not in self.settings[server.id]:
+            self.settings[server.id][soundname] = {"volume": default_volume}
+            dataIO.save_json(self.settings_path, self.settings)
+
+        if percent is None:
+            await self.bot.reply("Volume for {} is {}.".format(
+                soundname, self.settings[server.id][soundname]["volume"]))
+            return
+
+        self.settings[server.id][soundname]["volume"] = percent
+        dataIO.save_json(self.settings_path, self.settings)
+
+        await self.bot.reply("Volume for {} set to {}.".format(soundname,
+                                                               percent))
 
     @commands.command(no_pm=True, pass_context=True, name="delsound")
     @checks.mod_or_permissions(administrator=True)
@@ -289,6 +322,11 @@ class PlaySound:
             return
 
         os.remove(f[0])
+
+        if soundname in self.settings[server.id]:
+            del self.settings[server.id][soundname]
+            dataIO.save_json(self.settings_path, self.settings)
+
         await self.bot.reply(cf.info("Sound {} deleted.".format(soundname)))
 
     @commands.command(no_pm=True, pass_context=True, name="getsound")
@@ -335,5 +373,6 @@ def check_files():
 
 def setup(bot: commands.Bot):
     check_folders()
+    check_files()
 
     bot.add_cog(PlaySound(bot))
