@@ -121,6 +121,7 @@ Play sounds in voice channels.
   * `playsound <soundname>` - Plays the specified sound in the voice channel in which the caller is currently. `soundname` must be the case-accurate filename of a sound in `data/playsound`, excluding the extension.
   * `allsounds` - Sends a DM to the caller with an alphabetical list of every sound.
   * `addsound [link]` (Bot mod only) - Adds the provided sound. Must be called either as the comment on an uploaded file (Discord attachment) **or** a direct link to a sound file must be provided.
+  * `soundvol <soundname> [percent]` (Bot mod only) - Sets or gets the volume for the specified sound. If `percent` is given, the volume for the specified sound is set to it. If it is not, the current volume for the sound is returned. If a sound's volume is never explicitly set, it defaults to 25%.
   * `getsound <soundname>` - Sends the specified sound file as a Discord attachment.
   * `delsound <filename>` - Deletes the specified sound.
 

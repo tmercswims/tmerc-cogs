@@ -8,8 +8,12 @@ import aiohttp
 import discord
 from discord.ext import commands
 
+from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 from __main__ import send_cmd_help
+
+
+default_volume = 25
 
 
 class PlaySound:
@@ -20,6 +24,9 @@ class PlaySound:
         self.bot = bot
         self.audio_players = {}
         self.sound_base = "data/playsound"
+
+        self.settings_path = "data/playsound/settings.json"
+        self.settings = dataIO.load_json(self.settings_path)
 
     def voice_channel_full(self, voice_channel: discord.Channel) -> bool:
         return (voice_channel.user_limit != 0 and
@@ -56,14 +63,14 @@ class PlaySound:
             await asyncio.sleep(0.01)
         await self._leave_voice_channel(server)
 
-    async def sound_init(self, ctx: commands.Context, path: str):
+    async def sound_init(self, ctx: commands.Context, path: str, vol: int):
         server = ctx.message.server
-        options = "-filter \"volume=volume=0.25\""
+        options = "-filter \"volume=volume={}\"".format(str(vol/100))
         voice_client = self.voice_client(server)
         self.audio_players[server.id] = voice_client.create_ffmpeg_player(
             path, options=options)
 
-    async def sound_play(self, ctx: commands.Context, p: str):
+    async def sound_play(self, ctx: commands.Context, p: str, vol: int):
         server = ctx.message.server
         if not ctx.message.author.voice_channel:
             await self.bot.reply(
@@ -76,25 +83,25 @@ class PlaySound:
         if not ctx.message.channel.is_private:
             if self.voice_connected(server):
                 if server.id not in self.audio_players:
-                    await self.sound_init(ctx, p)
+                    await self.sound_init(ctx, p, vol)
                     self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
-                    await self.sound_init(ctx, p)
+                    await self.sound_init(ctx, p, vol)
                     self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
             else:
                 await self._join_voice_channel(ctx)
                 if server.id not in self.audio_players:
-                    await self.sound_init(ctx, p)
+                    await self.sound_init(ctx, p, vol)
                     self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
                 else:
                     if self.audio_players[server.id].is_playing():
                         self.audio_players[server.id].stop()
-                    await self.sound_init(ctx, p)
+                    await self.sound_init(ctx, p, vol)
                     self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
 
@@ -106,6 +113,10 @@ class PlaySound:
 
         if server.id not in os.listdir(self.sound_base):
             os.makedirs(os.path.join(self.sound_base, server.id))
+
+        if server.id not in self.settings:
+            self.settings[server.id] = {}
+            dataIO.save_json(self.settings_path, self.settings)
 
         f = glob.glob(os.path.join(
             self.sound_base, server.id, soundname + ".*"))
@@ -121,7 +132,20 @@ class PlaySound:
                 " (excluding extensions) unique.".format(len(f))))
             return
 
-        await self.sound_play(ctx, f[0])
+        soundname = os.path.splitext(os.path.basename(f[0]))[0]
+        if soundname in self.settings[server.id]:
+            if "volume" in self.settings[server.id][soundname]:
+                vol = self.settings[server.id][soundname]["volume"]
+            else:
+                vol = default_volume
+                self.settings[server.id][soundname]["volume"] = vol
+                dataIO.save_json(self.settings_path, self.settings)
+        else:
+            vol = default_volume
+            self.settings[server.id][soundname] = {"volume": vol}
+            dataIO.save_json(self.settings_path, self.settings)
+
+        await self.sound_play(ctx, f[0], vol)
 
     @commands.command(pass_context=True, name="allsounds")
     async def _allsounds(self, ctx: commands.Context):
@@ -133,6 +157,10 @@ class PlaySound:
 
         if server.id not in os.listdir(self.sound_base):
             os.makedirs(os.path.join(self.sound_base, server.id))
+
+        if server.id not in self.settings:
+            self.settings[server.id] = {}
+            dataIO.save_json(self.settings_path, self.settings)
 
         strbuffer = self.list_sounds(server.id)
 
@@ -172,6 +200,10 @@ class PlaySound:
         if server.id not in os.listdir(self.sound_base):
             os.makedirs(os.path.join(self.sound_base, server.id))
 
+        if server.id not in self.settings:
+            self.settings[server.id] = {}
+            dataIO.save_json(self.settings_path, self.settings)
+
         attach = ctx.message.attachments
         if len(attach) > 1 or (attach and link):
             await self.bot.reply(
@@ -207,8 +239,61 @@ class PlaySound:
             f.write(await new_sound.read())
             f.close()
 
+        self.settings[server.id][
+            os.path.splitext(filename)[0]] = {"volume": default_volume}
+        dataIO.save_json(self.settings_path, self.settings)
+
         await self.bot.reply(
             cf.info("Sound {} added.".format(os.path.splitext(filename)[0])))
+
+    @commands.command(no_pm=True, pass_context=True, name="soundvol")
+    @checks.mod_or_permissions(administrator=True)
+    async def _soundvol(self, ctx: commands.Context, soundname: str,
+                        percent: int=None):
+        """Sets the volume for the specified sound.
+
+        If no value is given, the current volume for the sound is printed.
+        """
+
+        await self.bot.type()
+
+        server = ctx.message.server
+
+        if server.id not in os.listdir(self.sound_base):
+            os.makedirs(os.path.join(self.sound_base, server.id))
+
+        if server.id not in self.settings:
+            self.settings[server.id] = {}
+            dataIO.save_json(self.settings_path, self.settings)
+
+        f = glob.glob(os.path.join(self.sound_base, server.id,
+                                   soundname + ".*"))
+        if len(f) < 1:
+            await self.bot.say(cf.error(
+                "Sound file not found. Try `{}allsounds` for a list.".format(
+                    ctx.prefix)))
+            return
+        elif len(f) > 1:
+            await self.bot.say(cf.error(
+                "There are {} sound files with the same name, but different"
+                " extensions, and I can't deal with it. Please make filenames"
+                " (excluding extensions) unique.".format(len(f))))
+            return
+
+        if soundname not in self.settings[server.id]:
+            self.settings[server.id][soundname] = {"volume": default_volume}
+            dataIO.save_json(self.settings_path, self.settings)
+
+        if percent is None:
+            await self.bot.reply("Volume for {} is {}.".format(
+                soundname, self.settings[server.id][soundname]["volume"]))
+            return
+
+        self.settings[server.id][soundname]["volume"] = percent
+        dataIO.save_json(self.settings_path, self.settings)
+
+        await self.bot.reply("Volume for {} set to {}.".format(soundname,
+                                                               percent))
 
     @commands.command(no_pm=True, pass_context=True, name="delsound")
     @checks.mod_or_permissions(administrator=True)
@@ -237,6 +322,11 @@ class PlaySound:
             return
 
         os.remove(f[0])
+
+        if soundname in self.settings[server.id]:
+            del self.settings[server.id][soundname]
+            dataIO.save_json(self.settings_path, self.settings)
+
         await self.bot.reply(cf.info("Sound {} deleted.".format(soundname)))
 
     @commands.command(no_pm=True, pass_context=True, name="getsound")
@@ -274,7 +364,15 @@ def check_folders():
         os.makedirs("data/playsound")
 
 
+def check_files():
+    f = "data/playsound/settings.json"
+    if not dataIO.is_valid_json(f):
+        print("Creating data/playsound/settings.json...")
+        dataIO.save_json(f, {})
+
+
 def setup(bot: commands.Bot):
     check_folders()
+    check_files()
 
     bot.add_cog(PlaySound(bot))
