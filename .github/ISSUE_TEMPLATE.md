@@ -2,7 +2,6 @@
 ```
  [ ] Bug report
  [ ] Feature request or improvement for an existing cog
- [ ] Request for a new cog
 ```
 
 ### Name of the cog in question:
