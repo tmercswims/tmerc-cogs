@@ -7,5 +7,5 @@
 ### Name of the cog in question:
 
 
-### Description of your bug fix/improvement:
+### Description of my bug fix/improvement:
 
