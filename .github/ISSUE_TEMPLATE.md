@@ -7,15 +7,15 @@
 ### Name of the cog in question:
 
 
-### Description of your issue/request:
+### Description of my issue/request:
 
 
-### If it's a bug, provide steps to reproduce:
+### If it's a bug, steps to reproduce:
  
  1.
 
 
-### If it's a bug, provide a stack trace:
+### If it's a bug, a stack trace:
 ```
 Paste it here.
 ```
