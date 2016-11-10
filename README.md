@@ -79,6 +79,9 @@ Note that commands which specify a player must be given the player's Steam Vanit
     * `cj [limit]` - Gets the top `limit` countjumps. `limit` defaults to `10`.
 
 #### Extra Dependencies
+  * `beautifulsoup4`
+  * `python-valve`
+  * `rfc3987`
   * `tabulate`
 
 #### Additional Information
