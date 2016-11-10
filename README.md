@@ -80,7 +80,7 @@ Note that commands which specify a player must be given the player's Steam Vanit
 
 #### Extra Dependencies
   * `beautifulsoup4`
-  * `python-valve`
+  * `python-valve` (from GitHub: `git+git://github.com/Holiverh/python-valve.git`)
   * `rfc3987`
   * `tabulate`
 
