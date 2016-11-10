@@ -206,7 +206,7 @@ class CustomJoinLeave:
             answer = await self.bot.wait_for_message(timeout=15,
                                                      author=ctx.message.author)
 
-            if answer is not None and answer.content.lower().strip() != "yes":
+            if answer is None or answer.content.lower().strip() != "yes":
                 await self.bot.reply(
                     "{} sound not replaced.".format(action.capitalize()))
                 return
