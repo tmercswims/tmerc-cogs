@@ -92,7 +92,7 @@ class Survey:
             dl = dl.replace(tzinfo=pytz.utc)
 
         if adjust and (dl - datetime.utcnow().replace(tzinfo=pytz.utc)
-            ).total_seconds() < 0:
+                       ).total_seconds() < 0:
             dl += timedelta(days=1)
 
         return dl
