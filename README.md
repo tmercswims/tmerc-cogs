@@ -223,7 +223,14 @@ Run surveys via Discord DMs, and display the results in a text channel. Can be u
   * `tabulate`
 
 #### Additional Information
-  * There is currently a problem with deadlines that are too far in the future. This is a limitation of Python itself, and I can do nothing to get around it. The documentation says delays should not be over one day, but the actual limitation is integer overflow, so delays can be longer than that. See https://docs.python.org/3/library/asyncio-eventloop.html#delayed-calls and https://bugs.python.org/issue20493 for more information
+  * The deadline for the survey specifies an absolute point in time at which the survey should automatically close. If a timezone is provided, that is taken into account. If one is not, UTC is assumed. If we say that it is currently 10:00AM PST on June 15, 2016, the rules for deadlines are the following:
+    * If a time of day is given, but a date is not, the deadline will be set to the next time the given time of day will occur. In our situation, if the deadline is set to `9:OOAM PST`, the deadline will be 9:00AM PST, June 16, 2016. If it is set to `11:00AM PST`, it will be 11:00AM PST, June 16, 2016.
+    * `10:00AM PST` is `18:00 UTC`. If the deadline is given without a timezone, such as `6:00PM`, is assumed to be `6:00PM UTC`.
+    * If a date is given, but a time of day is not, the deadline will be 00:00 (12:00 midnight) on the given date.
+    * If both a time of day and date are given, the deadline will be set to that exact point in time.
+    * For any deadline that includes a date, if the absolute point in time is more than one day in the past, an error will occur.
+    * There is a situation where, if a given deadline has a date (and has or does not have a time of day), but is less than one day in the past, it will be pushed forward one day instead of erroring. This is a [known issue](https://github.com/tmercswims/tmerc-cogs/issues/31).
+  * There is currently a problem with deadlines that are too far in the future. This is a limitation of Python itself, and I can do nothing to get around it. The documentation states delays should not be over one day, but the actual limitation is integer overflow, so delays can be longer than that. See https://docs.python.org/3/library/asyncio-eventloop.html#delayed-calls and https://bugs.python.org/issue20493 for more information.
   * Cog creates a *lot* of background tasks to listen for answers from people. Most of the time they are sleeping, so it should not affect performance.
 
 
