@@ -116,7 +116,7 @@ class RandImage:
 
         await self.bot.type()
 
-        if answer is not None and answer.content.lower().strip() != "yes":
+        if answer is None or answer.content.lower().strip() != "yes":
             await self.bot.reply("Category not deleted.")
             return
 
