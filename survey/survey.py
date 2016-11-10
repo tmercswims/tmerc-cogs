@@ -100,7 +100,7 @@ class Survey:
         if adjust and -86400 < to < 0:
             dl += timedelta(days=1)
         elif to < -86400:
-            raise PastDeadlineError
+            raise PastDeadlineError()
 
         return dl
 

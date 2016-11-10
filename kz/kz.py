@@ -1,15 +1,31 @@
 import ftplib
 import json
+import re
 import os
 import sqlite3
 
 import aiohttp
 from discord.ext import commands
 try:
+    from bs4 import BeautifulSoup
+    soup_available = True
+except:
+    soup_available = False
+try:
+    import rfc3987
+    rfc3987_available = True
+except:
+    rfc3987_available = False
+try:
     from tabulate import tabulate
     tabulate_available = True
 except:
     tabulate_available = False
+try:
+    from valve.rcon import RCON
+    valve_available = True
+except:
+    valve_available = False
 
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
@@ -21,11 +37,17 @@ default_settings = {
     "ftp_username": None,
     "ftp_password": None,
     "ftp_dbpath": None,
-    "steam_api_key": None
+    "steam_api_key": None,
+    "rcon_password": None,
+    "ftp_mapcyclepath": None
 }
 
 
 class SteamUrlError(Exception):
+    pass
+
+
+class BadMapIDOrURL(Exception):
     pass
 
 
@@ -35,11 +57,12 @@ class KZ:
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.ws_url = "https://steamcommunity.com/sharedfiles/filedetails/?id="
         self.settings_path = "data/kz/settings.json"
         self.settings = dataIO.load_json(self.settings_path)
 
     @commands.group(pass_context=True, no_pm=True, name="kzset")
-    @checks.admin_or_permissions(manage_server=True)
+    @checks.admin_or_permissions(administrator=True)
     async def _kzset(self, ctx: commands.Context):
         """Sets KZ settings."""
 
@@ -61,8 +84,7 @@ class KZ:
         await self.bot.reply(cf.info("Server set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="username")
-    async def _username(self, ctx: commands.Context,
-                        username: str):
+    async def _username(self, ctx: commands.Context, username: str):
         """Set the FTP username."""
 
         server = ctx.message.server
@@ -70,9 +92,8 @@ class KZ:
         dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Username set."))
 
-    @_kzset.command(pass_context=True, no_pm=True, name="password")
-    async def _password(self, ctx: commands.Context,
-                        password: str):
+    @_kzset.command(pass_context=True, no_pm=True, name="ftppassword")
+    async def _ftppassword(self, ctx: commands.Context, password: str):
         """Set the FTP password."""
 
         server = ctx.message.server
@@ -82,21 +103,41 @@ class KZ:
         self.settings[server.id]["ftp_password"] = password
         dataIO.save_json(self.settings_path, self.settings)
 
-        await self.bot.reply(cf.info("Password set."))
+        await self.bot.reply(cf.info("FTP password set."))
+
+    @_kzset.command(pass_context=True, no_pm=True, name="rconpassword")
+    async def _rconpassword(self, ctx: commands.Context, password: str):
+        """Set the RCON password."""
+
+        server = ctx.message.server
+
+        await self.bot.delete_message(ctx.message)
+
+        self.settings[server.id]["rcon_password"] = password
+        dataIO.save_json(self.settings_path, self.settings)
+
+        await self.bot.reply(cf.info("RCON password set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="dbpath")
-    async def _dbpath(self, ctx: commands.Context,
-                      dbpath: str):
+    async def _dbpath(self, ctx: commands.Context, path: str):
         """Set the server path to the database."""
 
         server = ctx.message.server
-        self.settings[server.id]["ftp_dbpath"] = dbpath
+        self.settings[server.id]["ftp_dbpath"] = path
+        dataIO.save_json(self.settings_path, self.settings)
+        await self.bot.reply(cf.info("Path to database set."))
+
+    @_kzset.command(pass_context=True, no_pm=True, name="mapcyclepath")
+    async def _password(self, ctx: commands.Context, path: str):
+        """Set the server path to the mapcycle.txt file."""
+
+        server = ctx.message.server
+        self.settings[server.id]["ftp_mapcyclepath"] = path
         dataIO.save_json(self.settings_path, self.settings)
         await self.bot.reply(cf.info("Path to database set."))
 
     @_kzset.command(pass_context=True, no_pm=True, name="steamkey")
-    async def _steamkey(self, ctx: commands.Context,
-                        steamkey: str):
+    async def _steamkey(self, ctx: commands.Context, steamkey: str):
         """Sets the Steam API key."""
 
         server = ctx.message.server
@@ -160,9 +201,146 @@ class KZ:
         else:
             return "%d:%05.2f" % (m, s)
 
+    def _add_map_to_server(self, server_id: str, map_id_or_url: str):
+        id = self._get_map_id(map_id_or_url)
+
+        self._do_rcon(server_id, "host_workshop_map {}".format(id))
+
+    async def _add_map_to_mapcycle(self, server_id: str, map_id_or_url: str):
+        new_map_name = await self._get_map_name_from_id(
+            self._get_map_id(map_id_or_url))
+
+        info = self.settings[server_id]
+
+        with open(
+            "data/kz/{}/mapcycle.txt".format(server_id), "wb") as file, \
+                ftplib.FTP() as ftp:
+            ftp.connect(info["ftp_server"])
+            ftp.login(info["ftp_username"], info["ftp_password"])
+            ftp.retrbinary("RETR {}".format(info["ftp_mapcyclepath"]),
+                           file.write)
+
+        with open("data/kz/{}/mapcycle.txt".format(server_id), "r") as f:
+            maps = [x.strip() for x in f.readlines()]
+
+        if new_map_name not in maps:
+            maps.append(new_map_name)
+            maps = sorted(maps, key=lambda s: s.lower())
+            with open("data/kz/{}/mapcycle.txt".format(server_id), "w") as f:
+                f.write("\n".join(maps))
+
+            with open(
+                "data/kz/{}/mapcycle.txt".format(server_id), "rb") as file, \
+                    ftplib.FTP() as ftp:
+                ftp.connect(info["ftp_server"])
+                ftp.login(info["ftp_username"], info["ftp_password"])
+                ftp.storbinary("STOR {}".format(info["ftp_mapcyclepath"]),
+                               file)
+
+            return new_map_name
+
+        return None
+
+    async def _get_map_name_from_id(self, id: str) -> str:
+        url = self.ws_url + id
+
+        async with aiohttp.get(url) as response:
+            soup = BeautifulSoup(await response.text(), "html.parser")
+
+        try:
+            name = soup.find(
+                id="mainContents").find(
+                class_="workshopItemDetailsHeader").find(
+                class_="workshopItemTitle").get_text()
+        except:
+            raise BadMapIDOrURL("Could not get map name from page.")
+
+        return name
+
+    def _get_map_id(self, map_id_or_url: str) -> str:
+        if self._map_is_url(map_id_or_url):
+            id = self._get_map_id_from_url(map_id_or_url)
+        else:
+            id = map_id_or_url
+
+        if id.isdigit():
+            return id
+
+        raise BadMapIDOrURL("Bad map ID.")
+
+    def _map_is_url(self, map_id_or_url: str) -> bool:
+        try:
+            rfc3987.parse(map_id_or_url, "URI")
+            return True
+        except ValueError:
+            return False
+
+    def _get_map_id_from_url(self, map_url: str) -> str:
+        p = rfc3987.parse(map_url, "URI")
+        if p["query"] is None:
+            raise BadMapIDOrURL("Map ID not in URL.")
+
+        d = dict([x.split('=') for x in p["query"].split('&')])
+        if "id" not in d:
+            raise BadMapIDOrURL("Map ID not in URL.")
+
+        return d["id"]
+
+    def _restart_server(self, server_id):
+        self._do_rcon(server_id, "_restart")
+
+    def _do_rcon(self, server_id: str, command: str):
+        address = (self.settings[server_id]["ftp_server"], 27015)
+        password = self.settings[server_id]["rcon_password"]
+
+        with RCON(address, password) as rcon:
+            rcon.execute(command)
+
+    @commands.command(pass_context=True, no_pm=True, name="addmap")
+    @checks.admin_or_permissions(administrator=True)
+    async def _addmap(self, ctx: commands.Context, map_id_or_url: str):
+        """Adds the map with the given Steam Workshop ID to the server."""
+
+        await self.bot.type()
+
+        server = ctx.message.server
+        if server.id not in self.settings:
+            self.settings[server.id] = default_settings
+            dataIO.save_json(self.settings_path, self.settings)
+
+        if (not self.settings[server.id]["ftp_server"] or
+                not self.settings[server.id]["rcon_password"] or
+                not self.settings[server.id]["ftp_mapcyclepath"]):
+            await self.bot.reply(cf.error(
+                "You need to set up this cog before you can use it."
+                " Use `{}kzset`.".format(ctx.prefix)))
+            return
+
+        self._add_map_to_server(server.id, map_id_or_url)
+
+        new_map = await self._add_map_to_mapcycle(server.id, map_id_or_url)
+
+        if new_map is not None:
+            await self.bot.reply(cf.info("New map `{}` added. You must restart"
+                                         " the server for the mapcycle change"
+                                         " to take effect. Would you like to"
+                                         " restart it now? (yes/no)".format(
+                                             new_map)))
+            answer = await self.bot.wait_for_message(timeout=15,
+                                                     author=ctx.message.author)
+
+            if answer is None or answer.content.lower().strip() != "yes":
+                await self.bot.reply("Server not restarted.")
+                return
+
+            await self.bot.type()
+            self._restart_server(server.id)
+            await self.bot.reply(cf.info("Server restarting."))
+        else:
+            await self.bot.reply(cf.warning("Map already on the server."))
+
     @commands.command(pass_context=True, no_pm=True, name="playerjumps")
-    async def _playerjumps(self, ctx: commands.Context,
-                           player_url: str):
+    async def _playerjumps(self, ctx: commands.Context, player_url: str):
         """Gets a player's best jumps.
 
         You must provide the STEAM VANITY URL of the player,
@@ -289,8 +467,8 @@ class KZ:
         await self.bot.say(cf.box("{}\n{}".format(title, table)))
 
     @commands.command(pass_context=True, no_pm=True, name="playermap")
-    async def _playermap(self, ctx: commands.Context,
-                         player_url: str, mapname: str):
+    async def _playermap(self, ctx: commands.Context, player_url: str,
+                         mapname: str):
         """Gets a certain player's times on the given map."""
 
         await self.bot.type()
@@ -368,8 +546,7 @@ class KZ:
 
     @commands.command(pass_context=True, no_pm=True, name="recent",
                       aliases=["latest"])
-    async def _recent(self, ctx: commands.Context,
-                      limit: int=10):
+    async def _recent(self, ctx: commands.Context, limit: int=10):
         """Gets the recent runs per map and run type."""
 
         await self.bot.type()
@@ -714,10 +891,26 @@ def setup(bot: commands.Bot):
     check_folders()
     check_files()
 
-    if tabulate_available:
-        bot.add_cog(KZ(bot))
+    if rfc3987_available:
+        if soup_available:
+            if valve_available:
+                if tabulate_available:
+                    bot.add_cog(KZ(bot))
+                else:
+                    raise RuntimeError(
+                        "You need to install `tabulate`:"
+                        " `pip install tabulate`.")
+            else:
+                raise RuntimeError(
+                    "You need to install `python-valve`: `pip install"
+                    " git+git://github.com/Holiverh/python-valve.git`.")
+        else:
+            raise RuntimeError(
+                "You need to install `beautifulsoup4`:"
+                " `pip install beautifulsoup4`.")
     else:
-        raise RuntimeError("You need to install `tabulate`: `pip install tabulate`.")
+        raise RuntimeError(
+            "You need to install `rfc3987`: `pip install rfc3987`.")
 
 # LIMIT
 recent_query = "SELECT * FROM(SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports=0 GROUP BY map HAVING MIN(runtime) UNION SELECT name, runtime, teleports, map, date FROM LatestRecords WHERE teleports > 0 GROUP BY map HAVING MIN(runtime)) ORDER BY date DESC LIMIT ?"
