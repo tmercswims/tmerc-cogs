@@ -59,7 +59,10 @@ Note that commands which specify a player must be given the player's Steam Vanit
     * `username` - Sets the FTP username with which to log into the server.
     * `password` - Sets the FTP password with which to log into the server. The message containing the command (and password) is deleted immediately.
     * `dbpath` - Sets the path, from root, to the database file on the FTP server. Must include the file itself, e.g. `/path/to/db.sq3` not `/path/to`.
-    * `steamkey` - Sets the Steam API key, which is used to look up users' vanity URLs. It can be obtained from [here](https://steamcommunity.com/dev/apikey). The message containing the command (and password) is deleted immediately.
+    * `steamkey` - Sets the Steam API key, which is used to look up users' vanity URLs. It can be obtained from [here](https://steamcommunity.com/dev/apikey). The message containing the command (and key) is deleted immediately.
+    * `rcon_password` - Sets the RCON password for the server. The message containing the command (and password) is deleted immediately.
+    * `mapcyclepath` - Sets the path, from root, to the `mapcycle.txt` file on the FTP server. Must include the file itself, e.g. `/path/to/mapcycle.txt` not `/path/to`.
+  * `addmap <map_id_or_url>` (Bot admin only) - Adds the given map to the server. Must provide either a workshop ID (e.g. `784686492`) or a full workshop link (e.g. `https://steamcommunity.com/sharedfiles/filedetails/?id=784686492&searchtext=kz_minimalism`).
   * `recent [limit]` - Gets the `limit` most recent record-setting runs. Retrieves a maximum of one per map, per run type. `limit` defaults to `10`.
   * `playermap <player_url> <mapname>` - Gets the specified player's time(s) on the specified map.
   * `playerjumps <player_url>` - Gets the specified player's jump records.
