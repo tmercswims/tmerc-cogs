@@ -8,3 +8,5 @@ tabulate
 aiohttp
 dota2py
 beautifulsoup4
+git+git://github.com/Holiverh/python-valve.git
+rfc3987
