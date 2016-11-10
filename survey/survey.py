@@ -31,6 +31,10 @@ Option = Dict[str, Any]
 Options = Dict[str, Option]
 
 
+class PastDeadlineError(Exception):
+    pass
+
+
 class Survey:
 
     """Runs surveys for a specific role of people via DM,
@@ -91,9 +95,12 @@ class Survey:
         if dl.tzinfo is None:
             dl = dl.replace(tzinfo=pytz.utc)
 
-        if adjust and (dl - datetime.utcnow().replace(tzinfo=pytz.utc)
-                       ).total_seconds() < 0:
+        to = self._get_timeout(dl)
+
+        if adjust and -86400 < to < 0:
             dl += timedelta(days=1)
+        elif to < -86400:
+            raise PastDeadlineError
 
         return dl
 
@@ -475,6 +482,10 @@ class Survey:
             await self.bot.reply(cf.error(
                 "Your deadline format could not be understood."
                 " Please try again."))
+            return
+        except PastDeadlineError:
+            await self.bot.reply(cf.error(
+                "Your deadline is in the past."))
             return
 
         opts = await self._parse_options(options)
