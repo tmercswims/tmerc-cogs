@@ -1,6 +1,6 @@
 import asyncio
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import zip_longest
 import os
 from typing import Any, Dict, List
@@ -63,7 +63,7 @@ class Survey:
                             server_id, survey_id, self._get_timeout(
                                 self._deadline_string_to_datetime(
                                     self.surveys[server_id][survey_id]
-                                    ["deadline"])))
+                                    ["deadline"], adjust=False)))
                         await self._update_answers_message(
                             server_id, survey_id)
                         for uid in self.surveys[server_id][survey_id]["asked"]:
@@ -85,10 +85,16 @@ class Survey:
                 roled.append(member)
         return roled
 
-    def _deadline_string_to_datetime(self, deadline: str) -> datetime:
+    def _deadline_string_to_datetime(self, deadline: str,
+                                     adjust: bool=True) -> datetime:
         dl = dp.parse(deadline, tzinfos=tzd)
         if dl.tzinfo is None:
             dl = dl.replace(tzinfo=pytz.utc)
+
+        if adjust and (dl - datetime.utcnow().replace(tzinfo=pytz.utc)
+            ).total_seconds() < 0:
+            dl += timedelta(days=1)
+
         return dl
 
     def _get_timeout(self, deadline: datetime) -> int:
@@ -462,9 +468,9 @@ class Survey:
             self.surveys[server.id] = {}
             dataIO.save_json(self.surveys_path, self.surveys)
 
-        dl = None
         try:
             dl = self._deadline_string_to_datetime(deadline)
+            deadline_better = dl.strftime("%m/%d/%Y %I:%S%p %Z")
         except ValueError:
             await self.bot.reply(cf.error(
                 "Your deadline format could not be understood."
@@ -483,7 +489,7 @@ class Survey:
         dataIO.save_json(self.surveys_path, self.surveys)
 
         self._save_prefix(server.id, new_survey_id, ctx.prefix)
-        self._save_deadline(server.id, new_survey_id, deadline)
+        self._save_deadline(server.id, new_survey_id, deadline_better)
         self._save_channel(server.id, new_survey_id, channel.id)
         self._save_question(server.id, new_survey_id, question)
         self._save_options(server.id, new_survey_id, opts if opts else "any")
