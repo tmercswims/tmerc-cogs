@@ -898,14 +898,16 @@ def setup(bot: commands.Bot):
                     bot.add_cog(KZ(bot))
                 else:
                     raise RuntimeError(
-                        "You need to install `tabulate`: `pip install tabulate`.")
+                        "You need to install `tabulate`:"
+                        " `pip install tabulate`.")
             else:
                 raise RuntimeError(
-                    "You need to install `python-valve`:"
-                    " `pip install git+git://github.com/Holiverh/python-valve.git`.")
+                    "You need to install `python-valve`: `pip install"
+                    " git+git://github.com/Holiverh/python-valve.git`.")
         else:
             raise RuntimeError(
-                "You need to install `beautifulsoup4`: `pip install beautifulsoup4`.")
+                "You need to install `beautifulsoup4`:"
+                " `pip install beautifulsoup4`.")
     else:
         raise RuntimeError(
             "You need to install `rfc3987`: `pip install rfc3987`.")
