@@ -193,6 +193,7 @@ Shows random animals.
 #### Commands
   * `cat` - Shows a random cat.
   * `dog` - Shows a random dog.
+  * `fox` - Shows a random fox.
 
 #### Extra Dependencies
   * None.
