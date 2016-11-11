@@ -1,5 +1,4 @@
 import io
-import json
 import os.path
 
 import aiohttp
@@ -21,7 +20,7 @@ class Randimals:
         await self.bot.type()
         url = "http://random.cat/meow"
         async with aiohttp.get(url) as response:
-            img_url = json.loads(await response.text())["file"]
+            img_url = (await response.json())["file"]
             filename = os.path.basename(img_url)
             async with aiohttp.get(img_url) as image:
                 await self.bot.upload(
@@ -36,6 +35,19 @@ class Randimals:
         async with aiohttp.get(url + "woof") as response:
             filename = await response.text()
             async with aiohttp.get(url + filename) as image:
+                await self.bot.upload(
+                    io.BytesIO(await image.read()), filename=filename)
+
+    @commands.command(pass_context=True, no_pm=True, name="fox")
+    async def _fox(self, ctx: commands.Context):
+        """Shows a random fox."""
+
+        await self.bot.type()
+        url = "http://wohlsoft.ru/images/foxybot/randomfox.php"
+        async with aiohttp.get(url) as response:
+            img_url = (await response.json())["file"]
+            filename = os.path.basename(img_url)
+            async with aiohttp.get(img_url) as image:
                 await self.bot.upload(
                     io.BytesIO(await image.read()), filename=filename)
 
