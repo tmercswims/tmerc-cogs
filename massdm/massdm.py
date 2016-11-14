@@ -24,8 +24,8 @@ class MassDM:
                 roled.append(member)
         return roled
 
-    @commands.command(no_pm=True, pass_context=True, name="mdm",
-                      aliases=["massdm"])
+    @commands.command(no_pm=True, pass_context=True, name="massdm",
+                      aliases=["mdm"])
     @checks.mod_or_permissions(administrator=True)
     async def _mdm(self, ctx: commands.Context,
                    role: discord.Role, *, message: str):
@@ -44,8 +44,11 @@ class MassDM:
         dm_these = self._get_users_with_role(server, role)
 
         for user in dm_these:
-            await self.bot.send_message(user,
-                                        message.format(user, role, sender))
+            try:
+                await self.bot.send_message(user,
+                                            message.format(user, role, sender))
+            except discord.Forbidden:
+                continue
 
 
 def setup(bot: commands.Bot):
