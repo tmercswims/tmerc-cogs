@@ -287,7 +287,7 @@ class KZ:
         return d["id"]
 
     def _restart_server(self, server_id):
-            self._do_rcon(server_id, "_restart", block=False)
+        self._do_rcon(server_id, "_restart", block=False)
 
     def _do_rcon(self, server_id: str, command: str, block: bool=True):
         address = (self.settings[server_id]["ftp_server"], 27015)
