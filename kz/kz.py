@@ -287,17 +287,14 @@ class KZ:
         return d["id"]
 
     def _restart_server(self, server_id):
-        try:
-            self._do_rcon(server_id, "_restart")
-        except RCONCommunicationError:
-            pass
+            self._do_rcon(server_id, "_restart", block=False)
 
-    def _do_rcon(self, server_id: str, command: str):
+    def _do_rcon(self, server_id: str, command: str, block: bool=True):
         address = (self.settings[server_id]["ftp_server"], 27015)
         password = self.settings[server_id]["rcon_password"]
 
         with RCON(address, password) as rcon:
-            rcon.execute(command)
+            rcon.execute(command, block=block)
 
     @commands.command(pass_context=True, no_pm=True, name="addmap")
     @checks.admin_or_permissions(administrator=True)
