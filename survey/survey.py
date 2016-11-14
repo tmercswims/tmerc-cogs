@@ -333,8 +333,8 @@ class Survey:
         server = self.bot.get_server(server_id)
         answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
         rows = list(zip_longest(
-            *[[server.get_member(y).display_name for y in x[1]]
-              for x in answers]))
+            *[[server.get_member(y).display_name for y in x[1]
+               if server.get_member(y) is not None] for x in answers]))
         headers = [x[0] for x in answers]
         return tabulate(rows, headers, tablefmt="orgtbl")
 
@@ -342,7 +342,8 @@ class Survey:
         server = self.bot.get_server(server_id)
         return ", ".join(sorted(
             [server.get_member(m).display_name
-             for m in self.surveys[server_id][survey_id]["asked"]]))
+             for m in self.surveys[server_id][survey_id]["asked"]
+             if server.get_member(m) is not None]))
 
     def _get_server_id_from_survey_id(self, survey_id):
         for server_id, survey_ids in [
