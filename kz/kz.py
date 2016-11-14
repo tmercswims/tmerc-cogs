@@ -22,7 +22,7 @@ try:
 except:
     tabulate_available = False
 try:
-    from valve.rcon import RCON, RCONCommunicationError
+    from valve.rcon import RCON
     valve_available = True
 except:
     valve_available = False
