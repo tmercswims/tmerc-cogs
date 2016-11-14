@@ -22,7 +22,7 @@ try:
 except:
     tabulate_available = False
 try:
-    from valve.rcon import RCON
+    from valve.rcon import RCON, RCONCommunicationError
     valve_available = True
 except:
     valve_available = False
@@ -287,7 +287,10 @@ class KZ:
         return d["id"]
 
     def _restart_server(self, server_id):
-        self._do_rcon(server_id, "_restart", block=False)
+        try:
+            self._do_rcon(server_id, "_restart")
+        except RCONCommunicationError:
+            pass
 
     def _do_rcon(self, server_id: str, command: str, block: bool=True):
         address = (self.settings[server_id]["ftp_server"], 27015)
