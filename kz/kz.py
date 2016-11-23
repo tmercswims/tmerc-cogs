@@ -29,7 +29,6 @@ except:
 
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
-from __main__ import send_cmd_help
 
 
 default_settings = {
@@ -72,7 +71,7 @@ class KZ:
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs("data/kz/{}".format(server.id))
         if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
+            await self.bot.send_cmd_help(ctx)
 
     @_kzset.command(pass_context=True, no_pm=True, name="server")
     async def _server(self, ctx: commands.Context, server: str):

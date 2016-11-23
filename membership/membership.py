@@ -5,7 +5,6 @@ from discord.ext import commands
 
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
-from __main__ import send_cmd_help
 
 
 default_settings = {
@@ -38,7 +37,7 @@ class Membership:
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
         if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
+            await self.bot.send_cmd_help(ctx)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join",
                             aliases=["greeting", "welcome"])
