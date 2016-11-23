@@ -452,6 +452,8 @@ class Survey:
             await self.bot.send_message(
                 user,
                 cf.info("Survey {} has been closed.".format(survey_id)))
+        except discord.Forbidden:
+            return
 
     @commands.command(pass_context=True, no_pm=True, name="startsurvey")
     @checks.admin_or_permissions(administrator=True)
@@ -513,7 +515,13 @@ class Survey:
         users_with_role = self._get_users_with_role(server, role)
         self._save_asked(server.id, new_survey_id, users_with_role)
 
-        await self._update_answers_message(server.id, new_survey_id)
+        try:
+            await self._update_answers_message(server.id, new_survey_id)
+        except discord.Forbidden:
+            await self.bot.reply(
+                "I do not have permission to talk in {}.".format(
+                    channel.mention))
+            return
 
         for user in users_with_role:
             new_task = self.bot.loop.create_task(
