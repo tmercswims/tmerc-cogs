@@ -8,7 +8,6 @@ from discord.ext import commands
 
 from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
-from __main__ import send_cmd_help
 
 
 default_settings = {
@@ -20,7 +19,8 @@ default_settings = {
         "Overwatch",
         "Baseball",
         "Jak & Daxter",
-        "Counter-Strike: Global Offensive"
+        "Counter-Strike: Global Offensive",
+        "Chrono Trigger"
     ],
     "del": []
 }
@@ -89,7 +89,7 @@ class RandGame:
         """Adjust settings and game list."""
 
         if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
+            await self.bot.send_cmd_help(ctx)
 
     @_randgame.command(pass_context=True, no_pm=True, name="delay")
     async def _delay(self, ctx: commands.context.Context, seconds: int):
