@@ -85,14 +85,14 @@ class RandGame:
 
     @commands.group(pass_context=True, no_pm=True, name="randgame")
     @checks.mod_or_permissions(administrator=True)
-    async def _randgame(self, ctx: commands.context.Context):
+    async def _randgame(self, ctx: commands.Context):
         """Adjust settings and game list."""
 
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
     @_randgame.command(pass_context=True, no_pm=True, name="delay")
-    async def _delay(self, ctx: commands.context.Context, seconds: int):
+    async def _delay(self, ctx: commands.Context, seconds: int):
         """Sets the delay between game changes.
 
         Must be at least 15 seconds.
@@ -110,7 +110,7 @@ class RandGame:
             cf.info("Delay set to {} seconds.".format(seconds)))
 
     @_randgame.command(pass_context=True, no_pm=True, name="add")
-    async def _add(self, ctx: commands.context.Context, *, game: str):
+    async def _add(self, ctx: commands.Context, *, game: str):
         """Adds a game to the list."""
 
         self.settings["games"].append(game)
@@ -120,7 +120,7 @@ class RandGame:
             cf.info("{} added to the game list.".format(game)))
 
     @_randgame.command(pass_context=True, no_pm=True, name="del")
-    async def _del(self, ctx: commands.context.Context, *, game: str):
+    async def _del(self, ctx: commands.Context, *, game: str):
         """Removes a game from the list."""
 
         try:
@@ -138,7 +138,7 @@ class RandGame:
             cf.info("{} removed from the game list.".format(game)))
 
     @_randgame.command(pass_context=True, no_pm=True, name="set")
-    async def _set(self, ctx: commands.context.Context, *games: str):
+    async def _set(self, ctx: commands.Context, *games: str):
         """Replaces the game list with the given list."""
 
         games_str = ", ".join(sorted(list(games)))
@@ -163,7 +163,7 @@ class RandGame:
         await self.bot.reply(cf.info("Game list replaced."))
 
     @_randgame.command(pass_context=True, no_pm=True, name="get")
-    async def _get(self, ctx: commands.context.Context):
+    async def _get(self, ctx: commands.Context):
         """Gets the current list of games."""
 
         games = ", ".join(sorted(self.settings["games"]))
@@ -171,7 +171,7 @@ class RandGame:
         await self.bot.reply(cf.box(games))
 
     @_randgame.command(pass_context=True, no_pm=True, name="cycle")
-    async def _cycle(self, ctx: commands.context.Context):
+    async def _cycle(self, ctx: commands.Context):
         """Cycles the current game."""
 
         await self._cycle_game()
