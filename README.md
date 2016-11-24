@@ -1,31 +1,26 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [tmerc-cogs](#tmerc-cogs)
-  - [Installation](#installation)
-  - [The Cogs](#the-cogs)
-    - [CatFact](#catfact)
-    - [CustomJoinLeave](#customjoinleave)
-    - [KZ](#kz)
-    - [MassDM](#massdm)
-    - [Membership](#membership)
-    - [PlaySound](#playsound)
-    - [Quotes](#quotes)
-    - [RandGame](#randgame)
-    - [RandImage](#randimage)
-    - [Randimals](#randimals)
-    - [ReviewEmoji](#reviewemoji)
-    - [Survey](#survey)
-  - [Support](#support)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 [![Build Status](https://travis-ci.org/tmercswims/tmerc-cogs.svg?branch=master)](https://travis-ci.org/tmercswims/tmerc-cogs)
 
 # tmerc-cogs
 
 Cogs for Twentysix26's [Red Discord bot](https://github.com/Twentysix26/Red-DiscordBot).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [The Cogs](#the-cogs)
+  - [CatFact](#catfact)
+  - [CustomJoinLeave](#customjoinleave)
+  - [KZ](#kz)
+  - [MassDM](#massdm)
+  - [Membership](#membership)
+  - [PlaySound](#playsound)
+  - [Quotes](#quotes)
+  - [RandGame](#randgame)
+  - [RandImage](#randimage)
+  - [Randimals](#randimals)
+  - [ReviewEmoji](#reviewemoji)
+  - [Survey](#survey)
+- [Support](#support)
 
 ## Installation
 To add this repository to your bot, use the following command:
