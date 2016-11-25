@@ -122,10 +122,10 @@ class Survey:
     async def _parse_options(self, options: str) -> Options:
         opts_list = None if options == "*" else [
             r.lower().strip() for r in options.split(";")]
-        opt_names = [o[0] for o in [op.split(":") for op in opts_list]]
 
         opts = {}
         if opts_list:
+            opt_names = [o[0] for o in [op.split(":") for op in opts_list]]
             for opt in opts_list:
                 opt_s = opt.split(":")
                 if len(opt_s) == 1:
@@ -224,7 +224,9 @@ class Survey:
                 if user.id in a:
                     a.remove(user.id)
 
-        limit = options[answer]["limit"]
+        if options != "any":
+            limit = options[answer]["limit"]
+
         if answer not in answers:
             answers[answer] = []
 
@@ -239,6 +241,9 @@ class Survey:
 
     def _setup_reprompts(self, server_id: str, survey_id: str):
         options = self.surveys[server_id][survey_id]["options"]
+        if options == "any":
+            return
+
         timeout = self._get_timeout(self._deadline_string_to_datetime(
             self.surveys[server_id][survey_id]["deadline"]))
 
@@ -414,7 +419,7 @@ class Survey:
                             " same answer as last time.\nPlease choose one of"
                             " the other available options: ({})".format(
                                 options_hr)))
-                elif options is "any" or r in options:
+                elif options == "any" or r in options:
                     answer = r
                 else:
                     await self.bot.send_message(
