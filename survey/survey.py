@@ -464,7 +464,7 @@ class Survey:
     @checks.admin_or_permissions(administrator=True)
     async def _startsurvey(self, ctx: commands.Context,
                            role: discord.Role, channel: discord.Channel,
-                           question: str, options: str, deadline: str):
+                           question: str, options: str, *, deadline: str):
         """Starts a new survey.
         Role is the Discord server role to notify. Should be the @<role>.
         Channel is the channel in which to post results. Should be #<channel>
@@ -475,7 +475,10 @@ class Survey:
             <limit> is the maximum number of answers that are this option.
             <reprompt> is the time, in minutes, before the deadline to reprompt those who answered with this option.
             <link> is the name of a different option. If set, reprompt will only happen if the given option has not hit its limit of responses. Requires that <reprompt> is set.
-        Deadline should be of a sane time format, date optional, but timezone abbreviation is strongly recommended (otherwise UTC is assumed)."""
+        Deadline should be of a sane time format, date optional, but timezone abbreviation is strongly recommended (otherwise UTC is assumed).
+
+        For example: [p]startsurvey everyone channel_name "Question here. Which should be enclosed in double quotes because it includes SPACES" "Yes;No;Options enclosed with double quotes too, if contain SPACES" 2016/12/25 12:00
+        """
 
         server = ctx.message.server
 
