@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "Thomas Mercurio",
-    "INSTALL_MSG" : "Thanks for installing! Make sure you create some image directories!",
+    "INSTALL_MSG" : "Thanks for installing!",
     "NAME" : "RandImage",
     "SHORT" : "Displays a random image from a directory.",
     "DESCRIPTION" : "Create directories in data/randimage and put your images in it. Then !randimage <directory name> will pull a random image from <directory>."
