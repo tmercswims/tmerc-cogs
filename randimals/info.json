@@ -3,5 +3,5 @@
     "INSTALL_MSG" : "Thanks for installing!",
     "NAME" : "Randimals",
     "SHORT" : "Displays random images of some animals.",
-    "DESCRIPTION" : "Get some random animal images. Currently only dogs and cats, but hopefully there will be more eventually."
+    "DESCRIPTION" : "Get some random animal images."
 }
