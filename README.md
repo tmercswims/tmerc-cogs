@@ -212,6 +212,7 @@ Shows random animals.
   * `cat` - Shows a random cat.
   * `dog` - Shows a random dog.
   * `fox` - Shows a random fox.
+  * `bird` - Shows a random bird.
 
 #### Extra Dependencies
   * None.

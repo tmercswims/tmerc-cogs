@@ -51,6 +51,19 @@ class Randimals:
                 await self.bot.upload(
                     io.BytesIO(await image.read()), filename=filename)
 
+    @commands.command(pass_context=True, no_pm=True, name="bird")
+    async def _bird(self, ctx: commands.Context):
+        """Shows a random bird."""
+
+        await self.bot.type()
+        url = "http://shibe.online/api/birds?count=1"
+        async with aiohttp.get(url) as response:
+            img_url = (await response.json())[0]
+            filename = os.path.basename(img_url)
+            async with aiohttp.get(img_url) as image:
+                await self.bot.upload(
+                    io.BytesIO(await image.read()), filename=filename)
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(Randimals(bot))
