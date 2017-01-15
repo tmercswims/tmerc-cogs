@@ -1,7 +1,8 @@
 {
-    "AUTHOR" : "Thomas Mercurio",
+    "AUTHOR" : "tmerc",
     "INSTALL_MSG" : "Thanks for installing!",
     "NAME" : "RandGame",
     "SHORT" : "Random games for your bot.",
-    "DESCRIPTION" : "Sets the bot's game to a random one from a list you specify. Supports additions to, removals from, and complete replacements of the list. Interval between changes is also configurable."
+    "DESCRIPTION" : "Sets the bot's game to a random one from a list you specify. Supports additions to, removals from, and complete replacements of the list. Interval between changes is also configurable.",
+    "REQUIREMENTS" : []
 }
