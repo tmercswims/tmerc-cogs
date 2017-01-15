@@ -11,6 +11,7 @@ Cogs for Twentysix26's [Red Discord bot](https://github.com/Twentysix26/Red-Disc
   - [CatFact](#catfact)
   - [CustomJoinLeave](#customjoinleave)
   - [KZ](#kz)
+  - [Lenny](#lenny)
   - [MassDM](#massdm)
   - [Membership](#membership)
   - [PlaySound](#playsound)
@@ -105,6 +106,18 @@ Note that commands which specify a player must be given the player's Steam Vanit
 #### Additional Information
   * Cog uses network to retrieve database from server.
   * Cog runs semi-complex SQL queries on the retrieved database to get information, which can potentially be processor intensive.
+
+
+### Lenny
+Displays a random ASCII face.
+#### Commands
+  * `lenny` - Sends a random ASCII face.
+
+#### Extra Dependencies
+  * None.
+
+#### Additional Information
+  * None.
 
 
 ### MassDM
