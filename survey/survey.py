@@ -85,7 +85,7 @@ class Survey:
                              role: discord.Role) -> List[discord.User]:
         roled = []
         for member in server.members:
-            if self._member_has_role(member, role):
+            if (not member.bot) and self._member_has_role(member, role):
                 roled.append(member)
         return roled
 
