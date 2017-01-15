@@ -35,7 +35,7 @@ class Lenny:
             "∀", "!", "人", ".", "ロ", "_", "෴", "ѽ", "ഌ", "⏏", "ツ", "益"
         ]
 
-    @commands.command(pass_context=True, name=lenny)
+    @commands.command(pass_context=True, name="lenny")
     async def _lenny(self, ctx: commands.Context):
         """Displays a random ASCII face."""
 
