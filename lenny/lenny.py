@@ -1,8 +1,6 @@
-import discord
-from discord.ext import commands
 from random import choice
-import os
-from .utils import checks
+
+from discord.ext import commands
 
 
 class Lenny:
@@ -44,5 +42,5 @@ class Lenny:
         await self.bot.say(lenny)
 
 
-def setup(bot):
+def setup(bot: commands.bot):
     bot.add_cog(Lenny(bot))
