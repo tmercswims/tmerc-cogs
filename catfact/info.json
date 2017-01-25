@@ -4,5 +4,6 @@
     "NAME" : "CatFact",
     "SHORT" : "Get random cat facts.",
     "DESCRIPTION" : "Gets the given number of cat facts.",
-    "REQUIREMENTS" : []
+    "REQUIREMENTS" : [],
+    "TAGS": ["animals", "cat", "random", "fun"]
 }
