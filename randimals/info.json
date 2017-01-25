@@ -4,5 +4,6 @@
     "NAME" : "Randimals",
     "SHORT" : "Displays random images of some animals.",
     "DESCRIPTION" : "Get some random animal images.",
-    "REQUIREMENTS" : []
+    "REQUIREMENTS" : [],
+    "TAGS": ["aminal", "random", "fun"]
 }

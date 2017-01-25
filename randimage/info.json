@@ -4,5 +4,6 @@
     "NAME" : "RandImage",
     "SHORT" : "Displays a random image from a directory.",
     "DESCRIPTION" : "Create directories in data/randimage and put your images in it. Then !randimage <directory name> will pull a random image from <directory>.",
-    "REQUIREMENTS" : []
+    "REQUIREMENTS" : [],
+    "TAGS": ["image", "local", "random", "fun"]
 }

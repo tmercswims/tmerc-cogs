@@ -4,5 +4,6 @@
     "NAME" : "ReviewEmoji",
     "SHORT" : "Submit and review emoji.",
     "DESCRIPTION" : "Allows anyone to submit an emoji for review, and then bot admins can review the submissions and approve/reject them.",
-    "REQUIREMENTS" : ["python-dateutil"]
+    "REQUIREMENTS" : ["python-dateutil"],
+    "TAGS": ["emoji", "community", "tools", "utilities"]
 }

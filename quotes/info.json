@@ -4,5 +4,6 @@
     "NAME" : "Quotes",
     "SHORT" : "Store quotes, and get random ones.",
     "DESCRIPTION" : "Store any quotes, and get back a random one. Includes tools for managing them as well.",
-    "REQUIREMENTS" : []
+    "REQUIREMENTS" : [],
+    "TAGS": ["quote", "fun", "utilities"]
 }
