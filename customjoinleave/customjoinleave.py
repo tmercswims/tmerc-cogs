@@ -294,7 +294,9 @@ class CustomJoinLeave:
             if (before.voice.voice_channel is None and
                     after.voice.voice_channel is not None and
                     self.settings[aserver.id]["join_on"] and
-                    after.voice.voice_channel != aserver.afk_channel):
+                    after.voice.voice_channel != aserver.afk_channel and
+                    after.voice.voice_channel.permissions_for(
+                        bserver.me).connect):
                 path = "{}/{}/{}/join".format(self.sound_base,
                                               aserver.id, after.id)
                 if os.path.exists(path):
@@ -304,14 +306,18 @@ class CustomJoinLeave:
             elif (before.voice.voice_channel is not None and
                   after.voice.voice_channel is not None):
                 if (self.settings[bserver.id]["leave_on"] and
-                        before.voice.voice_channel != bserver.afk_channel):
+                        before.voice.voice_channel != bserver.afk_channel and
+                        before.voice.voice_channel.permissions_for(
+                            bserver.me).connect):
                     path = "{}/{}/{}/leave".format(
                         self.sound_base, bserver.id, before.id)
                     if os.path.exists(path):
                         await self.sound_play(bserver,
                                               before.voice.voice_channel, path)
                 if (self.settings[aserver.id]["join_on"] and
-                        after.voice.voice_channel != aserver.afk_channel):
+                        after.voice.voice_channel != aserver.afk_channel and
+                        after.voice.voice_channel.permissions_for(
+                            bserver.me).connect):
                     path = "{}/{}/{}/join".format(self.sound_base,
                                                   aserver.id, after.id)
                     if os.path.exists(path):
@@ -321,7 +327,9 @@ class CustomJoinLeave:
             elif (before.voice.voice_channel is not None and
                   after.voice.voice_channel is None and
                   self.settings[bserver.id]["leave_on"] and
-                  before.voice.voice_channel != bserver.afk_channel):
+                  before.voice.voice_channel != bserver.afk_channel and
+                  before.voice.voice_channel.permissions_for(
+                    bserver.me).connect):
                 path = "{}/{}/{}/leave".format(self.sound_base,
                                                bserver.id, before.id)
                 if os.path.exists(path):
