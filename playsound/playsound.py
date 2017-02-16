@@ -104,6 +104,17 @@ class PlaySound:
                     self.audio_players[server.id].start()
                     await self.wait_for_disconnect(server)
 
+    @commands.command(no_pm=True, pass_context=True, name="stopsound")
+    async def _stopsound(self, ctx: commands.Context):
+        """Stops playing sound."""
+
+        server = ctx.message.server
+		
+        if self.audio_players[server.id].is_playing():
+                    self.audio_players[server.id].stop()
+                    await self.wait_for_disconnect(server)
+
+					
     @commands.command(no_pm=True, pass_context=True, name="playsound")
     async def _playsound(self, ctx: commands.Context, soundname: str):
         """Plays the specified sound."""
