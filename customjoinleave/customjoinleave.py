@@ -1,4 +1,5 @@
 import asyncio
+from copy import deepcopy
 import os
 import os.path
 
@@ -93,7 +94,7 @@ class CustomJoinLeave:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
@@ -170,7 +171,7 @@ class CustomJoinLeave:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         attach = ctx.message.attachments
@@ -251,7 +252,7 @@ class CustomJoinLeave:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         path = "{}/{}".format(self.sound_base, server.id)
@@ -282,11 +283,11 @@ class CustomJoinLeave:
         aserver = after.server
 
         if bserver.id not in self.settings:
-            self.settings[bserver.id] = default_settings
+            self.settings[bserver.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if aserver.id not in self.settings:
-            self.settings[aserver.id] = default_settings
+            self.settings[aserver.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if before.voice.voice_channel != after.voice.voice_channel:

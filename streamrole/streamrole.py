@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import os.path
 
@@ -31,7 +32,7 @@ class StreamRole:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
@@ -82,7 +83,7 @@ class StreamRole:
     async def stream_listener(self, before: discord.Member,
                               after: discord.Member):
         if before.server.id not in self.settings:
-            self.settings[before.server.id] = default_settings
+            self.settings[before.server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         server_settings = self.settings[before.server.id]

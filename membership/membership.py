@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 
 import discord
@@ -9,9 +10,9 @@ from .utils import checks, chat_formatting as cf
 
 default_settings = {
     "join_message": "{0.mention} has joined the server.",
-    "leave_message": "{0.mention} has left the server.",
-    "ban_message": "{0.mention} has been banned.",
-    "unban_message": "{0.mention} has been unbanned.",
+    "leave_message": "{0.display_name} has left the server.",
+    "ban_message": "{0.display_name} has been banned.",
+    "unban_message": "{0.display_name} has been unbanned.",
     "on": False,
     "channel": None
 }
@@ -33,7 +34,7 @@ class Membership:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
         if ctx.invoked_subcommand is None:
@@ -143,7 +144,7 @@ class Membership:
     async def member_join(self, member: discord.Member):
         server = member.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
 
@@ -172,7 +173,7 @@ class Membership:
     async def member_leave(self, member: discord.Member):
         server = member.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
 
@@ -200,7 +201,7 @@ class Membership:
     async def member_ban(self, member: discord.Member):
         server = member.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
 
@@ -227,7 +228,7 @@ class Membership:
     async def member_unban(self, member: discord.Member):
         server = member.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             self.settings[server.id]["channel"] = server.default_channel.id
             dataIO.save_json(self.settings_path, self.settings)
 

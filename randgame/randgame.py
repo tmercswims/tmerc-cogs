@@ -1,4 +1,5 @@
 import asyncio
+from copy import deepcopy
 import os
 import os.path
 import random
@@ -187,7 +188,7 @@ def check_files():
     f = "data/randgame/settings.json"
     if not dataIO.is_valid_json(f):
         print("Creating data/randgame/settings.json...")
-        dataIO.save_json(f, default_settings)
+        dataIO.save_json(f, deepcopy(default_settings))
 
 
 def setup(bot: commands.bot.Bot):

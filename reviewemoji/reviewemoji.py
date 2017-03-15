@@ -18,7 +18,7 @@ from .utils.dataIO import dataIO
 from .utils import checks, chat_formatting as cf
 
 
-server_default = {
+default_settings = {
     "submissions": {},
     "next_id": 1
 }
@@ -125,7 +125,7 @@ class ReviewEmoji:
 
         server = ctx.message.server
         if server.id not in self.submissions:
-            self.submissions[server.id] = server_default
+            self.submissions[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.submissions_path, self.submissions)
 
         if len(name) < 2:
@@ -256,7 +256,7 @@ class ReviewEmoji:
 
         server = ctx.message.server
         if server.id not in self.submissions:
-            self.submissions[server.id] = server_default
+            self.submissions[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.submissions_path, self.submissions)
 
         if self._get_num_waiting_subs(server.id) == 0:

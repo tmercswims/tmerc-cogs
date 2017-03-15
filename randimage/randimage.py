@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import os.path
 import random
@@ -45,7 +46,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server.id))
 
@@ -73,7 +74,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server.id))
 
@@ -97,7 +98,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server_id))
 
@@ -137,7 +138,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server_id))
 
@@ -179,7 +180,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server_id))
 

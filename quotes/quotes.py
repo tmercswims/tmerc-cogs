@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import random
 from typing import List
@@ -38,7 +39,7 @@ class Quotes:
         await self.bot.type()
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         idx = self.settings[server.id]["next_index"]
@@ -56,7 +57,7 @@ class Quotes:
         await self.bot.type()
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
 
         try:
             int(number)
@@ -87,7 +88,7 @@ class Quotes:
         server = ctx.message.server
 
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:
@@ -118,7 +119,7 @@ class Quotes:
         await self.bot.type()
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if len(self.settings[server.id]["quotes"]) == 0:

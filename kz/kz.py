@@ -1,3 +1,4 @@
+from copy import deepcopy
 import ftplib
 import json
 import re
@@ -67,7 +68,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs("data/kz/{}".format(server.id))
         if ctx.invoked_subcommand is None:
@@ -307,7 +308,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if (not self.settings[server.id]["ftp_server"] or
@@ -353,7 +354,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
@@ -477,7 +478,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
@@ -555,7 +556,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
@@ -611,7 +612,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
@@ -692,7 +693,7 @@ class KZ:
 
         server = ctx.message.server
         if server.id not in self.settings:
-            self.settings[server.id] = default_settings
+            self.settings[server.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
         if not self._check_settings(server.id):
