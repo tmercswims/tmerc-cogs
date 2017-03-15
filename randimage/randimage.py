@@ -19,7 +19,9 @@ default_settings = {
 
 class RandImage:
 
-    """Picks a random image from the given directory."""
+    """Create categories and add images to the categories, then fetch a random
+    one from a category.
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
