@@ -206,7 +206,7 @@ Cycles the bot's game randomly among a list at a regular interval.
 ### RandImage
 Gets a random image from a local directory.
 #### Commands
-  * `randimage <category>` - Uploads a random image from `category`.
+  * `randimage <category> [delete]` - Uploads a random image from `category` (and optionally deletes it). `delete` defaults to `False`.
   * `addcategory <new_category>` (Bot mod only) - Creates a new category.
   * `delcategory <category>` (Bot mod only) - Deletes a category and all images in it.
   * `allcategories` - Sends a DM to the calling user with a list of all the categories, and the number of images in each.

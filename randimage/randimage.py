@@ -1,4 +1,3 @@
-from copy import deepcopy
 import os
 import os.path
 import random
@@ -38,15 +37,19 @@ class RandImage:
         return ret
 
     @commands.command(pass_context=True, no_pm=True, name="randimage")
-    async def _randimage(self, ctx: commands.Context, category: str):
-        """Chooses a random image from the given category and sends it."""
+    async def _randimage(self, ctx: commands.Context, category: str, delete: bool=False):
+        """Chooses a random image from the given category and sends it.
+
+        The second (optional) argument indicates whether to delete
+        the image that was sent after it is sent. Defaults to false.
+        """
 
         await self.bot.type()
 
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = deepcopy(default_settings)
+            self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server.id))
 
@@ -59,10 +62,15 @@ class RandImage:
 
         if not ls:
             await self.bot.reply(
-                cf.error("There are no images in that category."))
+                cf.warning("There are no images in that category."))
             return
 
-        await self.bot.upload(os.path.join(direc, random.choice(ls)))
+        img = os.path.join(direc, random.choice(ls))
+
+        await self.bot.upload(img)
+
+        if delete:
+            os.remove(img)
 
     @commands.command(pass_context=True, no_pm=True, name="addcategory")
     @checks.mod_or_permissions(Administrator=True)
@@ -74,7 +82,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = deepcopy(default_settings)
+            self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server.id))
 
@@ -98,7 +106,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = deepcopy(default_settings)
+            self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server_id))
 
@@ -138,7 +146,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = deepcopy(default_settings)
+            self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server_id))
 
@@ -180,7 +188,7 @@ class RandImage:
         server = ctx.message.server
 
         if server.id not in os.listdir(self.base):
-            self.settings[server.id] = deepcopy(default_settings)
+            self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
             os.makedirs(os.path.join(self.base, server_id))
 
