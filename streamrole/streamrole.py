@@ -92,13 +92,14 @@ class StreamRole:
                                  before.server.roles)
             if streamer_role is None:
                 return
-            # was not streaming, is now streaming
-            if ((before.game is None or before.game.type != 1) and
-                    (after.game is not None and after.game.type == 1)):
+            # is streaming
+            if (after.game is not None and
+                    after.game.type == 1 and
+                    streamer_role not in after.roles):
                 await self.bot.add_roles(after, streamer_role)
-            # was streaming, is now not
-            elif ((before.game is not None and before.game.type == 1) and
-                  (after.game is None or after.game.type != 1)):
+            # is not
+            elif ((after.game is None or after.game.type != 1) and
+                  streamer_role in after.roles):
                 await self.bot.remove_roles(after, streamer_role)
 
 
