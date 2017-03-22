@@ -1,9 +1,10 @@
 {
     "AUTHOR" : "tmerc",
-    "INSTALL_MSG" : "Thanks for installing!",
+    "INSTALL_MSG" : "THIS COG IS DEPRECATED AND NO LONGER MAINTAINED. Please use 'sfx' by FlapJack instead: https://cogs.red/cogs/flapjax/FlapJack-Cogs/sfx/",
     "NAME" : "PlaySound",
     "SHORT" : "Join, play a sound, and leave.",
-    "DESCRIPTION" : "Cog for soundbites, includes ability to add via chat (Discord attachment or direct link).",
+    "DESCRIPTION" : "THIS COG IS DEPRECATED AND NO LONGER MAINTAINED. Please use 'sfx' by FlapJack instead: https://cogs.red/cogs/flapjax/FlapJack-Cogs/sfx/\n\nOld description:\nCog for soundbites, includes ability to add via chat (Discord attachment or direct link).",
     "REQUIREMENTS" : [],
-    "TAGS": ["sound", "sfx", "soundbite", "fun"]
+    "TAGS": ["sound", "sfx", "soundbite", "fun"],
+    "HIDDEN": true
 }

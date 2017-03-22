@@ -14,7 +14,7 @@ Cogs for Twentysix26's [Red Discord bot](https://github.com/Twentysix26/Red-Disc
   - [Lenny](#lenny)
   - [MassDM](#massdm)
   - [Membership](#membership)
-  - [PlaySound](#playsound)
+  - ~[PlaySound](#playsound)~ (Deprecated.)
   - [Quotes](#quotes)
   - [RandGame](#randgame)
   - [RandImage](#randimage)
@@ -153,6 +153,7 @@ All message format strings have the following personalizations available: `{0}` 
 
 
 ### PlaySound
+THIS COG IS DEPRECATED AND NO LONGER MAINTAINED. Please use ['sfx' by FlapJack instead](https://cogs.red/cogs/flapjax/FlapJack-Cogs/sfx/).
 Play sounds in voice channels.
 #### Commands
   * `playsound <soundname>` - Plays the specified sound in the voice channel in which the caller is currently. `soundname` must be the case-accurate filename of a sound in `data/playsound`, excluding the extension.
