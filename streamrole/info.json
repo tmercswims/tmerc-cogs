@@ -5,5 +5,5 @@
     "SHORT" : "Streamers get a role.",
     "DESCRIPTION" : "Assign a configurable role to anyone who is streaming.",
     "REQUIREMENTS" : [],
-    "TAGS": ["stream", "role", "tools", "utilities"]
+    "TAGS": ["stream", "role", "tools", "utility"]
 }

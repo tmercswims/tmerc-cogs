@@ -5,5 +5,5 @@
     "SHORT" : "Announces membership events.",
     "DESCRIPTION" : "Announces members joining, leaving, getting banned, and getting unbanned, in a customizable text channel and with customizable messages.",
     "REQUIREMENTS" : [],
-    "TAGS": ["welcome", "ban", "utilities"]
+    "TAGS": ["welcome", "ban", "utility"]
 }

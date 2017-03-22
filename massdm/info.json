@@ -5,5 +5,5 @@
     "SHORT" : "DM a Role.",
     "DESCRIPTION" : "Send a direct message to all members of the specified Role. Personalize the message for each person.",
     "REQUIREMENTS" : [],
-    "TAGS": ["tools", "utilities", "dm"]
+    "TAGS": ["tools", "utility", "dm"]
 }
