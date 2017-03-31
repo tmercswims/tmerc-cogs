@@ -20,6 +20,7 @@ Cogs for Twentysix26's [Red Discord bot](https://github.com/Twentysix26/Red-Disc
   - [RandImage](#randimage)
   - [Randimals](#randimals)
   - [ReviewEmoji](#reviewemoji)
+  - [StreamRole](#streamrole)
   - [Survey](#survey)
 - [Support](#support)
 
@@ -248,6 +249,20 @@ Allows for users to submit emoji, and then moderators to approve/reject them.
 #### Additional Information
   * Cog will only be able to add emojis if your bot is whitelisted for emoji creation. I was unable to get my own bot whitelisted, as Discord told me they don't actually do this anymore. So unless that changes, this cog will never actually be useful.
   * Cog uses network to retrieve images for new emoji.
+
+
+### StreamRole
+Assign a configurable role to anyone who is streaming.
+#### Commands
+  * `streamroleset <command>` (Bot admin only) - Changes cog settings.
+    * `toggle` - Turns role assignment for streamers on or off.
+    * `role <role>` - Sets the role that should be assigned to members who are currently streaming.
+
+#### Extra Dependencies
+  * None.
+
+#### Additional Information
+  * None.
 
 
 ### Survey
