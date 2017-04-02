@@ -306,7 +306,7 @@ class CustomJoinLeave:
                                               aserver.id, after.id)
                 if os.path.exists(path):
                     if sfx_cog is not None:
-                        if not sfx_cog.enqueue_sfx(avchan, path):
+                        if not sfx_cog.enqueue_sfx(avchan, path, vol=15):
                             await self.sound_play(aserver, avchan, path)
                     else:
                         await self.sound_play(aserver, avchan, path)
@@ -321,7 +321,7 @@ class CustomJoinLeave:
                         self.sound_base, bserver.id, before.id)
                     if os.path.exists(path):
                         if sfx_cog is not None:
-                            if not sfx_cog.enqueue_sfx(bvchan, path):
+                            if not sfx_cog.enqueue_sfx(bvchan, path, vol=15):
                                 await self.sound_play(bserver, bvchan, path)
                         else:
                             await self.sound_play(bserver, bvchan, path)
@@ -333,7 +333,7 @@ class CustomJoinLeave:
                                                   aserver.id, after.id)
                     if os.path.exists(path):
                         if sfx_cog is not None:
-                            if not sfx_cog.enqueue_sfx(avchan, path):
+                            if not sfx_cog.enqueue_sfx(avchan, path, vol=15):
                                 await self.sound_play(aserver, avchan, path)
                         else:
                             await self.sound_play(aserver, avchan, path)
@@ -349,7 +349,7 @@ class CustomJoinLeave:
                                                bserver.id, before.id)
                 if os.path.exists(path):
                     if sfx_cog is not None:
-                        if not sfx_cog.enqueue_sfx(bvchan, path):
+                        if not sfx_cog.enqueue_sfx(bvchan, path, vol=15):
                             await self.sound_play(bserver, bvchan, path)
                     else:
                         await self.sound_play(bserver, bvchan, path)
