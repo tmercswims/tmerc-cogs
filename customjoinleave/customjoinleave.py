@@ -282,6 +282,11 @@ class CustomJoinLeave:
         bserver = before.server
         aserver = after.server
 
+        bvchan = before.voice.voice_channel
+        avchan = after.voice.voice_channel
+
+        sfx_cog = self.bot.get_cog("Sfx")
+
         if bserver.id not in self.settings:
             self.settings[bserver.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
@@ -290,52 +295,64 @@ class CustomJoinLeave:
             self.settings[aserver.id] = deepcopy(default_settings)
             dataIO.save_json(self.settings_path, self.settings)
 
-        if before.voice.voice_channel != after.voice.voice_channel:
+        if bvchan != avchan:
             # went from no channel to a channel
-            if (before.voice.voice_channel is None and
-                    after.voice.voice_channel is not None and
+            if (bvchan is None and avchan is not None and
                     self.settings[aserver.id]["join_on"] and
-                    after.voice.voice_channel != aserver.afk_channel and
-                    after.voice.voice_channel.permissions_for(
+                    avchan != aserver.afk_channel and
+                    avchan.permissions_for(
                         bserver.me).connect):
                 path = "{}/{}/{}/join".format(self.sound_base,
                                               aserver.id, after.id)
                 if os.path.exists(path):
-                    await self.sound_play(
-                        aserver, after.voice.voice_channel, path)
+                    if sfx_cog is not None:
+                        if not sfx_cog.enqueue_sfx(avchan, path):
+                            await self.sound_play(aserver, avchan, path)
+                    else:
+                        await self.sound_play(aserver, avchan, path)
+
             # went from one channel to another
-            elif (before.voice.voice_channel is not None and
-                  after.voice.voice_channel is not None):
+            elif bvchan is not None and avchan is not None:
                 if (self.settings[bserver.id]["leave_on"] and
-                        before.voice.voice_channel != bserver.afk_channel and
-                        before.voice.voice_channel.permissions_for(
+                        bvchan != bserver.afk_channel and
+                        bvchan.permissions_for(
                             bserver.me).connect):
                     path = "{}/{}/{}/leave".format(
                         self.sound_base, bserver.id, before.id)
                     if os.path.exists(path):
-                        await self.sound_play(bserver,
-                                              before.voice.voice_channel, path)
+                        if sfx_cog is not None:
+                            if not sfx_cog.enqueue_sfx(bvchan, path):
+                                await self.sound_play(bserver, bvchan, path)
+                        else:
+                            await self.sound_play(bserver, bvchan, path)
                 if (self.settings[aserver.id]["join_on"] and
-                        after.voice.voice_channel != aserver.afk_channel and
-                        after.voice.voice_channel.permissions_for(
+                        avchan != aserver.afk_channel and
+                        avchan.permissions_for(
                             bserver.me).connect):
                     path = "{}/{}/{}/join".format(self.sound_base,
                                                   aserver.id, after.id)
                     if os.path.exists(path):
-                        await self.sound_play(aserver,
-                                              after.voice.voice_channel, path)
+                        if sfx_cog is not None:
+                            if not sfx_cog.enqueue_sfx(avchan, path):
+                                await self.sound_play(aserver, avchan, path)
+                        else:
+                            await self.sound_play(aserver, avchan, path)
+
             # went from a channel to no channel
-            elif (before.voice.voice_channel is not None and
-                  after.voice.voice_channel is None and
+            elif (bvchan is not None and
+                  avchan is None and
                   self.settings[bserver.id]["leave_on"] and
-                  before.voice.voice_channel != bserver.afk_channel and
-                  before.voice.voice_channel.permissions_for(
+                  bvchan != bserver.afk_channel and
+                  bvchan.permissions_for(
                     bserver.me).connect):
                 path = "{}/{}/{}/leave".format(self.sound_base,
                                                bserver.id, before.id)
                 if os.path.exists(path):
-                    await self.sound_play(bserver,
-                                          before.voice.voice_channel, path)
+                    if sfx_cog is not None:
+                        if not sfx_cog.enqueue_sfx(bvchan, path):
+                            await self.sound_play(bserver, bvchan, path)
+                    else:
+                        await self.sound_play(bserver, bvchan, path)
 
 
 def check_folders():
