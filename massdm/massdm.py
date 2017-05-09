@@ -47,7 +47,7 @@ class MassDM:
             try:
                 await self.bot.send_message(user,
                                             message.format(user, role, sender))
-            except discord.Forbidden:
+            except (discord.Forbidden, discord.HTTPException):
                 continue
 
 
