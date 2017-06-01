@@ -337,11 +337,14 @@ class Survey:
     def _make_answer_table(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
         answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
-        rows = list(zip_longest(
+        tupnames = list(zip_longest(
             *[[server.get_member(y).display_name for y in x[1]
                if server.get_member(y) is not None] for x in answers]))
-        headers = [x[0] for x in answers]
-        return tabulate(rows, headers, tablefmt="orgtbl")
+        lnames = [element for tupl in tupnames for element in tupl]
+        lanswers = [x[0] for x in answers]
+
+
+        return tabulate({"Names": lnames, "Answers": lanswers}, headers="keys")
 
     def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
