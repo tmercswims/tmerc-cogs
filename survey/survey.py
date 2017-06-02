@@ -36,7 +36,6 @@ class PastDeadlineError(Exception):
 
 
 class Survey:
-
     """Runs surveys for a specific role of people via DM,
     and prints real-time results to a given text channel.
 
@@ -336,12 +335,17 @@ class Survey:
 
     def _make_answer_table(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
-        answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
-        rows = list(zip_longest(
-            *[[server.get_member(y).display_name for y in x[1]
-               if server.get_member(y) is not None] for x in answers]))
-        headers = [x[0] for x in answers]
-        return tabulate(rows, headers, tablefmt="orgtbl")
+        answers = self.surveys[server_id][survey_id]["answers"]
+        lnames = []
+        lanswers = []
+        for answer in answers:
+            for uid in answers[answer]:
+                if server.get_member(uid).display_name is not None:
+                    lnames.append(server.get_member(uid).display_name)
+                    lanswers.append(answer)
+
+        return tabulate({"Responses": lanswers,
+                        "Names": lnames}, headers="keys")
 
     def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
@@ -625,6 +629,7 @@ def setup(bot: commands.Bot):
         raise RuntimeError(
             "You need to install `python-dateutil`:"
             " `pip install python-dateutil`.")
+
 
 tz_str = """-12 Y
 -11 X NUT SST
