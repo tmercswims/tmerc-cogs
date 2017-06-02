@@ -44,6 +44,11 @@ class Survey:
     and reminders based on initial answer.
     """
 
+    """
+    Fork from tmerc-cogs to get the output in a
+    format more preferrable to my usage.
+    """
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.surveys_path = "data/survey/surveys.json"
@@ -336,15 +341,17 @@ class Survey:
 
     def _make_answer_table(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
-        answers = sorted(self.surveys[server_id][survey_id]["answers"].items())
-        tupnames = list(zip_longest(
-            *[[server.get_member(y).display_name for y in x[1]
-               if server.get_member(y) is not None] for x in answers]))
-        lnames = [element for tupl in tupnames for element in tupl]
-        lanswers = [x[0] for x in answers]
+        answers = self.surveys[server_id][survey_id]["answers"]
+        lnames = []
+        lanswers = []
+        for answer in answers:
+            for uid in answers[answer]:
+                if server.get_member(uid).display_name is not None:
+                    lnames.append(server.get_member(uid).display_name)
+                    lanswers.append(answer)
 
-
-        return tabulate({"Names": lnames, "Answers": lanswers}, headers="keys")
+        return tabulate({"Responses": lanswers,
+                        "Names": lnames}, headers="keys")
 
     def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
@@ -628,6 +635,7 @@ def setup(bot: commands.Bot):
         raise RuntimeError(
             "You need to install `python-dateutil`:"
             " `pip install python-dateutil`.")
+
 
 tz_str = """-12 Y
 -11 X NUT SST
