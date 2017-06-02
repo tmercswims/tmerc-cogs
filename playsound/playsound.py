@@ -1,5 +1,6 @@
 import asyncio
 import glob
+import random
 import os
 import os.path
 from typing import List
@@ -119,11 +120,19 @@ class PlaySound:
 
         f = glob.glob(os.path.join(
             self.sound_base, server.id, soundname + ".*"))
+
         if len(f) < 1:
-            await self.bot.reply(cf.error(
-                "Sound file not found. Try `{}allsounds` for a list.".format(
-                    ctx.prefix)))
-            return
+            f = glob.glob(os.path.join(
+                self.sound_base, server.id, soundname + "*"))
+
+            if len(f) < 1:
+                await self.bot.reply(cf.error(
+                    "Sound file not found. Try `{}allsounds` for a list."
+                    .format(ctx.prefix)))
+                return
+            else:
+                f[0] = random.choice(f)
+
         elif len(f) > 1:
             await self.bot.reply(cf.error(
                 "There are {} sound files with the same name, but different"
