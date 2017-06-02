@@ -36,17 +36,11 @@ class PastDeadlineError(Exception):
 
 
 class Survey:
-
     """Runs surveys for a specific role of people via DM,
     and prints real-time results to a given text channel.
 
     Supports changing responses, answer option quotas,
     and reminders based on initial answer.
-    """
-
-    """
-    Fork from tmerc-cogs to get the output in a
-    format more preferrable to my usage.
     """
 
     def __init__(self, bot: commands.Bot):
