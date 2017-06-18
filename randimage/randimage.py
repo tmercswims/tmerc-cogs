@@ -108,7 +108,7 @@ class RandImage:
         if server.id not in os.listdir(self.base):
             self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
-            os.makedirs(os.path.join(self.base, server_id))
+            os.makedirs(os.path.join(self.base, server.id))
 
         if category not in self._list_image_dirs(server.id):
             await self.bot.reply(cf.error("Category not found."))
@@ -148,7 +148,7 @@ class RandImage:
         if server.id not in os.listdir(self.base):
             self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
-            os.makedirs(os.path.join(self.base, server_id))
+            os.makedirs(os.path.join(self.base, server.id))
 
         categories = self._list_image_dirs(server.id)
 
@@ -190,7 +190,7 @@ class RandImage:
         if server.id not in os.listdir(self.base):
             self.settings[server.id] = default_settings
             dataIO.save_json(self.settings_path, self.settings)
-            os.makedirs(os.path.join(self.base, server_id))
+            os.makedirs(os.path.join(self.base, server.id))
 
         if category not in self._list_image_dirs(server.id):
             await self.bot.reply(cf.error("Category not found."))

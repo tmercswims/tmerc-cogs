@@ -39,7 +39,10 @@ class MassDM:
         server = ctx.message.server
         sender = ctx.message.author
 
-        await self.bot.delete_message(ctx.message)
+        try:
+            await self.bot.delete_message(ctx.message)
+        except:
+            pass
 
         dm_these = self._get_users_with_role(server, role)
 
@@ -47,7 +50,7 @@ class MassDM:
             try:
                 await self.bot.send_message(user,
                                             message.format(user, role, sender))
-            except discord.Forbidden:
+            except (discord.Forbidden, discord.HTTPException):
                 continue
 
 
