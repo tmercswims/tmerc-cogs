@@ -1,0 +1,9 @@
+{
+    "AUTHOR" : "tmerc",
+    "INSTALL_MSG" : "Thanks for installing!",
+    "NAME" : "Rainbow6Siege",
+    "SHORT" : "Rainbow 6: Siege player information.",
+    "DESCRIPTION" : "Get Rainbow 6: Siege player information: rank, operator and weapon stats, and more.",
+    "REQUIREMENTS" : ["r6sapi"],
+    "TAGS": ["rainbow6", "r6s", "gaming", "fun"]
+}
