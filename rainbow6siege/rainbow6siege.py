@@ -261,7 +261,7 @@ class Rainbow6Siege:
                     )
         e.add_field(name="Skill",
                     value="**Mean:** {0:.2f}\n"
-                    "**Standard Deviation:** {0:.2f}".format(
+                    "**Standard Deviation:** {1:.2f}".format(
                         r.skill_mean, r.skill_stdev)
                     )
 
