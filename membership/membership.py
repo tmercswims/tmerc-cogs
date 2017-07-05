@@ -225,8 +225,7 @@ class Membership:
             print("Tried to send message to channel, but didn't have"
                   " permission. User was {}.".format(member.name))
 
-    async def member_unban(self, member: discord.Member):
-        server = member.server
+    async def member_unban(self, server: discord.Server, user: discord.User):
         if server.id not in self.settings:
             self.settings[server.id] = deepcopy(default_settings)
             self.settings[server.id]["channel"] = server.default_channel.id
@@ -236,12 +235,12 @@ class Membership:
             return
 
         await self.bot.send_typing(
-            self.bot.get_channel(self.settings[member.server.id]["channel"]))
+            self.bot.get_channel(self.settings[server.id]["channel"]))
 
         if server is None:
             print("The server was None, so this was either a PM or an error."
                   " The user was {}.".format(
-                      member.name))
+                      user.name))
             return
 
         channel = self.get_welcome_channel(server)
@@ -249,10 +248,10 @@ class Membership:
             await self.bot.send_message(channel,
                                         self.settings[server.id][
                                             "unban_message"]
-                                        .format(member, server))
+                                        .format(user, server))
         else:
             print("Tried to send message to channel, but didn't have"
-                  " permission. User was {}.".format(member.name))
+                  " permission. User was {}.".format(user.name))
 
     def get_welcome_channel(self, server: discord.Server):
         return server.get_channel(self.settings[server.id]["channel"])
