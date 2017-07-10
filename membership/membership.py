@@ -39,6 +39,7 @@ class Membership:
             dataIO.save_json(self.settings_path, self.settings)
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
+            cf.box("Toggled on: {}".format(self.settings[server.id]["on"]))
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join",
                             aliases=["greeting", "welcome"])
