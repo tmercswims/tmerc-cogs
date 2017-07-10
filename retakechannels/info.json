@@ -1,0 +1,9 @@
+{
+    "AUTHOR" : "tmerc",
+    "INSTALL_MSG" : "Thanks for installing!",
+    "NAME" : "RetakeCahnnels",
+    "SHORT" : "Sync voice channels and retake teams.",
+    "DESCRIPTION" : "Auto-move people to voice channels based on retakes teams.",
+    "REQUIREMENTS" : ["git+git://github.com/Holiverh/python-valve.git"],
+    "TAGS": ["retakes", "csgo", "gaming", "voice"]
+}

@@ -39,6 +39,15 @@ class Membership:
             dataIO.save_json(self.settings_path, self.settings)
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
+            msg = "```"
+            msg += "ON: {}\n".format(self.settings[server.id]["on"])
+            msg += "CHANNEL: #{}\n".format(self.get_welcome_channel(server))
+            msg += "JOIN: {}\n".format(self.settings[server.id]["join_message"])
+            msg += "LEAVE: {}\n".format(self.settings[server.id]["leave_message"])
+            msg += "BAN: {}\n".format(self.settings[server.id]["ban_message"])
+            msg += "UNBAN: {}\n".format(self.settings[server.id]["unban_message"])
+            msg += "```"
+            await self.bot.say(msg)
 
     @_membershipset.command(pass_context=True, no_pm=True, name="join",
                             aliases=["greeting", "welcome"])
