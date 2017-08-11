@@ -128,7 +128,6 @@ class Membership:
          If none is specified, the default will be used.
          """
 
-        await self.bot.type()
         server = ctx.message.server
 
         if not channel:
@@ -139,6 +138,8 @@ class Membership:
                 "I don't have permission to send messages in {0.mention}."
                 .format(channel))
             return
+
+        await self.bot.send_typing(channel)
 
         self.settings[server.id]["channel"] = channel.id
         dataIO.save_json(self.settings_path, self.settings)
