@@ -55,7 +55,7 @@ class ReviewEmoji:
 
     def _get_num_waiting_subs(self, server_id: int) -> int:
         return len([sub for sub in
-                    list(self.submissions[server.id]["submissions"].values())
+                    list(self.submissions[server_id]["submissions"].values())
                     if sub["status"] == "waiting"])
 
     async def _send_update_pm(self, server: discord.Server, subid: str):
