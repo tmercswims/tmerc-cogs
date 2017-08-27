@@ -177,7 +177,7 @@ class ReviewEmoji:
         path += "/" + new_emoji_id
         os.makedirs(path)
 
-        path += "/" + attach[0]["filename"]
+        path += "/" + os.path.basename(url)
 
         async with aiohttp.get(url) as new_emoji_file:
             f = open(path, "wb")
