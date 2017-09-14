@@ -69,8 +69,10 @@ class StreamRole:
     @_streamroleset.command(pass_context=True, no_pm=True, name="only")
     @checks.admin_or_permissions(manage_server=True)
     async def _only(self, ctx: commands.Context, role: discord.Role):
-        """Sets the role to which it will update streamers from.
-        """
+        """Sets the role from which to update streamers.
+
+        Only members with this role will be given the streaming
+        role when streaming. Set to '@everyone' to reset it."""
 
         await self.bot.type()
 
@@ -82,9 +84,9 @@ class StreamRole:
         dataIO.save_json(self.settings_path, self.settings)
 
         await self.bot.reply(
-            cf.info("Any member who is streaming and has the role `{}` will now be given a Role if it's set. "
-                    "Ensure you set the Role with `{}streamroleset role` and also toggle the cog on with "
-                    "`{}streamroleset toggle`.\nSet it to `@everyone` to reset it.".format(role.name, ctx.prefix, ctx.prefix)))
+            cf.info("Only members with the role `{}` will be given the "
+                    "streaming role now. Set it to `@everyone` to "
+                    "reset it.".format(role.name)))
 
     @_streamroleset.command(pass_context=True, no_pm=True, name="role")
     @checks.admin_or_permissions(manage_server=True)
@@ -118,27 +120,32 @@ class StreamRole:
             streamer_role = find(lambda m: m.id == server_settings["role"],
                                  before.server.roles)
             only_role = find(lambda l: l.id == server_settings["only"],
-                                 before.server.roles)
+                             before.server.roles)
             if streamer_role is None:
                 return
+
             # is streaming
             if (after.game is not None and
                     after.game.type == 1 and
-                    streamer_role not in after.roles):                   
-                if (only_role is None or
-                      only_role in after.roles):
-                    try:    
+                    streamer_role not in after.roles):
+                if (only_role is None or only_role in after.roles):
+                    try:
                         await self.bot.add_roles(after, streamer_role)
                     except discord.Forbidden:
-                        print("Forbidden error Server: {}. Role: {}. Member: {}".format(before.server.id, streamer_role, after))
-                    
+                        print("StreamRole: forbidden error\n"
+                              "Server: {}, Role: {}, Member: {}".format(
+                                  before.server.id, streamer_role.id, after.id)
+                              )
+
             # is not
             elif ((after.game is None or after.game.type != 1) and
                   streamer_role in after.roles):
                 try:
                     await self.bot.remove_roles(after, streamer_role)
                 except discord.Forbidden:
-                    print("Forbidden error Server: {}. Role: {} Member: {}".format(before.server.id, streamer_role, after))
+                    print("StreamRole: forbidden error\n"
+                          "Server: {}, Role: {}, Member: {}".format(
+                              before.server.id, streamer_role.id, after.id))
 
 
 def check_folders():
