@@ -1,9 +1,0 @@
-{
-    "AUTHOR" : "tmerc",
-    "INSTALL_MSG" : "Thanks for installing!",
-    "NAME" : "KZ",
-    "SHORT" : "Get kz stats.",
-    "DESCRIPTION" : "Gets kz (kreedz mod) stats from a configurable kz server (via FTP).",
-    "REQUIREMENTS" : ["beautifulsoup4", "git+git://github.com/Holiverh/python-valve.git", "rfc3987", "tabulate"],
-    "TAGS": ["kz", "csgo", "gaming"]
-}
