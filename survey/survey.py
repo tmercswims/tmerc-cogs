@@ -345,10 +345,23 @@ class Survey:
 
     def _make_waiting_list(self, server_id: str, survey_id: str) -> str:
         server = self.bot.get_server(server_id)
-        return ", ".join(sorted(
+        sorted_list = sorted(
             [server.get_member(m).display_name
              for m in self.surveys[server_id][survey_id]["asked"]
-             if server.get_member(m) is not None]))
+             if server.get_member(m) is not None], key=lambda s: s.lower())
+        index = 0
+        string_list = ""
+        while len(string_list) < 1950 and index < len(sorted_list):
+            string_list += "{}, ".format(sorted_list[index])
+            index += 1
+
+        if index < len(sorted_list):
+            string_list += "and {} more.".format(len(sorted_list) - index)
+
+        if string_list.endswith(", "):
+            string_list = string_list[:-2]
+
+        return string_list
 
     def _get_server_id_from_survey_id(self, survey_id):
         for server_id, survey_ids in [
