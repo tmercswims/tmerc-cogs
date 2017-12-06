@@ -328,7 +328,7 @@ class ReviewEmoji:
                 elif decision[0] == "exit" or decision is None:
                     break
 
-        more = selg._get_num_waiting_subs(server.id)
+        more = self._get_num_waiting_subs(server.id)
         await self.bot.reply(cf.info(
             "Exiting review process.\n"
             "This session: {} approved, {} rejected, {} skipped.\n"
