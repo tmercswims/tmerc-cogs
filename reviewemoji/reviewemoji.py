@@ -34,6 +34,10 @@ class ReviewEmoji:
         self.data_base = "data/reviewemoji"
         self.submissions_path = "data/reviewemoji/submissions.json"
         self.submissions = dataIO.load_json(self.submissions_path)
+        self.session = aiohttp.ClientSession()
+    
+    def __unload(self):
+        self.session.close()
 
     def _round_time(self, dt: datetime, round_to: int=60) -> datetime:
         seconds = (dt - dt.min).seconds
@@ -179,7 +183,7 @@ class ReviewEmoji:
 
         path += "/" + os.path.basename(url)
 
-        async with aiohttp.get(url) as new_emoji_file:
+        async with self.session.get(url) as new_emoji_file:
             f = open(path, "wb")
             f.write(await new_emoji_file.read())
             f.close
