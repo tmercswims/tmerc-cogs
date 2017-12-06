@@ -1,10 +1,10 @@
 {
     "AUTHOR" : "tmerc",
-    "INSTALL_MSG" : "PLEASE NOTE: Discord has disallowed bots from adding emoji. This means that the primary purpose of this cog does not function. Feel free to install it if you want, but know that it essentially does nothing useful.",
+    "INSTALL_MSG" : "Thanks for installing!",
     "NAME" : "ReviewEmoji",
     "SHORT" : "Submit and review emoji.",
     "DESCRIPTION" : "Allows anyone to submit an emoji for review, and then bot admins can review the submissions and approve/reject them.",
     "REQUIREMENTS" : ["python-dateutil"],
     "TAGS": ["emoji", "community", "tools", "utility"],
-    "HIDDEN": true
+    "HIDDEN": false
 }
