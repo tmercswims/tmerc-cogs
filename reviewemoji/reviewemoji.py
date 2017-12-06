@@ -222,7 +222,7 @@ class ReviewEmoji:
 
         if submission_id not in self.submissions[server.id]["submissions"]:
             self.bot.reply(cf.error(
-                "Submission with ID {} not found.")).format(submission_id)
+                "Submission with ID {} not found.".format(submission_id)))
             return
 
         sub = self.submissions[server.id]["submissions"][submission_id]
