@@ -27,6 +27,7 @@ LENNY_PARTS = {
   ]
 }
 
+
 class Lenny:
   '''乁(-ロ-)ㄏ'''
 
@@ -41,6 +42,8 @@ class Lenny:
   @commands.command()
   async def lenny(self, ctx: commands.Context):
     '''☞⇀‿↼☞'''
+
+    await ctx.trigger_typing()
 
     l = await self._get_lenny()
     await ctx.send(l)
