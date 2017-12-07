@@ -1,0 +1,10 @@
+{
+    "AUTHOR" : "tmerc",
+    "INSTALL_MSG": "Meow.",
+    "NAME" : "CatFact",
+    "SHORT" : "Gets a random cat fact.",
+    "DESCRIPTION" : "Gets a random cat fact.",
+    "REQUIREMENTS" : [],
+    "TAGS": ["catfact", "cat", "animals", "random", "fun"],
+    "HIDDEN": false
+}
