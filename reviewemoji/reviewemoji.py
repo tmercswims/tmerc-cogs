@@ -290,7 +290,7 @@ class ReviewEmoji:
                         timeout=15, channel=ctx.message.channel,
                         author=ctx.message.author)
                     if r is None:
-                        break
+                        continue
                     resp = r.content.strip().lower().split()
                     if resp[0] not in ("approve", "reject", "skip", "exit"):
                         await self.bot.reply(cf.warning(
