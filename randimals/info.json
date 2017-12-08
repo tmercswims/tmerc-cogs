@@ -1,0 +1,9 @@
+{
+  "AUTHOR" : "tmerc",
+  "INSTALL_MSG" : "Thanks for installing!",
+  "NAME" : "Randimals",
+  "SHORT" : "Get some random animal images.",
+  "DESCRIPTION" : "Displays random images of some animals.",
+  "REQUIREMENTS" : [],
+  "TAGS": ["animal", "random", "fun"]
+}
