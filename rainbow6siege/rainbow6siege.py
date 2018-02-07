@@ -173,7 +173,8 @@ class Rainbow6Siege:
                     "**Headshots:** {}".format(
                         p.bullets_fired, p.bullets_hit,
                         "{0:.2f}".format(
-                            (p.bullets_hit / p.bullets_fired) * 100),
+                            (p.bullets_hit /
+                                (p.bullets_fired if p.bullets_fired > 0 else 1)) * 100),
                         p.headshots)
                     )
         e.add_field(name="Other",
