@@ -26,7 +26,7 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'http://random.dog/woof.json'
+    url = 'https://random.dog/woof.json'
 
     try:
       async with self.__session.get(url) as response:
@@ -44,7 +44,7 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'http://random.cat/meow'
+    url = 'https://aws.random.cat/meow'
 
     try:
       async with self.__session.get(url) as response:
@@ -62,7 +62,7 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'http://wohlsoft.ru/images/foxybot/randomfox.php'
+    url = 'https://wohlsoft.ru/images/foxybot/randomfox.php'
 
     try:
       async with self.__session.get(url) as response:
@@ -80,7 +80,7 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'http://shibe.online/api/birds?count=1'
+    url = 'https://shibe.online/api/birds?count=1'
 
     try:
       async with self.__session.get(url) as response:
