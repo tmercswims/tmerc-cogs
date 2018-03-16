@@ -22,10 +22,10 @@ class MassDM:
     '''Sends a DM to all Members with the given Role.
 
     Allows for the following customizations:
-    {0} is the member being messaged
-    {1} is the role through which they are being messaged
-    {2} is the server through which they are being messaged
-    {3} is you, the person sending the message
+    `{member}` is the member being messaged
+    `{role}` is the role through which they are being messaged
+    `{server}` is the server through which they are being messaged
+    `{sender}` is you, the person sending the message
     '''
 
     try:
@@ -39,7 +39,7 @@ class MassDM:
 
     for member in dm_these:
       try:
-        await member.send(message.format(member, role, ctx.guild, ctx.author))
+        await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
       except discord.Forbidden:
         log.warning('Failed to DM user {0} (ID {0.id}): insufficient permissions'.format(member))
         continue
