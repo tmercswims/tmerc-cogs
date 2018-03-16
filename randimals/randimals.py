@@ -18,7 +18,7 @@ class Randimals:
         """Shows a random cat."""
 
         await self.bot.type()
-        url = "http://random.cat/meow"
+        url = "http://aws.random.cat/meow"
         async with aiohttp.get(url) as response:
             img_url = (await response.json())["file"]
             filename = os.path.basename(img_url)
