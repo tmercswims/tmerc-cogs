@@ -5,7 +5,6 @@ from discord.ext import commands
 from discord.utils import get
 
 from redbot.core import Config, checks
-from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box
 
 log = logging.getLogger('red.tmerc.streamrole')
@@ -22,11 +21,9 @@ class StreamRole:
     'lax_promote': False
   }
 
-  def __init__(self, bot: Red):
+  def __init__(self):
     self.config = Config.get_conf(self, 34507445)
     self.config.register_guild(**self.guild_defaults)
-
-    self.bot = bot
 
   @commands.group()
   @commands.guild_only()
@@ -109,7 +106,7 @@ class StreamRole:
   async def streamroleset_promote(self, ctx: commands.Context):
     '''Changes promotion settings.'''
 
-    if ctx.invoked_subcommand is None:
+    if str(ctx.invoked_subcommand) == 'streamroleset promote':
       await ctx.send_help()
 
   @streamroleset_promote.command(name='toggle')
