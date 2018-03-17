@@ -17,7 +17,7 @@ class MassDM:
 
   @commands.command(aliases=['mdm'])
   @commands.guild_only()
-  @checks.mod_or_permissions(manage_server=True)
+  @checks.admin_or_permissions(manage_server=True)
   async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str):
     '''Sends a DM to all Members with the given Role.
 
