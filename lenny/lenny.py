@@ -5,6 +5,8 @@ import logging
 import aiohttp
 from discord.ext import commands
 
+from redbot.core import RedContext
+
 log = logging.getLogger('red.tmerc.lenny')
 
 LENNY_PARTS = {
@@ -40,7 +42,7 @@ class Lenny:
       self.__session.close()
 
   @commands.command()
-  async def lenny(self, ctx: commands.Context):
+  async def lenny(self, ctx: RedContext):
     '''☞⇀‿↼☞'''
 
     await ctx.trigger_typing()

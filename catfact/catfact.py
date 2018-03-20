@@ -3,6 +3,8 @@ import logging
 import aiohttp
 from discord.ext import commands
 
+from redbot.core import RedContext
+
 log = logging.getLogger('red.tmerc.catfact')
 
 
@@ -18,7 +20,7 @@ class CatFact:
       self.__session.close()
 
   @commands.command()
-  async def catfact(self, ctx: commands.Context):
+  async def catfact(self, ctx: RedContext):
     '''Gets a random cat fact.'''
 
     await ctx.trigger_typing()

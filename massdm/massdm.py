@@ -4,7 +4,7 @@ from typing import List
 import discord
 from discord.ext import commands
 
-from redbot.core import checks
+from redbot.core import RedContext, checks
 
 log = logging.getLogger('red.tmerc.massdm')
 
@@ -18,7 +18,7 @@ class MassDM:
   @commands.command(aliases=['mdm'])
   @commands.guild_only()
   @checks.admin_or_permissions(manage_server=True)
-  async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str):
+  async def massdm(self, ctx: RedContext, role: discord.Role, *, message: str):
     '''Sends a DM to all Members with the given Role.
 
     Allows for the following customizations:
