@@ -24,7 +24,7 @@ class NestedCommands:
     'channel': None
   }
 
-  p = re.compile(r'\$\([^\)\$]+\)')
+  p = re.compile(r'\$\(.+\)')
 
   def __init__(self, bot: Red):
     self.bot = bot
@@ -32,6 +32,12 @@ class NestedCommands:
     self.config.register_guild(**self.guild_defaults)
 
     self.__init_before()
+
+  @commands.command()
+  async def say(self, ctx: RedContext, *, message: str):
+    '''Echoes back what you say.'''
+
+    await ctx.send(message)
 
   @commands.group()
   @commands.guild_only()
