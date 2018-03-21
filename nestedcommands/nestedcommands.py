@@ -33,12 +33,6 @@ class NestedCommands:
 
     self.__init_before()
 
-  @commands.command()
-  async def say(self, ctx: RedContext, *, message: str):
-    '''Echoes back what you say.'''
-
-    await ctx.send(message)
-
   @commands.group()
   @commands.guild_only()
   @checks.guildowner()
