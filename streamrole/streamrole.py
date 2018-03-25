@@ -238,8 +238,8 @@ class StreamRole:
             )
           except:
             log.warning(
-              ('Failed to add role ID {} to member ID {} (server ID {})'
-               '').format(streaming_role.id, after.id, guild.id)
+              ("Failed to add role ID {} to member ID {} (server ID {})"
+               "").format(streaming_role.id, after.id, guild.id)
             )
 
   def __can_promote(self, member: discord.Member, config: dict) -> bool:
