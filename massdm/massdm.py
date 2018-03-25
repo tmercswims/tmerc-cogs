@@ -21,10 +21,10 @@ class MassDM:
     """Sends a DM to all Members with the given Role.
 
     Allows for the following customizations:
-    `{member}` is the member being messaged
-    `{role}` is the role through which they are being messaged
-    `{server}` is the server through which they are being messaged
-    `{sender}` is you, the person sending the message
+      `{member}` is the member being messaged
+      `{role}` is the role through which they are being messaged
+      `{server}` is the server through which they are being messaged
+      `{sender}` is you, the person sending the message
     """
 
     try:
