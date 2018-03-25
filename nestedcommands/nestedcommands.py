@@ -1,12 +1,11 @@
 import asyncio
-import re
 import logging
+import re
 from copy import copy
 
 import discord
 from discord.ext import commands
 from discord.utils import get
-
 from redbot.core import Config, RedContext, checks
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box
@@ -15,16 +14,14 @@ log = logging.getLogger('red.tmerc.nestedcommands')
 
 
 class NestedCommands:
-  '''Experimental cog that allows you to use the
-  output of one command as the input of another.
-  '''
+  """Experimental cog that allows you to use the output of one command as the input of another."""
 
   guild_defaults = {
     'enabled': False,
     'channel': None
   }
 
-  p = re.compile(r'\$\(.+\)')
+  p = re.compile(r"\$\(.+\)")
 
   def __init__(self, bot: Red):
     self.bot = bot
@@ -37,7 +34,7 @@ class NestedCommands:
   @commands.guild_only()
   @checks.guildowner()
   async def ncset(self, ctx: RedContext):
-    '''Change NestedCommands settings.'''
+    """Change NestedCommands settings."""
 
     if ctx.invoked_subcommand is None:
       await ctx.send_help()
@@ -50,20 +47,20 @@ class NestedCommands:
         channel = get(ctx.guild.text_channels, id=channel)
 
       msg = box(
-          ('Enabled: {}\n'
-           'Channel: {}\n'
-           '').format(enabled, channel and channel.name),
-          'Current NestedCommands settings:'
-        )
+        ("Enabled: {}\n"
+         "Channel: {}\n"
+         "").format(enabled, channel and channel.name),
+        "Current NestedCommands settings:"
+      )
 
       await ctx.send(msg)
 
   @ncset.command(name='toggle')
   async def ncset_toggle(self, ctx: RedContext, on_off: bool = None):
-    '''Turns NestedCommand on or off.
+    """Turns NestedCommand on or off.
 
     If `on_off` is not provided, the state will be flipped.
-    '''
+    """
 
     await ctx.trigger_typing()
 
@@ -73,40 +70,38 @@ class NestedCommands:
     channel = await self.config.guild(guild).channel()
     if channel is None and target_state:
       await ctx.send(
-        ('You need to set a channel with `{}ncset channel` '
-         'before you can enable NestedCommands.'
-         '').format(ctx.prefix)
+        ("You need to set a channel with `{}ncset channel` before you can enable NestedCommands."
+         "").format(ctx.prefix)
       )
       return
 
     await self.config.guild(guild).enabled.set(target_state)
-    await ctx.send(
-      ('NestedCommands is now {}.'
-       '').format('enabled' if target_state else 'disabled')
-    )
+
+    if target_state:
+      await ctx.send("NestedCommands is now enabled.")
+    else:
+      await ctx.send("NestedCommands is now disabled.")
 
   @ncset.command(name='channel')
   async def ncset_channel(self, ctx: RedContext, *, channel: discord.TextChannel):
-    '''Sets the channel which will be used to print the output
-    of all inner commands.
+    """Sets the channel which will be used to print the output of all inner commands.
 
-    It is highly recommended that you make this channel hidden
-    and/or read-only to all users except Red, because this cog
-    relies on the message history to function properly.
-    '''
+    It is highly recommended that you make this channel hidden and/or read-only to all users except Red, because this
+    cog relies on the message history to function properly.
+    """
 
     await ctx.trigger_typing()
 
     await self.config.guild(ctx.guild).channel.set(channel.id)
 
     await ctx.send(
-      ('Done. I will now use the channel {} for inner command outputs. '
-       'Ensure you also turn on NestedCommand with `{}ncset toggle`.'
-       '').format(channel.mention, ctx.prefix)
+      ("Done. I will now use the channel {} for inner command outputs. Ensure you also turn on NestedCommand with "
+       "`{}ncset toggle`."
+       "").format(channel.mention, ctx.prefix)
     )
 
   def __init_before(self):
-    '''Sets up the before_invoke hook that makes this all work.'''
+    """Sets up the before_invoke hook that makes this all work."""
 
     @self.bot.before_invoke
     async def before_any_command(ctx: RedContext):
@@ -135,4 +130,4 @@ class NestedCommands:
             if matched_text in value:
               ctx.kwargs[name] = value.replace(matched_text, inner_output)
 
-          await asyncio.sleep(.1)
+          await asyncio.sleep(0.1)

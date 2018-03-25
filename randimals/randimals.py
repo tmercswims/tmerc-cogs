@@ -1,19 +1,17 @@
 import io
-import os.path
-
 import logging
+import os.path
 
 import aiohttp
 import discord
 from discord.ext import commands
-
 from redbot.core import RedContext
 
 log = logging.getLogger('red.tmerc.randimals')
 
 
 class Randimals:
-  '''Get some random animal images.'''
+  """Get some random animal images."""
 
   def __init__(self):
     self.__session = aiohttp.ClientSession()
@@ -24,7 +22,7 @@ class Randimals:
 
   @commands.command()
   async def dog(self, ctx: RedContext):
-    '''Get a random dog.'''
+    """Get a random dog."""
 
     await ctx.trigger_typing()
 
@@ -37,12 +35,12 @@ class Randimals:
         async with self.__session.get(img_url) as image:
           await ctx.send(file=discord.File(io.BytesIO(await image.read()), filename=filename))
     except:
-      log.warning('API call failed; unable to get dog picture')
-      await ctx.send('I was unable to get a dog picture.')
+      log.warning("API call failed; unable to get dog picture")
+      await ctx.send("I was unable to get a dog picture.")
 
   @commands.command()
   async def cat(self, ctx: RedContext):
-    '''Get a random cat.'''
+    """Get a random cat."""
 
     await ctx.trigger_typing()
 
@@ -55,12 +53,12 @@ class Randimals:
         async with self.__session.get(img_url) as image:
           await ctx.send(file=discord.File(io.BytesIO(await image.read()), filename=filename))
     except:
-      log.warning('API call failed; unable to get cat picture')
-      await ctx.send('I was unable to get a cat picture.')
+      log.warning("API call failed; unable to get cat picture")
+      await ctx.send("I was unable to get a cat picture.")
 
   @commands.command()
   async def fox(self, ctx: RedContext):
-    '''Get a random fox.'''
+    """Get a random fox."""
 
     await ctx.trigger_typing()
 
@@ -73,12 +71,12 @@ class Randimals:
         async with self.__session.get(img_url) as image:
           await ctx.send(file=discord.File(io.BytesIO(await image.read()), filename=filename))
     except:
-      log.warning('API call failed; unable to get fox picture')
-      await ctx.send('I was unable to get a fox picture.')
+      log.warning("API call failed; unable to get fox picture")
+      await ctx.send("I was unable to get a fox picture.")
 
   @commands.command(pass_context=True, no_pm=True, name="bird")
   async def _bird(self, ctx: RedContext):
-    '''Shows a random bird.'''
+    """Shows a random bird."""
 
     await ctx.trigger_typing()
 
@@ -91,5 +89,5 @@ class Randimals:
         async with self.__session.get(img_url) as image:
           await ctx.send(file=discord.File(io.BytesIO(await image.read()), filename=filename))
     except:
-      log.warning('API call failed; unable to get bird picture')
-      await ctx.send('I was unable to get a bird picture.')
+      log.warning("API call failed; unable to get bird picture")
+      await ctx.send("I was unable to get a bird picture.")

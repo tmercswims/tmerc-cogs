@@ -1,10 +1,8 @@
-from random import choice
-
 import logging
+from random import choice
 
 import aiohttp
 from discord.ext import commands
-
 from redbot.core import RedContext
 
 log = logging.getLogger('red.tmerc.lenny')
@@ -31,7 +29,7 @@ LENNY_PARTS = {
 
 
 class Lenny:
-  '''乁(-ロ-)ㄏ'''
+  """乁(-ロ-)ㄏ"""
 
   def __init__(self):
     self.__url = 'http://lenny.today/api/v1/random?limit=1'
@@ -43,25 +41,22 @@ class Lenny:
 
   @commands.command()
   async def lenny(self, ctx: RedContext):
-    '''☞⇀‿↼☞'''
+    """☞⇀‿↼☞"""
 
     await ctx.trigger_typing()
 
-    l = await self._get_lenny()
-    await ctx.send(l)
+    await ctx.send(await self.__get_lenny())
 
-  async def _get_lenny(self) -> str:
-    l = ''
-
+  async def __get_lenny(self) -> str:
     try:
       async with self.__session.get(self.__url) as response:
         # grab the face
-        l = (await response.json())[0]['face']
+        lenny = (await response.json())[0]['face']
         # escape markdown characters
-        l = l.replace('*', '\*').replace('`', '\`').replace('_', '\_').replace('~', '\~')
+        lenny = lenny.replace('*', '\*').replace('`', '\`').replace('_', '\_').replace('~', '\~')
     # if the API call fails, make a (more limited) lenny locally instead
     except:
-      log.warning('API call failed; falling back to local lenny')
-      l = choice(LENNY_PARTS['ears']).format(choice(LENNY_PARTS['eyes'])).format(choice(LENNY_PARTS['mouths']))
+      log.warning("API call failed; falling back to local lenny")
+      lenny = choice(LENNY_PARTS['ears']).format(choice(LENNY_PARTS['eyes'])).format(choice(LENNY_PARTS['mouths']))
 
-    return l
+    return lenny
