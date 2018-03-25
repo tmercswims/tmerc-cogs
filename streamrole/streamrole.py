@@ -46,11 +46,11 @@ class StreamRole:
       lax_promote = config['lax_promote']
 
       msg = box(
-        ("Enabled: {}\n"
-         "Streaming role: {}\n"
-         "Only promote members with prerequisite role: {}\n"
-         "Promotion prerequisite role: {}\n"
-         "Promote from prerequisite and above: {}"
+        ("  Enabled: {}\n"
+         "  Streaming role: {}\n"
+         "  Only promote members with prerequisite role: {}\n"
+         "  Promotion prerequisite role: {}\n"
+         "  Promote from prerequisite and above: {}"
          "").format(enabled, role and role.name, promote, promote_from and promote_from.name, lax_promote),
         "Current StreamRole settings:"
       )
