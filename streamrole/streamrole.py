@@ -198,7 +198,7 @@ class StreamRole:
 
       if streaming_role is None:
         log.error(
-          ("Failed to find streaming role with ID {} (server ID {}). This likely means that the role has been deleted."
+          ("Failed to find streaming role with ID {} (server ID {}); this likely means that the role has been deleted"
            "").format(config['role'], guild.id)
         )
         return
