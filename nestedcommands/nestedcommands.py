@@ -107,10 +107,17 @@ class NestedCommands:
     async def before_any_command(ctx: RedContext):
       if ctx.guild and await self.config.guild(ctx.guild).enabled():
         message = ctx.message
-        channel = await self.config.guild(ctx.guild).channel()
-        if channel is not None:
-          channel = get(ctx.guild.text_channels, id=channel)
+        channel_id = await self.config.guild(ctx.guild).channel()
+        if channel_id is not None:
+          channel = ctx.guild.get_channel(channel_id)
         else:
+          return
+
+        if channel is None:
+          log.error(
+            ("Failed to find channel with ID {} (server ID {}); this likely means that the channel has been deleted"
+             "").format(channel_id, ctx.guild.id)
+          )
           return
 
         for matched_text in self.p.findall(message.content):
