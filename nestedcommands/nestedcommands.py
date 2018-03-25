@@ -47,8 +47,8 @@ class NestedCommands:
         channel = get(ctx.guild.text_channels, id=channel)
 
       msg = box(
-        ("Enabled: {}\n"
-         "Channel: {}\n"
+        ("  Enabled: {}\n"
+         "  Channel: {}\n"
          "").format(enabled, channel and channel.name),
         "Current NestedCommands settings:"
       )
