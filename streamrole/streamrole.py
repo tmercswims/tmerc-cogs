@@ -102,7 +102,8 @@ class StreamRole:
   async def streamroleset_promote(self, ctx: RedContext):
     """Changes promotion settings."""
 
-    if str(ctx.invoked_subcommand) == 'streamroleset promote':
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
       await ctx.send_help()
 
   @streamroleset_promote.command(name='toggle')
