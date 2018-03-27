@@ -18,9 +18,9 @@ class Randimals:
         """Shows a random cat."""
 
         await self.bot.type()
-        url = "http://aws.random.cat/meow"
+        url = "http://shibe.online/api/cats?count=1"
         async with aiohttp.get(url) as response:
-            img_url = (await response.json())["file"]
+            img_url = (await response.json())[0]
             filename = os.path.basename(img_url)
             async with aiohttp.get(img_url) as image:
                 await self.bot.upload(
