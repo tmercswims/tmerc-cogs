@@ -262,8 +262,5 @@ class StreamRole:
   def __has_role_above(member: discord.Member, role: discord.Role) -> bool:
     """Indicates whether member has a role which is higher than role in the hierarchy."""
 
-    for mrole in member.roles:
-      if mrole > role:
-        return True
-
-    return False
+    # if their top role is high enough, then they have a role that's high enough; if not, they don't
+    return member.top_role > role
