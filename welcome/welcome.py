@@ -1,0 +1,847 @@
+import asyncio
+import logging
+import random
+from datetime import date
+from typing import Union
+
+import discord
+from discord.ext import commands
+from discord.utils import get
+from redbot.core import Config, RedContext, checks
+from redbot.core.bot import Red
+from redbot.core.utils.chat_formatting import box, pagify
+
+from .enums import WhisperType
+
+log = logging.getLogger('red.tmerc.welcome')
+
+ENABLED = 'enabled'
+DISABLED = 'disabled'
+
+
+class Welcome:
+  """Announce when users join or leave a server."""
+
+  default_join = "Welcome {member.mention} to {server.name}!"
+  default_leave = "{member.name} has left {server.name}!"
+  default_ban = "{member.name} has been banned from {server.name}!"
+  default_unban = "{member.name} has been unbanned from {server.name}!"
+
+  guild_defaults = {
+    'enabled': False,
+    'channel': None,
+    'date': None,
+    'join': {
+      'enabled': True,
+      'delete': False,
+      'last': None,
+      'count': False,
+      'counter': 0,
+      'whisper': 'off',
+      'messages': [default_join],
+      'bot': {
+        'role': None,
+        'message': None
+      }
+    },
+    'leave': {
+      'enabled': True,
+      'delete': False,
+      'last': None,
+      'messages': [default_leave],
+    },
+    'ban': {
+      'enabled': True,
+      'delete': False,
+      'last': None,
+      'messages': [default_ban],
+    },
+    'unban': {
+      'enabled': True,
+      'delete': False,
+      'last': None,
+      'messages': [default_unban],
+    }
+  }
+
+  def __init__(self, bot: Red):
+    self.bot = bot
+    self.config = Config.get_conf(self, 86345009)
+    self.config.register_guild(**self.guild_defaults)
+
+  @commands.group()
+  @commands.guild_only()
+  @checks.admin_or_permissions(manage_server=True)
+  async def welcomeset(self, ctx: RedContext):
+    """Change Welcome settings."""
+
+    await ctx.trigger_typing()
+
+    if ctx.invoked_subcommand is None:
+      await ctx.send_help()
+
+      guild = ctx.guild
+      c = await self.config.guild(guild).all()
+
+      channel = await self.__get_channel(ctx.guild)
+
+      j = c['join']
+      jb = j['bot']
+
+      bot_role = jb['role']
+      if bot_role is not None:
+        bot_role = get(guild.roles, id=bot_role)
+
+      v = c['leave']
+      b = c['ban']
+      u = c['unban']
+
+      msg = box(
+        ("  Enabled: {}\n"
+         "  Channel: {}\n"
+         "  Join:\n"
+         "    Enabled: {}\n"
+         "    Delete previous: {}\n"
+         "    Show daily count: {}\n"
+         "    Whisper: {}\n"
+         "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
+         "    Bot:\n"
+         "      Role: {}\n"
+         "      Message: {}\n"
+         "  Leave:\n"
+         "    Enabled: {}\n"
+         "    Delete previous: {}\n"
+         "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
+         "  Ban:\n"
+         "    Enabled: {}\n"
+         "    Delete previous: {}\n"
+         "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
+         "  Unban:\n"
+         "    Enabled: {}\n"
+         "    Delete previous: {}\n"
+         "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n"
+         "").format(c['enabled'], channel, j['enabled'], j['delete'], j['count'], j['whisper'], len(j['messages']),
+                    bot_role and bot_role.name, jb['message'], v['enabled'], v['delete'], len(v['messages']),
+                    b['enabled'], b['delete'], len(b['messages']), u['enabled'], u['delete'], len(u['messages']),
+                    prefix=ctx.prefix),
+        "Current Welcome settings:"
+      )
+
+      await ctx.send(msg)
+
+  @welcomeset.command(name='toggle')
+  async def welcomeset_toggle(self, ctx: RedContext, on_off: bool = None):
+    """Turns Welcome on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    guild = ctx.guild
+    target_state = on_off if on_off is not None else not (await self.config.guild(guild).enabled())
+
+    await self.config.guild(guild).enabled.set(target_state)
+
+    await ctx.send(
+      ("Welcome is now {}."
+       "").format(ENABLED if target_state else DISABLED)
+    )
+
+  @welcomeset.command(name='channel')
+  async def welcomeset_channel(self, ctx: RedContext, channel: discord.TextChannel):
+    """Sets the channel to be used for event notices."""
+
+    if not self.__can_speak_in(channel):
+      await ctx.send(
+        ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+         "").format(channel)
+      )
+      return
+
+    guild = ctx.guild
+    await self.config.guild(guild).channel.set(channel.id)
+
+    await ctx.send(
+      ("I will now send event notices to {0.mention}."
+       "").format(channel)
+    )
+
+  @welcomeset.group(name='join')
+  async def welcomeset_join(self, ctx: RedContext):
+    """Change settings for join notices."""
+
+    if str(ctx.invoked_subcommand) == 'welcomeset join':
+      await ctx.send_help()
+
+  @welcomeset_join.command(name='toggle')
+  async def welcomeset_join_toggle(self, ctx: RedContext, on_off: bool = None):
+    """Turns join notices on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggle(ctx, on_off, 'join')
+
+  @welcomeset_join.command(name='toggledelete')
+  async def welcomeset_join_toggledelete(self, ctx: RedContext, on_off: bool = None):
+    """Turns deletion of previous join notice on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggledelete(ctx, on_off, 'join')
+
+  @welcomeset_join.command(name='togglecount')
+  async def welcomeset_join_togglecount(self, ctx: RedContext, on_off: bool = None):
+    """Turns join count notices on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    guild = ctx.guild
+    target_state = on_off if on_off is not None else not (await self.config.guild(guild).join.count())
+
+    await self.config.guild(guild).join.count.set(target_state)
+
+    await ctx.send(
+      ("Join counter is now {}."
+       "").format(ENABLED if target_state else DISABLED)
+    )
+
+  @welcomeset_join.command(name='whisper')
+  async def welcomeset_join_whisper(self, ctx: RedContext, choice: WhisperType):
+    """Sets if a DM is sent to the new member.
+
+    Options:
+      off - no DM is sent
+      only - only send a DM to the member, do not send a message to the channel
+      both - send a DM to the member and a message to the channel
+    """
+
+    guild = ctx.guild
+    whisper_type = choice.value
+    channel = await self.__get_channel(ctx.guild)
+
+    await self.config.guild(guild).join.whisper.set(whisper_type)
+
+    if choice == WhisperType.OFF:
+      await ctx.send(
+        ("I will no longer DM new members, and will send a notice to {0.mention}."
+         "").format(channel)
+      )
+    elif choice == WhisperType.ONLY:
+      await ctx.send(
+        ("I will now only DM new members, and will not send a notice to {0.mention}."
+         "").format(channel)
+      )
+    elif choice == WhisperType.BOTH:
+      await ctx.send(
+        ("I will now send a DM to new members, as well as send a notice to {0.mention}."
+         "").format(channel)
+      )
+
+  @welcomeset_join.group(name='msg')
+  async def welcomeset_join_msg(self, ctx: RedContext):
+    """Manage join message formats."""
+
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
+      await ctx.send_help()
+
+  @welcomeset_join_msg.command(name='add')
+  async def welcomeset_join_msg_add(self, ctx: RedContext, *, msg_format: str):
+    """Add a new join message format to be chosen.
+
+    Allows for the following customizations:
+      `{member}` is the new member
+      `{server}` is the server
+
+    For example:
+      {member.mention}... What are you doing here???
+      {server.name} has a new member! {member.name}#{member.discriminator} - {member.id}
+      Someone new has joined! Who is it?! D: IS HE HERE TO HURT US?!
+    """
+
+    await self.__msg_add(ctx, msg_format, 'join')
+
+  @welcomeset_join_msg.command(name='del')
+  async def welcomeset_join_msg_del(self, ctx: RedContext):
+    """Delete an existing join message format from the list."""
+
+    await self.__msg_del(ctx, 'join')
+
+  @welcomeset_join_msg.command(name='list')
+  async def welcomeset_join_msg_list(self, ctx: RedContext):
+    """Lists the available join message formats."""
+
+    await self.__msg_list(ctx, 'join')
+
+  @welcomeset_join.group(name='bot')
+  async def welcomeset_join_bot(self, ctx: RedContext):
+    """Change settings for welcoming bots."""
+
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
+      await ctx.send_help()
+
+  @welcomeset_join_bot.command(name='role')
+  async def welcomeset_join_bot_role(self, ctx: RedContext, role: discord.Role=None):
+    """Sets the role to give to bots when they join.
+
+    Supply no role to stop giving bots a role on join.
+    """
+
+    await self.config.guild(ctx.guild).join.bot.role.set(role.id)
+
+    if role is not None:
+      await ctx.send(
+        ("I will now give the role `{.name}` to bots which join this server."
+         "").format(role)
+      )
+    else:
+      await ctx.send(
+        ("I will no longer give a role to bots which join this server."
+         "")
+      )
+
+  @welcomeset_join_bot.command(name='msg')
+  async def welcomeset_join_bot_msg(self, ctx: RedContext, *, msg_format: str=''):
+    """Sets the message format to use for join notices for bots.
+
+    Supply no format to use normal join message formats for bots.
+    Allows for the following customizations:
+      `{bot}` is the bot
+      `{server}` is the server
+
+    For example:
+      {member.mention} beep boop.
+    """
+
+    await self.config.guild(ctx.guild).join.bot.message.set(msg_format)
+
+    if msg_format is not None:
+      await ctx.send(
+        ("Bot join message format set. I will now greet bots with that message."
+         "")
+      )
+    else:
+      await ctx.send(
+        ("Bot join message format removed. I will now greet bots like normal members."
+         "")
+      )
+
+  @welcomeset.group(name='leave')
+  async def welcomeset_leave(self, ctx: RedContext):
+    """Change settings for leave notices."""
+
+    if str(ctx.invoked_subcommand) == 'welcomeset leave':
+      await ctx.send_help()
+
+  @welcomeset_leave.command(name='toggle')
+  async def welcomeset_leave_toggle(self, ctx: RedContext, on_off: bool = None):
+    """Turns leave notices on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggle(ctx, on_off, 'leave')
+
+  @welcomeset_leave.command(name='toggledelete')
+  async def welcomeset_leave_toggledelete(self, ctx: RedContext, on_off: bool = None):
+    """Turns deletion of previous leave notice on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggledelete(ctx, on_off, 'leave')
+
+  @welcomeset_leave.group(name='msg')
+  async def welcomeset_leave_msg(self, ctx: RedContext):
+    """Manage leave message formats."""
+
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
+      await ctx.send_help()
+
+  @welcomeset_leave_msg.command(name='add')
+  async def welcomeset_leave_msg_add(self, ctx: RedContext, *, msg_format: str):
+    """Add a new leave message format to be chosen.
+
+    Allows for the following customizations:
+      `{member}` is the member who left
+      `{server}` is the server
+
+    For example:
+      {member.name}... Why did you leave???
+      {server.name} has lost a member! {member.name}#{member.discriminator} - {member.id}
+      Someone has left... Aww... Bye :(
+    """
+
+    await self.__msg_add(ctx, msg_format, 'leave')
+
+  @welcomeset_leave_msg.command(name='del')
+  async def welcomeset_leave_msg_del(self, ctx: RedContext):
+    """Delete an existing leave message format from the list."""
+
+    await self.__msg_del(ctx, 'leave')
+
+  @welcomeset_leave_msg.command(name='list')
+  async def welcomeset_leave_msg_list(self, ctx: RedContext):
+    """Lists the available leave message formats."""
+
+    await self.__msg_list(ctx, 'leave')
+
+  @welcomeset.group(name='ban')
+  async def welcomeset_ban(self, ctx: RedContext):
+    """Change settings for ban notices."""
+
+    if str(ctx.invoked_subcommand) == 'welcomeset ban':
+      await ctx.send_help()
+
+  @welcomeset_ban.command(name='toggle')
+  async def welcomeset_ban_toggle(self, ctx: RedContext, on_off: bool = None):
+    """Turns ban notices on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggle(ctx, on_off, 'ban')
+
+  @welcomeset_ban.command(name='toggledelete')
+  async def welcomeset_ban_toggledelete(self, ctx: RedContext, on_off: bool = None):
+    """Turns deletion of previous ban notice on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggledelete(ctx, on_off, 'ban')
+
+  @welcomeset_ban.group(name='msg')
+  async def welcomeset_ban_msg(self, ctx: RedContext):
+    """Manage ban message formats."""
+
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
+      await ctx.send_help()
+
+  @welcomeset_ban_msg.command(name='add')
+  async def welcomeset_ban_msg_add(self, ctx: RedContext, *, msg_format: str):
+    """Add a new ban message format to be chosen.
+
+    Allows for the following customizations:
+      `{member}` is the banned member
+      `{server}` is the server
+
+    For example:
+      {member.name} was banned... What did you do???
+      A member of {server.name} has been banned! {member.name}#{member.discriminator} - {member.id}
+      Someone has been banned. Good riddance!
+    """
+
+    await self.__msg_add(ctx, msg_format, 'ban')
+
+  @welcomeset_ban_msg.command(name='del')
+  async def welcomeset_ban_msg_del(self, ctx: RedContext):
+    """Delete an existing ban message format from the list."""
+
+    await self.__msg_del(ctx, 'ban')
+
+  @welcomeset_ban_msg.command(name='list')
+  async def welcomeset_ban_msg_list(self, ctx: RedContext):
+    """Lists the available ban message formats."""
+
+    await self.__msg_list(ctx, 'ban')
+
+  @welcomeset.group(name='unban')
+  async def welcomeset_unban(self, ctx: RedContext):
+    """Change settings for unban notices."""
+
+    if str(ctx.invoked_subcommand) == 'welcomeset unban':
+      await ctx.send_help()
+
+  @welcomeset_unban.command(name='toggle')
+  async def welcomeset_unban_toggle(self, ctx: RedContext, on_off: bool = None):
+    """Turns unban notices on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggle(ctx, on_off, 'unban')
+
+  @welcomeset_unban.command(name='toggledelete')
+  async def welcomeset_unban_toggledelete(self, ctx: RedContext, on_off: bool = None):
+    """Turns deletion of previous unban notice on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+
+    await self.__toggledelete(ctx, on_off, 'unban')
+
+  @welcomeset_unban.group(name='msg')
+  async def welcomeset_unban_msg(self, ctx: RedContext):
+    """Manage unban message formats."""
+
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
+      await ctx.send_help()
+
+  @welcomeset_unban_msg.command(name='add')
+  async def welcomeset_unban_msg_add(self, ctx: RedContext, *, msg_format: str):
+    """Add a new unban message format to be chosen.
+
+    Allows for the following customizations:
+      `{member}` is the unbanned member
+      `{server}` is the server
+
+    For example:
+      {member.name} was unbanned... Did you learn your lesson???
+      A member of {server.name} has been unbanned! {member.name}#{member.discriminator} - {member.id}
+      Someone has been unbanned. Don't waste your second chance!
+    """
+
+    await self.__msg_add(ctx, msg_format, 'unban')
+
+  @welcomeset_unban_msg.command(name='del')
+  async def welcomeset_unban_msg_del(self, ctx: RedContext):
+    """Delete an existing unban message format from the list."""
+
+    await self.__msg_del(ctx, 'unban')
+
+  @welcomeset_unban_msg.command(name='list')
+  async def welcomeset_unban_msg_list(self, ctx: RedContext):
+    """Lists the available unban message formats."""
+
+    await self.__msg_list(ctx, 'unban')
+
+  async def on_member_join(self, member: discord.Member):
+    """Listens for member joins."""
+
+    guild = member.guild
+    guild_settings = self.config.guild(guild)
+
+    if await guild_settings.enabled() and await guild_settings.join.enabled():
+      # join notice should be sent
+      message_format = None
+      suffix = None
+      if member.bot:
+        # bot
+        if await guild_settings.join.bot.message() is not None:
+          # bot message is set
+          message_format = await guild_settings.join.bot.message()
+        bot_role_id = await guild_settings.join.bot.role()
+        if bot_role_id is not None:
+          # try to add the role to the bot
+          bot_role = get(guild.roles, id=bot_role_id)
+          if bot_role is None:
+            log.error(
+              ("Failed to find bot role with ID {} (server ID {1.id}); this likely means that the role has been deleted"
+               "").format(bot_role_id, guild)
+            )
+          else:
+            try:
+              await member.add_roles(bot_role, reason="Bot join role.")
+            except discord.Forbidden:
+              log.warning(
+                ("Failed to add role ID {} to member ID {1.id} (server ID {2.id}): insufficient permissions"
+                 "").format(bot_role_id, member, guild)
+              )
+            except:
+              log.warning(
+                ("Failed to add role ID {} to member ID {1.id} (server ID {2.id})"
+                 "").format(bot_role_id, member, guild)
+              )
+
+      else:
+        await self.__increment_count(guild, 'join')
+
+        whisper_type = await guild_settings.join.whisper()
+        if whisper_type != 'off':
+          message_format = await self.__get_random_message_format(guild, 'join')
+          await self.__dm_user(member, message_format)
+
+          if whisper_type == 'only':
+            # we're done here
+            return
+
+        if await guild_settings.join.count():
+          # include the join count
+          count = await guild_settings.join.counter()
+          suffix = "\n\n{} member{} have joined today!".format(count, '' if count == 1 else 's')
+
+      await self.__handle_event(guild, member, 'join', message_format=message_format, suffix=suffix)
+
+  async def on_member_remove(self, member: discord.Member):
+    """Listens for member leaves."""
+
+    await self.__handle_event(member.guild, member, 'leave')
+
+  async def on_member_ban(self, guild: discord.Guild, member: discord.Member):
+    """Listens for user bans."""
+
+    await self.__handle_event(guild, member, 'ban')
+
+  async def on_member_unban(self, guild: discord.Guild, user: discord.User):
+    """Listens for user unbans."""
+
+    await self.__handle_event(guild, user, 'unban')
+
+  #
+  # concrete handlers for settings changes and events
+  #
+
+  async def __toggle(self, ctx: RedContext, on_off: bool, event: str):
+    """Handler for setting toggles."""
+
+    guild = ctx.guild
+    target_state = on_off if on_off is not None else not (await self.config.guild(guild).get_attr(event).enabled())
+
+    await self.config.guild(guild).get_attr(event).enabled.set(target_state)
+
+    await ctx.send(
+      ("{} notices are now {}."
+       "").format(event.capitalize(), ENABLED if target_state else DISABLED)
+    )
+
+  async def __toggledelete(self, ctx: RedContext, on_off: bool, event: str):
+    """Handler for setting delete toggles."""
+
+    guild = ctx.guild
+    target_state = on_off if on_off is not None else not (await self.config.guild(guild).get_attr(event).delete())
+
+    await self.config.guild(guild).get_attr(event).delete.set(target_state)
+
+    await ctx.send(
+      ("Deletion of previous {} notice is now {}."
+       "").format(event, ENABLED if target_state else DISABLED)
+    )
+
+  async def __msg_add(self, ctx: RedContext, msg_format: str, event: str):
+    """Handler for adding message formats."""
+
+    guild = ctx.guild
+
+    async with self.config.guild(guild).get_attr(event).messages() as messages:
+      messages.append(msg_format)
+
+    await ctx.send(
+      ("New message format for {} notices added."
+       "").format(event)
+    )
+
+  async def __msg_del(self, ctx: RedContext, event: str):
+    """Handler for deleting message formats."""
+
+    guild = ctx.guild
+
+    async with self.config.guild(guild).get_attr(event).messages() as messages:
+      if len(messages) == 1:
+        await ctx.send(
+          ("I only have one {} message format, so I can't let you delete it."
+           "").format(event)
+        )
+        return
+
+      await self.__msg_list(ctx, event)
+      await ctx.send(
+        ("Please enter the number of the {} message format you wish to delete."
+         "").format(event)
+      )
+
+      try:
+        num = await self.__get_number_input(ctx, len(messages))
+      except asyncio.TimeoutError:
+        await ctx.send(
+          ("Okay, I won't remove any of the {} message formats."
+           "").format(event)
+        )
+        return
+      else:
+        removed = messages.pop(num - 1)
+
+    await ctx.send(
+      ("Done. This {} message format was deleted:\n"
+       "`{}`"
+       "").format(event, removed)
+    )
+
+  async def __msg_list(self, ctx: RedContext, event: str):
+    """Handler for listing message formats."""
+
+    guild = ctx.guild
+
+    msg = "{} message formats:\n".format(event.capitalize())
+    async with self.config.guild(guild).get_attr(event).messages() as messages:
+      for n, m in enumerate(messages, start=1):
+        msg += '  {}. {}\n'.format(n, m)
+
+    for page in pagify(msg, ['\n', ' '], shorten_by=20):
+      await ctx.send(box(page))
+
+  async def __handle_event(self, guild: discord.guild, user: Union[discord.Member, discord.User], event: str, *,
+                           message_format=None, suffix=None):
+    """Handler for actual events."""
+
+    guild_settings = self.config.guild(guild)
+
+    if await guild_settings.enabled():
+      settings = await guild_settings.get_attr(event).all()
+      if settings['enabled']:
+        # notices for this event are enabled
+
+        if settings['delete'] and settings['last'] is not None:
+          # we need to delete the previous message
+          await self.__delete_message(guild, settings['last'])
+          # regardless of success, remove reference to that message
+          await guild_settings.get_attr(event).last.set(None)
+
+        # send a notice to the channel
+        new_message = await self.__send_notice(guild, user, event, message_format=message_format, suffix=suffix)
+        # store it for (possible) deletion later
+        await guild_settings.get_attr(event).last.set(new_message and new_message.id)
+
+  async def __get_channel(self, guild: discord.Guild) -> discord.TextChannel:
+    """Gets the best text channel to use for event notices.
+
+    Order of priority:
+    1. User-defined channel
+    2. Guild's system channel (if bot can speak in it)
+    3. First channel that the bot can speak in
+    """
+
+    channel = None
+
+    channel_id = await self.config.guild(guild).channel()
+    if channel_id is not None:
+      channel = guild.get_channel(channel_id)
+
+    if channel is None or not self.__can_speak_in(channel):
+      channel = guild.system_channel
+
+    if channel is None or not self.__can_speak_in(channel):
+      for ch in guild.text_channels:
+        if self.__can_speak_in(ch):
+          channel = ch
+          break
+
+    return channel
+
+  async def __get_number_input(self, ctx: RedContext, maximum: int, minimum: int=0) -> int:
+    """Gets a number from the user, minimum < x <= maximum."""
+
+    author = ctx.author
+    channel = ctx.channel
+
+    def check(m: discord.Message):
+      num = None
+      try:
+        num = int(m.content)
+      except ValueError:
+        pass
+
+      return num is not None \
+          and minimum < num <= maximum \
+          and m.author == author \
+          and m.channel == channel
+
+    try:
+      msg = await self.bot.wait_for('message', check=check, timeout=15.0)
+    except asyncio.TimeoutError:
+      raise
+    else:
+      return int(msg.content)
+
+  async def __delete_message(self, guild: discord.Guild, message_id: int):
+    """Attempts to delete the message with the given ID."""
+
+    try:
+      await (await (await self.__get_channel(guild)).get_message(message_id)).delete()
+    except discord.NotFound:
+      log.warning(
+        ("Failed to delete message (ID {}): not found"
+         "").format(message_id)
+      )
+    except discord.Forbidden:
+      log.warning(
+        ("Failed to delete message (ID {}): insufficient permissions"
+         "").format(message_id)
+      )
+    except:
+      log.warning(
+        ("Failed to delete message (ID {})"
+         "").format(message_id)
+      )
+
+  async def __send_notice(self, guild: discord.guild, user: Union[discord.Member, discord.User], event: str, *,
+                          message_format=None, suffix=None) -> Union[discord.Message, None]:
+    """Sends the notice for the event."""
+
+    format_str = message_format or await self.__get_random_message_format(guild, event)
+
+    if suffix is not None:
+      format_str += suffix
+
+    channel = await self.__get_channel(guild)
+
+    try:
+      return await channel.send(format_str.format(member=user, server=guild, bot=user))
+    except discord.Forbidden:
+      log.error(
+        ("Failed to send {} message to channel ID {1.id} (server ID {2.id}): insufficient permissions"
+         "").format(event, channel, guild)
+      )
+      return None
+    except:
+      log.error(
+        ("Failed to send {} message to channel ID {1.id} (server ID {2.id})"
+         "").format(event, channel, guild)
+      )
+      return None
+
+  async def __get_random_message_format(self, guild: discord.guild, event: str) -> str:
+    """Gets a random message for event of type event."""
+
+    async with self.config.guild(guild).get_attr(event).messages() as messages:
+      return random.choice(messages)
+
+  async def __increment_count(self, guild: discord.Guild, event: str):
+    """Increments the counter for <event>s today. Handles date changes."""
+
+    guild_settings = self.config.guild(guild)
+
+    if await guild_settings.date() is None:
+      await guild_settings.date.set(self.__today())
+
+    if self.__today() > await guild_settings.date():
+      await guild_settings.date.set(self.__today())
+      await guild_settings.get_attr(event).counter.set(0)
+
+    count = await guild_settings.get_attr(event).counter()
+    await guild_settings.get_attr(event).counter.set(count + 1)
+
+  @staticmethod
+  def __can_speak_in(channel: discord.TextChannel) -> bool:
+    """Indicates whether the bot has permission to speak in channel."""
+
+    return channel.permissions_for(channel.guild.me).send_messages
+
+  @staticmethod
+  def __today() -> int:
+    """Gets today's date in ordinal form."""
+
+    return date.today().toordinal()
+
+  @staticmethod
+  async def __dm_user(member: discord.Member, message_format: str):
+    """Sends a DM to the user with a filled-in message_format."""
+
+    try:
+      return await member.send(message_format.format(member=member, server=member.guild))
+    except discord.Forbidden:
+      log.error(
+        ("Failed to send DM to member ID {0.id} (server ID {1.id}): insufficient permissions"
+         "").format(member, member.guild)
+      )
+    except:
+      log.error(
+        ("Failed to send DM to member ID {0.id} (server ID {1.id})"
+         "").format(member, member.guild)
+      )

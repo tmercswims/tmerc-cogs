@@ -1,0 +1,36 @@
+- welcomeset
+  - toggle
+  - channel
+  - join
+    - toggle
+    - toggledelete
+    - togglecount
+    - whisper <off|only|both>
+    - msg
+      - list
+      - add <msg>
+      - del (lists with numbers, prompts for which)
+    - bot
+      - role <role>
+      - msg <msg>
+  - leave
+    - toggle
+    - toggledelete
+    - msg
+      - list
+      - add
+      - del
+  - ban
+    - toggle
+    - toggledelete
+    - msg
+      - list
+      - add
+      - del
+  - unban
+    - toggle
+    - toggledelete
+    - msg
+      - list
+      - add
+      - del
