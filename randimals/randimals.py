@@ -44,11 +44,11 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'https://aws.random.cat/meow'
+    url = 'https://shibe.online/api/cats?count=1'
 
     try:
       async with self.__session.get(url) as response:
-        img_url = (await response.json())["file"]
+        img_url = (await response.json())[0]
         filename = os.path.basename(img_url)
         async with self.__session.get(img_url) as image:
           await ctx.send(file=discord.File(io.BytesIO(await image.read()), filename=filename))
