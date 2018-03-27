@@ -26,6 +26,7 @@ class Welcome:
   default_leave = "{member.name} has left {server.name}!"
   default_ban = "{member.name} has been banned from {server.name}!"
   default_unban = "{member.name} has been unbanned from {server.name}!"
+  default_whisper = "Hey there {member.name}, welcome to {server.name}!"
 
   guild_defaults = {
     'enabled': False,
@@ -35,14 +36,13 @@ class Welcome:
       'enabled': True,
       'delete': False,
       'last': None,
-      'count': False,
       'counter': 0,
-      'whisper': 'off',
+      'whisper': {
+        'state': 'off',
+        'message': default_whisper
+      },
       'messages': [default_join],
-      'bot': {
-        'role': None,
-        'message': None
-      }
+      'bot': None
     },
     'leave': {
       'enabled': True,
@@ -86,12 +86,7 @@ class Welcome:
       channel = await self.__get_channel(ctx.guild)
 
       j = c['join']
-      jb = j['bot']
-
-      bot_role = jb['role']
-      if bot_role is not None:
-        bot_role = get(guild.roles, id=bot_role)
-
+      jw = j['whisper']
       v = c['leave']
       b = c['ban']
       u = c['unban']
@@ -102,12 +97,11 @@ class Welcome:
          "  Join:\n"
          "    Enabled: {}\n"
          "    Delete previous: {}\n"
-         "    Show daily count: {}\n"
-         "    Whisper: {}\n"
-         "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
-         "    Bot:\n"
-         "      Role: {}\n"
+         "    Whisper:\n"
+         "      State: {}\n"
          "      Message: {}\n"
+         "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
+         "    Bot message: {}\n"
          "  Leave:\n"
          "    Enabled: {}\n"
          "    Delete previous: {}\n"
@@ -120,9 +114,11 @@ class Welcome:
          "    Enabled: {}\n"
          "    Delete previous: {}\n"
          "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n"
-         "").format(c['enabled'], channel, j['enabled'], j['delete'], j['count'], j['whisper'], len(j['messages']),
-                    bot_role and bot_role.name, jb['message'], v['enabled'], v['delete'], len(v['messages']),
-                    b['enabled'], b['delete'], len(b['messages']), u['enabled'], u['delete'], len(u['messages']),
+         "").format(c['enabled'], channel,
+                    j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
+                    v['enabled'], v['delete'], len(v['messages']),
+                    b['enabled'], b['delete'], len(b['messages']),
+                    u['enabled'], u['delete'], len(u['messages']),
                     prefix=ctx.prefix),
         "Current Welcome settings:"
       )
@@ -190,26 +186,17 @@ class Welcome:
 
     await self.__toggledelete(ctx, on_off, 'join')
 
-  @welcomeset_join.command(name='togglecount')
-  async def welcomeset_join_togglecount(self, ctx: RedContext, on_off: bool = None):
-    """Turns join count notices on or off.
+  @welcomeset_join.group(name='whisper')
+  async def welcomeset_join_whisper(self, ctx: RedContext):
+    """Change settings for join whispers."""
 
-    If `on_off` is not provided, the state will be flipped.
-    """
+    if ctx.invoked_subcommand is None or \
+        isinstance(ctx.invoked_subcommand, commands.Group):
+      await ctx.send_help()
 
-    guild = ctx.guild
-    target_state = on_off if on_off is not None else not (await self.config.guild(guild).join.count())
-
-    await self.config.guild(guild).join.count.set(target_state)
-
-    await ctx.send(
-      ("Join counter is now {}."
-       "").format(ENABLED if target_state else DISABLED)
-    )
-
-  @welcomeset_join.command(name='whisper')
-  async def welcomeset_join_whisper(self, ctx: RedContext, choice: WhisperType):
-    """Sets if a DM is sent to the new member.
+  @welcomeset_join_whisper.command(name='type')
+  async def welcomeset_join_whisper_type(self, ctx: RedContext, choice: WhisperType):
+    """Set if a DM is sent to the new member.
 
     Options:
       off - no DM is sent
@@ -221,7 +208,7 @@ class Welcome:
     whisper_type = choice.value
     channel = await self.__get_channel(ctx.guild)
 
-    await self.config.guild(guild).join.whisper.set(whisper_type)
+    await self.config.guild(guild).join.whisper.state.set(whisper_type)
 
     if choice == WhisperType.OFF:
       await ctx.send(
@@ -239,6 +226,22 @@ class Welcome:
          "").format(channel)
       )
 
+  @welcomeset_join_whisper.command(name='msg')
+  async def welcomeset_join_whisper_msg(self, ctx: RedContext, *, msg_format: str):
+    """Set the message DM'd to new members when they join.
+
+    Allows for the following customizations:
+      `{member}` is the member who joined
+      `{server}` is the server
+    """
+
+    await self.config.guild(ctx.guild).join.whisper.message.set(msg_format)
+
+    await ctx.send(
+      ("I will now use that message format when whispering new members, if whisper is enabled."
+       "")
+    )
+
   @welcomeset_join.group(name='msg')
   async def welcomeset_join_msg(self, ctx: RedContext):
     """Manage join message formats."""
@@ -254,6 +257,8 @@ class Welcome:
     Allows for the following customizations:
       `{member}` is the new member
       `{server}` is the server
+      `{count}` is the number of members who have joined today
+      `{plural}` is an 's' if `count` is not 1, and nothing if it is
 
     For example:
       {member.mention}... What are you doing here???
@@ -275,48 +280,22 @@ class Welcome:
 
     await self.__msg_list(ctx, 'join')
 
-  @welcomeset_join.group(name='bot')
-  async def welcomeset_join_bot(self, ctx: RedContext):
-    """Change settings for welcoming bots."""
-
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
-
-  @welcomeset_join_bot.command(name='role')
-  async def welcomeset_join_bot_role(self, ctx: RedContext, role: discord.Role=None):
-    """Sets the role to give to bots when they join.
-
-    Supply no role to stop giving bots a role on join.
-    """
-
-    await self.config.guild(ctx.guild).join.bot.role.set(role.id)
-
-    if role is not None:
-      await ctx.send(
-        ("I will now give the role `{.name}` to bots which join this server."
-         "").format(role)
-      )
-    else:
-      await ctx.send(
-        ("I will no longer give a role to bots which join this server."
-         "")
-      )
-
-  @welcomeset_join_bot.command(name='msg')
-  async def welcomeset_join_bot_msg(self, ctx: RedContext, *, msg_format: str=''):
+  @welcomeset_join.command(name='botmsg')
+  async def welcomeset_join_botmsg(self, ctx: RedContext, *, msg_format: str=None):
     """Sets the message format to use for join notices for bots.
 
     Supply no format to use normal join message formats for bots.
     Allows for the following customizations:
       `{bot}` is the bot
       `{server}` is the server
+      `{count}` is the number of members who have joined today
+      `{plural}` is an 's' if `count` is not 1, and nothing if it is
 
     For example:
-      {member.mention} beep boop.
+      {bot.mention} beep boop.
     """
 
-    await self.config.guild(ctx.guild).join.bot.message.set(msg_format)
+    await self.config.guild(ctx.guild).join.bot.set(msg_format)
 
     if msg_format is not None:
       await ctx.send(
@@ -521,53 +500,23 @@ class Welcome:
     if await guild_settings.enabled() and await guild_settings.join.enabled():
       # join notice should be sent
       message_format = None
-      suffix = None
       if member.bot:
         # bot
-        if await guild_settings.join.bot.message() is not None:
-          # bot message is set
-          message_format = await guild_settings.join.bot.message()
-        bot_role_id = await guild_settings.join.bot.role()
-        if bot_role_id is not None:
-          # try to add the role to the bot
-          bot_role = get(guild.roles, id=bot_role_id)
-          if bot_role is None:
-            log.error(
-              ("Failed to find bot role with ID {} (server ID {1.id}); this likely means that the role has been deleted"
-               "").format(bot_role_id, guild)
-            )
-          else:
-            try:
-              await member.add_roles(bot_role, reason="Bot join role.")
-            except discord.Forbidden:
-              log.warning(
-                ("Failed to add role ID {} to member ID {1.id} (server ID {2.id}): insufficient permissions"
-                 "").format(bot_role_id, member, guild)
-              )
-            except:
-              log.warning(
-                ("Failed to add role ID {} to member ID {1.id} (server ID {2.id})"
-                 "").format(bot_role_id, member, guild)
-              )
+        message_format = await guild_settings.join.bot()
 
       else:
+        # only increment when it isn't a bot
         await self.__increment_count(guild, 'join')
 
-        whisper_type = await guild_settings.join.whisper()
+        whisper_type = await guild_settings.join.whisper.state()
         if whisper_type != 'off':
-          message_format = await self.__get_random_message_format(guild, 'join')
-          await self.__dm_user(member, message_format)
+          await self.__dm_user(member)
 
           if whisper_type == 'only':
             # we're done here
             return
 
-        if await guild_settings.join.count():
-          # include the join count
-          count = await guild_settings.join.counter()
-          suffix = "\n\n{} member{} have joined today!".format(count, '' if count == 1 else 's')
-
-      await self.__handle_event(guild, member, 'join', message_format=message_format, suffix=suffix)
+      await self.__handle_event(guild, member, 'join', message_format=message_format)
 
   async def on_member_remove(self, member: discord.Member):
     """Listens for member leaves."""
@@ -677,7 +626,7 @@ class Welcome:
       await ctx.send(box(page))
 
   async def __handle_event(self, guild: discord.guild, user: Union[discord.Member, discord.User], event: str, *,
-                           message_format=None, suffix=None):
+                           message_format=None):
     """Handler for actual events."""
 
     guild_settings = self.config.guild(guild)
@@ -694,7 +643,7 @@ class Welcome:
           await guild_settings.get_attr(event).last.set(None)
 
         # send a notice to the channel
-        new_message = await self.__send_notice(guild, user, event, message_format=message_format, suffix=suffix)
+        new_message = await self.__send_notice(guild, user, event, message_format=message_format)
         # store it for (possible) deletion later
         await guild_settings.get_attr(event).last.set(new_message and new_message.id)
 
@@ -771,18 +720,22 @@ class Welcome:
       )
 
   async def __send_notice(self, guild: discord.guild, user: Union[discord.Member, discord.User], event: str, *,
-                          message_format=None, suffix=None) -> Union[discord.Message, None]:
+                          message_format=None) -> Union[discord.Message, None]:
     """Sends the notice for the event."""
 
     format_str = message_format or await self.__get_random_message_format(guild, event)
 
-    if suffix is not None:
-      format_str += suffix
+    count = event == 'join' and await self.config.guild(guild).get_attr(event).counter()
+    plural = ''
+    if count and count != 1:
+      plural = 's'
 
     channel = await self.__get_channel(guild)
 
     try:
-      return await channel.send(format_str.format(member=user, server=guild, bot=user))
+      return await channel.send(
+        format_str.format(member=user, server=guild, bot=user, count=count or '', plural=plural)
+      )
     except discord.Forbidden:
       log.error(
         ("Failed to send {} message to channel ID {1.id} (server ID {2.id}): insufficient permissions"
@@ -817,6 +770,24 @@ class Welcome:
     count = await guild_settings.get_attr(event).counter()
     await guild_settings.get_attr(event).counter.set(count + 1)
 
+  async def __dm_user(self, member: discord.Member):
+    """Sends a DM to the user with a filled-in message_format."""
+
+    message_format = await self.config.guild(member.guild).join.whisper.message()
+
+    try:
+      await member.send(message_format.format(member=member, server=member.guild))
+    except discord.Forbidden:
+      log.error(
+        ("Failed to send DM to member ID {0.id} (server ID {1.id}): insufficient permissions"
+         "").format(member, member.guild)
+      )
+    except:
+      log.error(
+        ("Failed to send DM to member ID {0.id} (server ID {1.id})"
+         "").format(member, member.guild)
+      )
+
   @staticmethod
   def __can_speak_in(channel: discord.TextChannel) -> bool:
     """Indicates whether the bot has permission to speak in channel."""
@@ -828,20 +799,3 @@ class Welcome:
     """Gets today's date in ordinal form."""
 
     return date.today().toordinal()
-
-  @staticmethod
-  async def __dm_user(member: discord.Member, message_format: str):
-    """Sends a DM to the user with a filled-in message_format."""
-
-    try:
-      return await member.send(message_format.format(member=member, server=member.guild))
-    except discord.Forbidden:
-      log.error(
-        ("Failed to send DM to member ID {0.id} (server ID {1.id}): insufficient permissions"
-         "").format(member, member.guild)
-      )
-    except:
-      log.error(
-        ("Failed to send DM to member ID {0.id} (server ID {1.id})"
-         "").format(member, member.guild)
-      )
