@@ -501,7 +501,7 @@ class Survey:
 
         try:
             dl = self._deadline_string_to_datetime(deadline)
-            deadline_better = dl.strftime("%m/%d/%Y %I:%S%p %Z")
+            deadline_better = dl.strftime("%m/%d/%Y %I:%M%p %Z")
         except ValueError:
             await self.bot.reply(cf.error(
                 "Your deadline format could not be understood."
