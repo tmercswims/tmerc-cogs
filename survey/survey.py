@@ -397,9 +397,9 @@ class Survey:
                 options_hr = options_hr.replace(
                     rp_opt, cf.strikethrough(rp_opt))
 
-            rp_mes = "(You previously answered {}, but are being asked again."
+            rp_mes = ("(You previously answered {}, but are being asked again."
             " You may not answer the same as last time, but if you do not wish"
-            " to change your answer, you may ignore this message.)".format(
+            " to change your answer, you may ignore this message.)").format(
                 cf.bold(rp_opt) if rp_opt else "")
 
             premsg = "A new survey has been posted! (ID {})\n".format(
