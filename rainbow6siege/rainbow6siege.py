@@ -41,7 +41,7 @@ class Rainbow6Siege:
             "asia": r6sapi.RankedRegions.ASIA
         }
         self.operator_list = [
-            x.lower() for x in r6sapi.OperatorIcons if x != 'DEFAULT'
+            x.lower() for x in r6sapi.OperatorStatisticNames if x != 'DEFAULT'
         ]
 
     async def get_player(self, player: str, platform: str) -> r6sapi.Player:
