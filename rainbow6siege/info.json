@@ -4,6 +4,6 @@
     "NAME" : "Rainbow6Siege",
     "SHORT" : "Rainbow 6: Siege player information.",
     "DESCRIPTION" : "Get Rainbow 6: Siege player information: rank, operator and weapon stats, and more.",
-    "REQUIREMENTS" : ["r6sapi"],
+    "REQUIREMENTS" : ["git+https://github.com/billy-yoyo/RainbowSixSiege-Python-API"],
     "TAGS": ["rainbow6", "r6s", "gaming", "fun"]
 }
