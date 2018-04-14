@@ -4,6 +4,8 @@ import aiohttp
 from discord.ext import commands
 from redbot.core import RedContext
 
+__author__ = "tmerc"
+
 log = logging.getLogger('red.tmerc.catfact')
 
 

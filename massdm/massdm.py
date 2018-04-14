@@ -5,6 +5,8 @@ import discord
 from discord.ext import commands
 from redbot.core import RedContext, checks
 
+__author__ = "tmerc"
+
 log = logging.getLogger('red.tmerc.massdm')
 
 

@@ -12,6 +12,8 @@ from redbot.core.utils.chat_formatting import box, pagify
 
 from .enums import WhisperType
 
+__author__ = "tmerc"
+
 log = logging.getLogger('red.tmerc.welcome')
 
 ENABLED = 'enabled'

@@ -6,6 +6,8 @@ from discord.utils import get
 from redbot.core import Config, RedContext, checks
 from redbot.core.utils.chat_formatting import box
 
+__author__ = "tmerc"
+
 log = logging.getLogger('red.tmerc.streamrole')
 
 
