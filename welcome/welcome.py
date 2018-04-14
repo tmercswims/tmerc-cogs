@@ -6,7 +6,6 @@ from typing import Union
 
 import discord
 from discord.ext import commands
-from discord.utils import get
 from redbot.core import Config, RedContext, checks
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box, pagify
