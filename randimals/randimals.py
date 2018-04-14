@@ -1,6 +1,6 @@
 import io
 import logging
-import os.path
+import os
 
 import aiohttp
 import discord
