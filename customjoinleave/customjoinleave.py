@@ -23,7 +23,6 @@ class CustomJoinLeave:
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.use_avconv = self.bot.get_cog("Audio").settings["AVCONV"]
         self.audio_players = {}
         self.sound_base = "data/customjoinleave"
         self.settings_path = "data/customjoinleave/settings.json"
@@ -54,10 +53,14 @@ class CustomJoinLeave:
         await self._leave_voice_channel(server)
 
     async def sound_init(self, server: discord.Server, path: str):
+        audio_cog = self.bot.get_cog("Audio")
+        use_avconv = (audio_cog.settings["AVCONV"]
+          if audio_cog is not None else False)
+
         options = "-filter \"volume=volume=0.15\""
         voice_client = self.voice_client(server)
         self.audio_players[server.id] = voice_client.create_ffmpeg_player(
-            path, use_avconv=self.use_avconv, options=options)
+            path, use_avconv=use_avconv, options=options)
 
     async def sound_play(self, server: discord.Server,
                          channel: discord.Channel, p: str):
