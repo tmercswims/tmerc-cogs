@@ -4,8 +4,7 @@ import os
 
 import aiohttp
 import discord
-from discord.ext import commands
-from redbot.core import RedContext
+from redbot.core import commands
 
 __author__ = "tmerc"
 
@@ -23,7 +22,7 @@ class Randimals:
       self.__session.close()
 
   @commands.command()
-  async def dog(self, ctx: RedContext):
+  async def dog(self, ctx: commands.Context):
     """Get a random dog."""
 
     await ctx.trigger_typing()
@@ -41,7 +40,7 @@ class Randimals:
       await ctx.send("I was unable to get a dog picture.")
 
   @commands.command()
-  async def cat(self, ctx: RedContext):
+  async def cat(self, ctx: commands.Context):
     """Get a random cat."""
 
     await ctx.trigger_typing()
@@ -59,7 +58,7 @@ class Randimals:
       await ctx.send("I was unable to get a cat picture.")
 
   @commands.command()
-  async def fox(self, ctx: RedContext):
+  async def fox(self, ctx: commands.Context):
     """Get a random fox."""
 
     await ctx.trigger_typing()
@@ -77,7 +76,7 @@ class Randimals:
       await ctx.send("I was unable to get a fox picture.")
 
   @commands.command(pass_context=True, no_pm=True, name="bird")
-  async def _bird(self, ctx: RedContext):
+  async def _bird(self, ctx: commands.Context):
     """Shows a random bird."""
 
     await ctx.trigger_typing()

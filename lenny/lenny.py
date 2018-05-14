@@ -2,8 +2,7 @@ import logging
 from random import choice
 
 import aiohttp
-from discord.ext import commands
-from redbot.core import RedContext
+from redbot.core import commands
 
 __author__ = "tmerc"
 
@@ -42,7 +41,7 @@ class Lenny:
       self.__session.close()
 
   @commands.command()
-  async def lenny(self, ctx: RedContext):
+  async def lenny(self, ctx: commands.Context):
     """☞⇀‿↼☞"""
 
     await ctx.trigger_typing()
