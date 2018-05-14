@@ -6,7 +6,7 @@ from copy import copy
 import discord
 from discord.ext import commands
 from discord.utils import get
-from redbot.core import Config, RedContext, checks
+from redbot.core import Config, commands, checks
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box
 
@@ -35,7 +35,7 @@ class NestedCommands:
   @commands.group()
   @commands.guild_only()
   @checks.guildowner()
-  async def ncset(self, ctx: RedContext):
+  async def ncset(self, ctx: commands.Context):
     """Change NestedCommands settings."""
 
     if ctx.invoked_subcommand is None:
@@ -58,7 +58,7 @@ class NestedCommands:
       await ctx.send(msg)
 
   @ncset.command(name='toggle')
-  async def ncset_toggle(self, ctx: RedContext, on_off: bool = None):
+  async def ncset_toggle(self, ctx: commands.Context, on_off: bool = None):
     """Turns NestedCommand on or off.
 
     If `on_off` is not provided, the state will be flipped.
@@ -85,7 +85,7 @@ class NestedCommands:
       await ctx.send("NestedCommands is now disabled.")
 
   @ncset.command(name='channel')
-  async def ncset_channel(self, ctx: RedContext, *, channel: discord.TextChannel):
+  async def ncset_channel(self, ctx: commands.Context, *, channel: discord.TextChannel):
     """Sets the channel which will be used to print the output of all inner commands.
 
     It is highly recommended that you make this channel hidden and/or read-only to all users except Red, because this
@@ -106,7 +106,7 @@ class NestedCommands:
     """Sets up the before_invoke hook that makes this all work."""
 
     @self.bot.before_invoke
-    async def before_any_command(ctx: RedContext):
+    async def before_any_command(ctx: commands.Context):
       if ctx.guild and await self.config.guild(ctx.guild).enabled():
         message = ctx.message
         channel_id = await self.config.guild(ctx.guild).channel()

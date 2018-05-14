@@ -3,7 +3,7 @@ import logging
 import discord
 from discord.ext import commands
 from discord.utils import get
-from redbot.core import Config, RedContext, checks
+from redbot.core import Config, commands, checks
 from redbot.core.utils.chat_formatting import box
 
 __author__ = "tmerc"
@@ -29,7 +29,7 @@ class StreamRole:
   @commands.group()
   @commands.guild_only()
   @checks.admin_or_permissions(manage_server=True)
-  async def streamroleset(self, ctx: RedContext):
+  async def streamroleset(self, ctx: commands.Context):
     """Change StreamRole settings."""
 
     if ctx.invoked_subcommand is None:
@@ -60,7 +60,7 @@ class StreamRole:
       await ctx.send(msg)
 
   @streamroleset.command(name='toggle')
-  async def streamroleset_toggle(self, ctx: RedContext, on_off: bool = None):
+  async def streamroleset_toggle(self, ctx: commands.Context, on_off: bool = None):
     """Turns StreamRole on or off.
 
     If `on_off` is not provided, the state will be flipped.
@@ -87,7 +87,7 @@ class StreamRole:
       await ctx.send("StreamRole is now disabled.")
 
   @streamroleset.command(name='role')
-  async def streamroleset_role(self, ctx: RedContext, *, role: discord.Role):
+  async def streamroleset_role(self, ctx: commands.Context, *, role: discord.Role):
     """Sets the role which will be assigned to members who are streaming."""
 
     await ctx.trigger_typing()
@@ -101,7 +101,7 @@ class StreamRole:
     )
 
   @streamroleset.group(name='promote')
-  async def streamroleset_promote(self, ctx: RedContext):
+  async def streamroleset_promote(self, ctx: commands.Context):
     """Changes promotion settings."""
 
     if ctx.invoked_subcommand is None or \
@@ -145,7 +145,7 @@ class StreamRole:
       )
 
   @streamroleset_promote.command(name='role')
-  async def streamroleset_promote_role(self, ctx: RedContext, *, role: discord.Role):
+  async def streamroleset_promote_role(self, ctx: commands.Context, *, role: discord.Role):
     """Sets the prerequisite role for streaming promotion.
 
     If this role is set and promote is toggled on, only members with this role will be given the streaming role.
@@ -161,7 +161,7 @@ class StreamRole:
     )
 
   @streamroleset_promote.command(name='lax')
-  async def streamroleset_promote_lax(self, ctx: RedContext, on_off: bool = None):
+  async def streamroleset_promote_lax(self, ctx: commands.Context, on_off: bool = None):
     """Turns lax promote role prerequisite on or off.
 
     If this is on, members with the prerequisite role or any role above it in the hierarchy will be given the streaming
