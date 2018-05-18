@@ -45,7 +45,7 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'https://shibe.online/api/cats?count=1'
+    url = 'http://shibe.online/api/cats?count=1'
 
     try:
       async with self.__session.get(url) as response:
@@ -81,7 +81,7 @@ class Randimals:
 
     await ctx.trigger_typing()
 
-    url = 'https://shibe.online/api/birds?count=1'
+    url = 'http://shibe.online/api/birds?count=1'
 
     try:
       async with self.__session.get(url) as response:
