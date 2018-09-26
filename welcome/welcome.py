@@ -78,8 +78,6 @@ class Welcome:
     await ctx.trigger_typing()
 
     if ctx.invoked_subcommand is None:
-      await ctx.send_help()
-
       guild = ctx.guild
       c = await self.config.guild(guild).all()
 
@@ -165,8 +163,7 @@ class Welcome:
   async def welcomeset_join(self, ctx: commands.Context):
     """Change settings for join notices."""
 
-    if str(ctx.invoked_subcommand) == 'welcomeset join':
-      await ctx.send_help()
+    pass
 
   @welcomeset_join.command(name='toggle')
   async def welcomeset_join_toggle(self, ctx: commands.Context, on_off: bool = None):
@@ -190,9 +187,7 @@ class Welcome:
   async def welcomeset_join_whisper(self, ctx: commands.Context):
     """Change settings for join whispers."""
 
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
+    pass
 
   @welcomeset_join_whisper.command(name='type')
   async def welcomeset_join_whisper_type(self, ctx: commands.Context, choice: WhisperType):
@@ -246,9 +241,7 @@ class Welcome:
   async def welcomeset_join_msg(self, ctx: commands.Context):
     """Manage join message formats."""
 
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
+    pass
 
   @welcomeset_join_msg.command(name='add')
   async def welcomeset_join_msg_add(self, ctx: commands.Context, *, msg_format: str):
@@ -312,8 +305,7 @@ class Welcome:
   async def welcomeset_leave(self, ctx: commands.Context):
     """Change settings for leave notices."""
 
-    if str(ctx.invoked_subcommand) == 'welcomeset leave':
-      await ctx.send_help()
+    pass
 
   @welcomeset_leave.command(name='toggle')
   async def welcomeset_leave_toggle(self, ctx: commands.Context, on_off: bool = None):
@@ -337,9 +329,7 @@ class Welcome:
   async def welcomeset_leave_msg(self, ctx: commands.Context):
     """Manage leave message formats."""
 
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
+    pass
 
   @welcomeset_leave_msg.command(name='add')
   async def welcomeset_leave_msg_add(self, ctx: commands.Context, *, msg_format: str):
@@ -373,8 +363,7 @@ class Welcome:
   async def welcomeset_ban(self, ctx: commands.Context):
     """Change settings for ban notices."""
 
-    if str(ctx.invoked_subcommand) == 'welcomeset ban':
-      await ctx.send_help()
+    pass
 
   @welcomeset_ban.command(name='toggle')
   async def welcomeset_ban_toggle(self, ctx: commands.Context, on_off: bool = None):
@@ -398,9 +387,7 @@ class Welcome:
   async def welcomeset_ban_msg(self, ctx: commands.Context):
     """Manage ban message formats."""
 
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
+    pass
 
   @welcomeset_ban_msg.command(name='add')
   async def welcomeset_ban_msg_add(self, ctx: commands.Context, *, msg_format: str):
@@ -434,8 +421,7 @@ class Welcome:
   async def welcomeset_unban(self, ctx: commands.Context):
     """Change settings for unban notices."""
 
-    if str(ctx.invoked_subcommand) == 'welcomeset unban':
-      await ctx.send_help()
+    pass
 
   @welcomeset_unban.command(name='toggle')
   async def welcomeset_unban_toggle(self, ctx: commands.Context, on_off: bool = None):
@@ -459,9 +445,7 @@ class Welcome:
   async def welcomeset_unban_msg(self, ctx: commands.Context):
     """Manage unban message formats."""
 
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
+    pass
 
   @welcomeset_unban_msg.command(name='add')
   async def welcomeset_unban_msg_add(self, ctx: commands.Context, *, msg_format: str):
