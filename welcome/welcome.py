@@ -71,7 +71,7 @@ class Welcome:
 
   @commands.group()
   @commands.guild_only()
-  @checks.admin_or_permissions(manage_server=True)
+  @checks.admin_or_permissions(manage_guild=True)
   async def welcomeset(self, ctx: commands.Context):
     """Change Welcome settings."""
 
