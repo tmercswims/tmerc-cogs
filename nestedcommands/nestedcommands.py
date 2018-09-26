@@ -38,8 +38,6 @@ class NestedCommands:
     """Change NestedCommands settings."""
 
     if ctx.invoked_subcommand is None:
-      await ctx.send_help()
-
       config = await self.config.guild(ctx.guild).all()
 
       enabled = config['enabled']
