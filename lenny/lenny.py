@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from random import choice
 
@@ -38,7 +39,7 @@ class Lenny:
 
   def __unload(self):
     if self.__session:
-      self.__session.close()
+      asyncio.get_event_loop().create_task(self.__session.close())
 
   @commands.command()
   async def lenny(self, ctx: commands.Context):

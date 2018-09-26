@@ -1,3 +1,4 @@
+import asyncio
 import io
 import logging
 import os
@@ -19,7 +20,7 @@ class Randimals:
 
   def __unload(self):
     if self.__session:
-      self.__session.close()
+      asyncio.get_event_loop().create_task(self.__session.close())
 
   @commands.command()
   async def dog(self, ctx: commands.Context):

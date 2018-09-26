@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 import discord
 from redbot.core import commands, checks
