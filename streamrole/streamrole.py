@@ -32,8 +32,6 @@ class StreamRole:
     """Change StreamRole settings."""
 
     if ctx.invoked_subcommand is None:
-      await ctx.send_help()
-
       guild = ctx.guild
       config = await self.config.guild(guild).all()
       enabled = config['enabled']
@@ -103,9 +101,7 @@ class StreamRole:
   async def streamroleset_promote(self, ctx: commands.Context):
     """Changes promotion settings."""
 
-    if ctx.invoked_subcommand is None or \
-        isinstance(ctx.invoked_subcommand, commands.Group):
-      await ctx.send_help()
+    pass
 
   @streamroleset_promote.command(name='toggle')
   async def streamroleset_promote_toggle(self, ctx: commands.Context, on_off: bool = None):
