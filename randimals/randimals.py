@@ -75,8 +75,8 @@ class Randimals:
       log.warning("API call failed; unable to get fox picture")
       await ctx.send("I was unable to get a fox picture.")
 
-  @commands.command(pass_context=True, no_pm=True, name="bird")
-  async def _bird(self, ctx: commands.Context):
+  @commands.command()
+  async def bird(self, ctx: commands.Context):
     """Shows a random bird."""
 
     await ctx.trigger_typing()
