@@ -1,9 +1,9 @@
 {
-  "AUTHOR" : "tmerc",
-  "INSTALL_MSG" : "Thanks for installing!",
-  "NAME" : "MassDM",
-  "SHORT" : "DM a Role.",
-  "DESCRIPTION" : "Send a direct message to all members of the specified Role. Personalize the message for each person.",
-  "REQUIREMENTS" : [],
-  "TAGS": ["tools", "utility", "moderation", "dm"]
+  "author" : ["tmerc"],
+  "install_msg" : "Thanks for installing!",
+  "name" : "MassDM",
+  "short" : "DM a Role.",
+  "description" : "Send a direct message to all members of the specified Role. Personalize the message for each person.",
+  "requirements" : [],
+  "tags": ["tools", "utility", "moderation", "dm"]
 }

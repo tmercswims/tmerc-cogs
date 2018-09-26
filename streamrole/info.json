@@ -1,9 +1,9 @@
 {
-  "AUTHOR" : "tmerc",
-  "INSTALL_MSG" : "Thanks for installing!",
-  "NAME" : "StreamRole",
-  "SHORT" : "Streamers get a role.",
-  "DESCRIPTION" : "Assign a configurable role to anyone who is streaming.",
-  "REQUIREMENTS" : [],
-  "TAGS": ["stream", "role", "tools", "utility"]
+  "author" : ["tmerc"],
+  "install_msg" : "Thanks for installing!",
+  "name" : "StreamRole",
+  "short" : "Streamers get a role.",
+  "description" : "Assign a configurable role to anyone who is streaming.",
+  "requirements" : [],
+  "tags": ["stream", "role", "tools", "utility"]
 }

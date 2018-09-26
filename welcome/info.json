@@ -1,9 +1,9 @@
 {
-    "AUTHOR" : "tmerc",
-    "INSTALL_MSG" : "Thanks for installing!",
-    "NAME" : "Welcome",
-    "SHORT" : "Announces membership events.",
-    "DESCRIPTION" : "Announces members joining, leaving, getting banned, and getting unbanned, in a customizable text channel and with customizable messages.",
-    "REQUIREMENTS" : [],
-    "TAGS": ["welcome", "greetings", "leave", "ban", "utility"]
+    "author" : ["tmerc"],
+    "install_msg" : "Thanks for installing!",
+    "name" : "Welcome",
+    "short" : "Announces membership events.",
+    "description" : "Announces members joining, leaving, getting banned, and getting unbanned, in a customizable text channel and with customizable messages.",
+    "requirements" : [],
+    "tags": ["welcome", "greetings", "leave", "ban", "utility"]
 }

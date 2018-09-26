@@ -1,9 +1,9 @@
 {
-  "AUTHOR" : "tmerc",
-  "INSTALL_MSG" : "ᕮ⊜ᴥ⊜ᕭ",
-  "NAME" : "Lenny",
-  "SHORT" : "( ͡° ͜ʖ ͡°)",
-  "DESCRIPTION" : "乁(-ロ-)ㄏ",
-  "REQUIREMENTS" : [],
-  "TAGS": ["lenny", "emoji", "donger", "fun"]
+  "author" : ["tmerc"],
+  "install_msg" : "ᕮ⊜ᴥ⊜ᕭ",
+  "name" : "Lenny",
+  "short" : "( ͡° ͜ʖ ͡°)",
+  "description" : "乁(-ロ-)ㄏ",
+  "requirements" : [],
+  "tags": ["lenny", "emoji", "donger", "fun"]
 }
