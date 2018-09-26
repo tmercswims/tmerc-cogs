@@ -5,7 +5,6 @@ from datetime import date
 from typing import Union
 
 import discord
-from discord.ext import commands
 from redbot.core import Config, commands, checks
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box, pagify

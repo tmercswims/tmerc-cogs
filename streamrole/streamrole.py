@@ -1,7 +1,6 @@
 import logging
 
 import discord
-from discord.ext import commands
 from discord.utils import get
 from redbot.core import Config, commands, checks
 from redbot.core.utils.chat_formatting import box
