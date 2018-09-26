@@ -35,9 +35,7 @@ class MassDM:
     except:
       log.warning("Failed to delete command message")
 
-    dm_these = self._get_members_with_role(ctx.guild, role)
-
-    for member in dm_these:
+    for member in role.members:
       try:
         await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
       except discord.Forbidden:
@@ -46,9 +44,3 @@ class MassDM:
       except:
         log.warning("Failed to DM user {0} (ID {0.id})".format(member))
         continue
-
-  @staticmethod
-  def _get_members_with_role(guild: discord.Guild, role: discord.Role) -> List[discord.Member]:
-    """Gives the members of guild which have role."""
-
-    return [m for m in guild.members if role in m.roles]
