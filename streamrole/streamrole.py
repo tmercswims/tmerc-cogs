@@ -10,7 +10,7 @@ __author__ = "tmerc"
 log = logging.getLogger('red.tmerc.streamrole')
 
 
-class StreamRole:
+class StreamRole(getattr(commands, "Cog", object)):
   """Assign a configurable role to anyone who is streaming."""
 
   guild_defaults = {

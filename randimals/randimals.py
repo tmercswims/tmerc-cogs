@@ -12,7 +12,7 @@ __author__ = "tmerc"
 log = logging.getLogger('red.tmerc.randimals')
 
 
-class Randimals:
+class Randimals(getattr(commands, "Cog", object)):
   """Get some random animal images."""
 
   def __init__(self):

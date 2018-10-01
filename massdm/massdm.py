@@ -8,7 +8,7 @@ __author__ = "tmerc"
 log = logging.getLogger('red.tmerc.massdm')
 
 
-class MassDM:
+class MassDM(getattr(commands, "Cog", object)):
   """Send a direct message to all members of the specified Role."""
 
   def __init__(self):

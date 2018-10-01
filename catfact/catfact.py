@@ -8,8 +8,7 @@ __author__ = "tmerc"
 
 log = logging.getLogger('red.tmerc.catfact')
 
-
-class CatFact:
+class CatFact(getattr(commands, "Cog", object)):
   """Gets a random cat fact."""
 
   def __init__(self):

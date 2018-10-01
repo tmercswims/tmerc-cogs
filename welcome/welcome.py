@@ -19,7 +19,7 @@ ENABLED = 'enabled'
 DISABLED = 'disabled'
 
 
-class Welcome:
+class Welcome(getattr(commands, "Cog", object)):
   """Announce when users join or leave a server."""
 
   default_join = "Welcome {member.mention} to {server.name}!"
