@@ -30,7 +30,7 @@ LENNY_PARTS = {
 }
 
 
-class Lenny:
+class Lenny(getattr(commands, "Cog", object)):
   """乁(-ロ-)ㄏ"""
 
   def __init__(self):

@@ -14,7 +14,7 @@ __author__ = "tmerc"
 log = logging.getLogger('red.tmerc.nestedcommands')
 
 
-class NestedCommands:
+class NestedCommands(getattr(commands, "Cog", object)):
   """Experimental cog that allows you to use the output of one command as the input of another."""
 
   guild_defaults = {
