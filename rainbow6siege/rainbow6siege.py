@@ -294,7 +294,7 @@ class Rainbow6Siege:
             description="Player Information for {}".format(
                 o.name.capitalize()))
         e.set_author(name=p.name, url=p.url, icon_url=p.icon_url)
-        e.set_thumbnail(url=(await p.auth.get_operator_badge(operator)))
+        e.set_thumbnail(url='https://game-rainbow6.ubi.com/' + (await p.auth.get_operator_badge(operator)))
         e.add_field(name="Win/Loss",
                     value="**Wins:** {}\n"
                     "**Losses:** {}\n"
