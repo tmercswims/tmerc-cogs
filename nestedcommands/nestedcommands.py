@@ -9,6 +9,8 @@ from redbot.core import Config, commands, checks
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box
 
+from .exceptions import MismatchedParenthesesException
+
 __author__ = "tmerc"
 
 log = logging.getLogger('red.tmerc.nestedcommands')
@@ -30,6 +32,12 @@ class NestedCommands(getattr(commands, "Cog", object)):
     self.config.register_guild(**self.guild_defaults)
 
     self.__init_before()
+
+  @commands.command(name='say')
+  async def say(self, ctx: commands.Context, *, message: str):
+    """Says what you say."""
+
+    await ctx.send(message)
 
   @commands.group()
   @commands.guild_only()
@@ -119,7 +127,17 @@ class NestedCommands(getattr(commands, "Cog", object)):
           )
           return
 
-        for matched_text in self.p.findall(message.content):
+        try:
+          top_level_commands = self.__get_top_level_commands(message.content)
+        except MismatchedParenthesesException as e:
+          log.error(
+            ("Problem resolving nested commands (server ID {}, channel ID {}, message ID {}): {}"
+             "").format(ctx.guild.id, ctx.channel.id, message.id, e.message)
+          )
+          return
+
+        replacements = {}
+        for matched_text in top_level_commands:
           inner_command = matched_text[2:-1]
 
           new_message = copy(message)
@@ -130,10 +148,53 @@ class NestedCommands(getattr(commands, "Cog", object)):
 
           inner_output = (await channel.history(limit=1).flatten())[0].content
 
-          message.content = message.content.replace(matched_text, inner_output)
+          message.content = message.content.replace(matched_text, inner_output, 1)
 
-          for name, value in ctx.kwargs.items():
-            if matched_text in value:
-              ctx.kwargs[name] = value.replace(matched_text, inner_output)
+          replacements[matched_text] = inner_output
 
           await asyncio.sleep(0.1)
+
+        log.info("ctx.kwargs 1: {}".format(ctx.kwargs))
+        log.info("replacements: {}".format(replacements))
+        for name, value in ctx.kwargs.items():
+          for matched_text, inner_output in replacements.items():
+            if matched_text in value:
+              ctx.kwargs[name] = value.replace(matched_text, inner_output, 1)
+
+        log.info("ctx.kwargs 2: {}".format(ctx.kwargs))
+        log.info("ctx.args: {}".format(ctx.args))
+        log.info("ctx.args[1].message.content: {}".format(ctx.args[1].message.content))
+        log.info("CONTENT AFTER ALL: {}".format(ctx.message.content))
+
+  @staticmethod
+  def __get_top_level_commands(s: str):
+    ret = []
+
+    depth = 0
+    current = ''
+    for i, c in enumerate(s):
+      if c == '$' and s[i + 1] == '(':
+        depth += 1
+
+      if depth > 0:
+        current += c
+
+      if c == ')':
+        depth -= 1
+
+      if depth == 0 and current != '':
+        ret.append(current)
+        current = ''
+
+    # if depth < 0:
+    #   raise MismatchedParenthesesException(
+    #     ("{} too many closing parentheses in nested commands"
+    #      "").format(abs(depth))
+    #   )
+    # elif depth > 0:
+    #   raise MismatchedParenthesesException(
+    #     ("{} too few closing parentheses in nested commands"
+    #      "").format(depth)
+    #   )
+
+    return ret
