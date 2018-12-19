@@ -1,0 +1,9 @@
+{
+    "AUTHOR" : "tmerc",
+    "INSTALL_MSG" : "Thanks for installing!",
+    "NAME" : "RandImage",
+    "SHORT" : "Displays a random image from a category.",
+    "DESCRIPTION" : "Create categories and add images to the categories, then fetch a random one from a category.",
+    "REQUIREMENTS" : [],
+    "TAGS": ["image", "local", "random", "fun"]
+}

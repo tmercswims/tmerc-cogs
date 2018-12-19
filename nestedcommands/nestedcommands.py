@@ -154,17 +154,17 @@ class NestedCommands(getattr(commands, "Cog", object)):
 
           await asyncio.sleep(0.1)
 
-        log.info("ctx.kwargs 1: {}".format(ctx.kwargs))
-        log.info("replacements: {}".format(replacements))
+        # log.info("ctx.kwargs 1: {}".format(ctx.kwargs))
+        # log.info("replacements: {}".format(replacements))
         for name, value in ctx.kwargs.items():
           for matched_text, inner_output in replacements.items():
             if matched_text in value:
               ctx.kwargs[name] = value.replace(matched_text, inner_output, 1)
 
-        log.info("ctx.kwargs 2: {}".format(ctx.kwargs))
-        log.info("ctx.args: {}".format(ctx.args))
-        log.info("ctx.args[1].message.content: {}".format(ctx.args[1].message.content))
-        log.info("CONTENT AFTER ALL: {}".format(ctx.message.content))
+        # log.info("ctx.kwargs 2: {}".format(ctx.kwargs))
+        # log.info("ctx.args: {}".format(ctx.args))
+        # log.info("ctx.args[1].message.content: {}".format(ctx.args[1].message.content))
+        # log.info("CONTENT AFTER ALL: {}".format(ctx.message.content))
 
   @staticmethod
   def __get_top_level_commands(s: str):
