@@ -89,7 +89,7 @@ class Welcome(getattr(commands, "Cog", object)):
       b = c['ban']
       u = c['unban']
 
-      if ctx.embed_requested():
+      if await ctx.embed_requested():
         emb = discord.Embed(color=await ctx.embed_color(), title="Current Welcome Settings")
         emb.add_field(name="General", value=(
           "**Enabled:** {}\n"
