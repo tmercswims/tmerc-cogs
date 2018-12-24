@@ -89,39 +89,72 @@ class Welcome(getattr(commands, "Cog", object)):
       b = c['ban']
       u = c['unban']
 
-      msg = box(
-        ("  Enabled: {}\n"
-         "  Channel: {}\n"
-         "  Join:\n"
-         "    Enabled: {}\n"
-         "    Delete previous: {}\n"
-         "    Whisper:\n"
-         "      State: {}\n"
-         "      Message: {}\n"
-         "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
-         "    Bot message: {}\n"
-         "  Leave:\n"
-         "    Enabled: {}\n"
-         "    Delete previous: {}\n"
-         "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
-         "  Ban:\n"
-         "    Enabled: {}\n"
-         "    Delete previous: {}\n"
-         "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
-         "  Unban:\n"
-         "    Enabled: {}\n"
-         "    Delete previous: {}\n"
-         "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n"
-         "").format(c['enabled'], channel,
-                    j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
-                    v['enabled'], v['delete'], len(v['messages']),
-                    b['enabled'], b['delete'], len(b['messages']),
-                    u['enabled'], u['delete'], len(u['messages']),
-                    prefix=ctx.prefix),
-        "Current Welcome settings:"
-      )
+      if ctx.embed_requested():
+        emb = discord.Embed(color=await ctx.embed_color(), title="Current Welcome Settings")
+        emb.add_field(name="General", value=(
+          "**Enabled:** {}\n"
+          "**Channel:** #{}\n"
+        ).format(c['enabled'], channel))
+        emb.add_field(name="Join", value=(
+          "**Enabled:** {}\n"
+          "**Delete previous:** {}\n"
+          "**Whisper state:** {}\n"
+          "**Whisper message:** {}\n"
+          "**Messages:** {}; do `{prefix}welcomeset join msg list` for a list\n"
+          "**Bot message:** {}"
+        ).format(j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
+                 prefix=ctx.prefix))
+        emb.add_field(name="Leave", value=(
+          "**Enabled:** {}\n"
+          "**Delete previous:** {}\n"
+          "**Messages:** {}; do `{prefix}welcomeset leave msg list` for a list\n"
+        ).format(v['enabled'], v['delete'], len(v['messages']), prefix=ctx.prefix))
+        emb.add_field(name="Ban", value=(
+          "**Enabled:** {}\n"
+          "**Delete previous:** {}\n"
+          "**Messages:** {}; do `{prefix}welcomeset ban msg list` for a list\n"
+        ).format(b['enabled'], b['delete'], len(b['messages']), prefix=ctx.prefix))
+        emb.add_field(name="Leave", value=(
+          "**Enabled:** {}\n"
+          "**Delete previous:** {}\n"
+          "**Messages:** {}; do `{prefix}welcomeset unban msg list` for a list\n"
+        ).format(u['enabled'], u['delete'], len(u['messages']), prefix=ctx.prefix))
 
-      await ctx.send(msg)
+        await ctx.send(embed=emb)
+      else:
+        msg = box(
+          ("  Enabled: {}\n"
+           "  Channel: {}\n"
+           "  Join:\n"
+           "    Enabled: {}\n"
+           "    Delete previous: {}\n"
+           "    Whisper:\n"
+           "      State: {}\n"
+           "      Message: {}\n"
+           "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
+           "    Bot message: {}\n"
+           "  Leave:\n"
+           "    Enabled: {}\n"
+           "    Delete previous: {}\n"
+           "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
+           "  Ban:\n"
+           "    Enabled: {}\n"
+           "    Delete previous: {}\n"
+           "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
+           "  Unban:\n"
+           "    Enabled: {}\n"
+           "    Delete previous: {}\n"
+           "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n"
+           "").format(c['enabled'], channel,
+                      j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
+                      v['enabled'], v['delete'], len(v['messages']),
+                      b['enabled'], b['delete'], len(b['messages']),
+                      u['enabled'], u['delete'], len(u['messages']),
+                      prefix=ctx.prefix),
+          "Current Welcome settings:"
+        )
+
+        await ctx.send(msg)
 
   @welcomeset.command(name='toggle')
   async def welcomeset_toggle(self, ctx: commands.Context, on_off: bool = None):
