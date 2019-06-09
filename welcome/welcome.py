@@ -723,7 +723,7 @@ class Welcome(getattr(commands, "Cog", object)):
     """Attempts to delete the message with the given ID."""
 
     try:
-      await (await (await self.__get_channel(guild)).get_message(message_id)).delete()
+      await (await (await self.__get_channel(guild)).fetch_message(message_id)).delete()
     except discord.NotFound:
       log.warning(
         ("Failed to delete message (ID {}): not found"
