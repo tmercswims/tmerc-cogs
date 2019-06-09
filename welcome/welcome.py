@@ -508,6 +508,7 @@ class Welcome(getattr(commands, "Cog", object)):
 
     await self.__msg_list(ctx, 'unban')
 
+  @commands.Cog.listener()
   async def on_member_join(self, member: discord.Member):
     """Listens for member joins."""
 
@@ -535,16 +536,19 @@ class Welcome(getattr(commands, "Cog", object)):
 
       await self.__handle_event(guild, member, 'join', message_format=message_format)
 
+  @commands.Cog.listener()
   async def on_member_remove(self, member: discord.Member):
     """Listens for member leaves."""
 
     await self.__handle_event(member.guild, member, 'leave')
 
+  @commands.Cog.listener()
   async def on_member_ban(self, guild: discord.Guild, member: discord.Member):
     """Listens for user bans."""
 
     await self.__handle_event(guild, member, 'ban')
 
+  @commands.Cog.listener()
   async def on_member_unban(self, guild: discord.Guild, user: discord.User):
     """Listens for user unbans."""
 

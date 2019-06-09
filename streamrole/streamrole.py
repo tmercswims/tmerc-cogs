@@ -185,6 +185,7 @@ class StreamRole(getattr(commands, "Cog", object)):
          "")
       )
 
+  @commands.Cog.listener()
   async def on_member_update(self, before: discord.Member, after: discord.Member):
     """Listens to member updates to detect starting/stopping streaming."""
 
