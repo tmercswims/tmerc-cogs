@@ -18,7 +18,7 @@ class Randimals(getattr(commands, "Cog", object)):
   def __init__(self):
     self.__session = aiohttp.ClientSession()
 
-  def __unload(self):
+  def cog_unload(self):
     if self.__session:
       asyncio.get_event_loop().create_task(self.__session.close())
 
