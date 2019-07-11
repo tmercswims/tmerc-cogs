@@ -114,7 +114,7 @@ class Welcome(getattr(commands, "Cog", object)):
           "**Delete previous:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset ban msg list` for a list\n"
         ).format(b['enabled'], b['delete'], len(b['messages']), prefix=ctx.prefix))
-        emb.add_field(name="Leave", value=(
+        emb.add_field(name="Unban", value=(
           "**Enabled:** {}\n"
           "**Delete previous:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset unban msg list` for a list\n"
