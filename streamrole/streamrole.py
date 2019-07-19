@@ -191,7 +191,7 @@ class StreamRole(getattr(commands, "Cog", object)):
 
     guild = after.guild
     config = await self.config.guild(guild).all()
-    activity = after.activity
+    is_streaming = any(True for a in after.activities if a.type == discord.ActivityType.streaming)
     if config['enabled'] and config['role'] is not None:
       streaming_role = get(guild.roles, id=config['role'])
 
@@ -203,9 +203,7 @@ class StreamRole(getattr(commands, "Cog", object)):
         return
 
       # is not streaming; attempt to remove streaming role if present
-      if activity is None \
-          or activity.type != discord.ActivityType.streaming \
-          and streaming_role in after.roles:
+      if not is_streaming and streaming_role in after.roles:
         try:
           await after.remove_roles(streaming_role,
                                    reason='Member is not streaming.')
@@ -222,9 +220,7 @@ class StreamRole(getattr(commands, "Cog", object)):
 
       # is streaming; attempt to add streaming role if not present
       # and if allowed by promotion settings
-      elif activity \
-          and activity.type == discord.ActivityType.streaming \
-          and streaming_role not in after.roles:
+      elif is_streaming and streaming_role not in after.roles:
         if self.__can_promote(after, config):
           try:
             await after.add_roles(streaming_role,
