@@ -191,7 +191,7 @@ class StreamRole(getattr(commands, "Cog", object)):
 
     guild = after.guild
     config = await self.config.guild(guild).all()
-    is_streaming = any(True for a in after.activities if a.type == discord.ActivityType.streaming)
+    is_streaming = any(a.type == discord.ActivityType.streaming for a in after.activities)
     if config['enabled'] and config['role'] is not None:
       streaming_role = get(guild.roles, id=config['role'])
 
