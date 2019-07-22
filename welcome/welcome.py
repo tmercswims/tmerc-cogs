@@ -3,6 +3,7 @@ import logging
 import random
 from datetime import date
 from typing import Union
+from datetime import datetime
 
 import discord
 from redbot.core import Config, commands, checks
@@ -61,6 +62,8 @@ class Welcome(getattr(commands, "Cog", object)):
       'delete': False,
       'last': None,
       'messages': [default_unban],
+    'embed': False,
+    'image': None,
     }
   }
 
@@ -172,6 +175,29 @@ class Welcome(getattr(commands, "Cog", object)):
       ("Welcome is now {}."
        "").format(ENABLED if target_state else DISABLED)
     )
+  @welcomeset.command(name='embedtoggle')
+  async def embed_toggle(self, ctx: commands.Context, on_off: bool = None):
+    """Turns embeds on welcome messages on or off.
+
+    If `on_off` is not provided, the state will be flipped.
+    """
+    guild = ctx.guild
+    target_state = on_off if on_off is not None else not (await self.config.guild(guild).embed())
+    await self.config.guild(guild).embed.set(target_state)
+    await ctx.send(
+        ("Weclome messages {} use embeds.").format("will" if target_state else "wont")
+    )
+  @welcomeset.command(name='image')
+  async def welcome_image(self, ctx: commands.Context, image = None):
+    """Set an image to be used in welcome messages
+    Provide a link for the image.
+    """
+    guild = ctx.guild
+    await self.config.guild(guild).image.set(image)
+    if image:
+        await ctx.send("The image has been set.")
+    else:
+        await ctx.send("The image has been removed.")
 
   @welcomeset.command(name='channel')
   async def welcomeset_channel(self, ctx: commands.Context, channel: discord.TextChannel):
@@ -754,15 +780,24 @@ class Welcome(getattr(commands, "Cog", object)):
     channel = await self.__get_channel(guild)
 
     try:
-      return await channel.send(
-        format_str.format(member=user, server=guild, bot=user, count=count or '', plural=plural)
-      )
+        embed = await self.config.guild(guild).embed()
+        if embed:
+            image = await self.config.guild(guild).image()
+            embed=discord.Embed(title="**A new member has joined {name}!**".format(name=guild.name), color=7802332, description=format_str.format(member=user, server=guild, bot=user, count=count or '', plural=plural))
+            embed.set_footer(text="{}".format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")))
+            if image:
+                embed.set_image(url=image)
+            return await channel.send(embed=embed)
+        else:
+            return await channel.send(
+            format_str.format(member=user, server=guild, bot=user, count=count or '', plural=plural)
+            )
     except discord.Forbidden:
-      log.error(
-        ("Failed to send {} message to channel ID {1.id} (server ID {2.id}): insufficient permissions"
-         "").format(event, channel, guild)
-      )
-      return None
+        log.error(
+            ("Failed to send {} message to channel ID {1.id} (server ID {2.id}): insufficient permissions"
+             "").format(event, channel, guild)
+            )
+        return None
     except:
       log.error(
         ("Failed to send {} message to channel ID {1.id} (server ID {2.id})"
