@@ -18,6 +18,8 @@ log = logging.getLogger('red.tmerc.welcome')
 ENABLED = 'enabled'
 DISABLED = 'disabled'
 
+class WhisperError(Exception):
+    pass
 
 class Welcome(getattr(commands, "Cog", object)):
   """Announce when users join or leave a server."""
@@ -102,7 +104,7 @@ class Welcome(getattr(commands, "Cog", object)):
           "**Whisper message:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset join msg list` for a list\n"
           "**Bot message:** {}"
-        ).format(j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
+        ).format(j['enabled'], j['delete'], jw['state'], jw['message'] if len(jw['message']) <= 50 else jw['message'][:50] + "...", len(j['messages']), j['bot'],
                  prefix=ctx.prefix))
         emb.add_field(name="Leave", value=(
           "**Enabled:** {}\n"
@@ -230,6 +232,7 @@ class Welcome(getattr(commands, "Cog", object)):
       off - no DM is sent
       only - only send a DM to the member, do not send a message to the channel
       both - send a DM to the member and a message to the channel
+      fall - send a DM to the member, if it fails send the whisper message to the channel instead
     """
 
     guild = ctx.guild
@@ -251,6 +254,11 @@ class Welcome(getattr(commands, "Cog", object)):
     elif choice == WhisperType.BOTH:
       await ctx.send(
         ("I will now send a DM to new members, as well as send a notice to {0.mention}."
+         "").format(channel)
+      )
+    elif choice == WhisperType.FALLBACK:
+      await ctx.send(
+        ("I will now send a DM to new members, and if that fails I will send the message to {0.mention}."
          "").format(channel)
       )
 
@@ -528,9 +536,15 @@ class Welcome(getattr(commands, "Cog", object)):
 
         whisper_type = await guild_settings.join.whisper.state()
         if whisper_type != 'off':
-          await self.__dm_user(member)
+          try:
+            await self.__dm_user(member)
+          except WhisperError:
+            if whisper_type == 'fall':
+                message_format = await self.config.guild(member.guild).join.whisper.message()
+                await self.__handle_event(guild, member, 'join', message_format=message_format)
+                return
 
-          if whisper_type == 'only':
+          if whisper_type == 'only' or whisper_type == 'fall':
             # we're done here
             return
 
@@ -803,11 +817,13 @@ class Welcome(getattr(commands, "Cog", object)):
         ("Failed to send DM to member ID {0.id} (server ID {1.id}): insufficient permissions"
          "").format(member, member.guild)
       )
+      raise WhisperError("Error.")
     except:
       log.error(
         ("Failed to send DM to member ID {0.id} (server ID {1.id})"
          "").format(member, member.guild)
       )
+      raise WhisperError("Error.")
 
   @staticmethod
   def __can_speak_in(channel: discord.TextChannel) -> bool:
