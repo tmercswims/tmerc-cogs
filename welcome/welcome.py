@@ -18,6 +18,8 @@ log = logging.getLogger('red.tmerc.welcome')
 ENABLED = 'enabled'
 DISABLED = 'disabled'
 
+class WhisperError(Exception):
+    pass
 
 class Welcome(getattr(commands, "Cog", object)):
   """Announce when users join or leave a server."""
@@ -31,6 +33,8 @@ class Welcome(getattr(commands, "Cog", object)):
   guild_defaults = {
     'enabled': False,
     'channel': None,
+    'leave_channel': None,
+    'ban_channel': None,
     'date': None,
     'join': {
       'enabled': True,
@@ -81,7 +85,9 @@ class Welcome(getattr(commands, "Cog", object)):
       guild = ctx.guild
       c = await self.config.guild(guild).all()
 
-      channel = await self.__get_channel(ctx.guild)
+      channel = await self.__get_channel(ctx.guild, "join")
+      leave_channel = await self.__get_channel(ctx.guild, "leave")
+      ban_channel = await self.__get_channel(ctx.guild, "ban")
 
       j = c['join']
       jw = j['whisper']
@@ -94,7 +100,9 @@ class Welcome(getattr(commands, "Cog", object)):
         emb.add_field(name="General", value=(
           "**Enabled:** {}\n"
           "**Channel:** #{}\n"
-        ).format(c['enabled'], channel))
+          "**Leave Channel:** #{}\n"
+          "**Ban/Unban Channel:** #{}\n"
+        ).format(c['enabled'], channel, leave_channel, ban_channel))
         emb.add_field(name="Join", value=(
           "**Enabled:** {}\n"
           "**Delete previous:** {}\n"
@@ -102,7 +110,7 @@ class Welcome(getattr(commands, "Cog", object)):
           "**Whisper message:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset join msg list` for a list\n"
           "**Bot message:** {}"
-        ).format(j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
+        ).format(j['enabled'], j['delete'], jw['state'], jw['message'] if len(jw['message']) <= 50 else jw['message'][:50] + "...", len(j['messages']), j['bot'],
                  prefix=ctx.prefix))
         emb.add_field(name="Leave", value=(
           "**Enabled:** {}\n"
@@ -192,6 +200,44 @@ class Welcome(getattr(commands, "Cog", object)):
        "").format(channel)
     )
 
+  @welcomeset.command(name='leave-channel')
+  async def welcomeset_leave_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+    """Sets the channel to be used for leave_channel event notices."""
+
+    if not self.__can_speak_in(channel):
+      await ctx.send(
+        ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+         "").format(channel)
+      )
+      return
+
+    guild = ctx.guild
+    await self.config.guild(guild).leave_channel.set(channel.id)
+
+    await ctx.send(
+      ("I will now send leave event notices to {0.mention}."
+       "").format(channel)
+    )
+
+  @welcomeset.command(name='ban-channel')
+  async def welcomeset_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+    """Sets the channel to be used for event notices."""
+
+    if not self.__can_speak_in(channel):
+      await ctx.send(
+        ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+         "").format(channel)
+      )
+      return
+
+    guild = ctx.guild
+    await self.config.guild(guild).ban_channel.set(channel.id)
+
+    await ctx.send(
+      ("I will now send ban/unban event notices to {0.mention}."
+       "").format(channel)
+    )
+
   @welcomeset.group(name='join')
   async def welcomeset_join(self, ctx: commands.Context):
     """Change settings for join notices."""
@@ -230,11 +276,12 @@ class Welcome(getattr(commands, "Cog", object)):
       off - no DM is sent
       only - only send a DM to the member, do not send a message to the channel
       both - send a DM to the member and a message to the channel
+      fall - send a DM to the member, if it fails send the whisper message to the channel instead
     """
 
     guild = ctx.guild
     whisper_type = choice.value
-    channel = await self.__get_channel(ctx.guild)
+    channel = await self.__get_channel(ctx.guild, "join")
 
     await self.config.guild(guild).join.whisper.state.set(whisper_type)
 
@@ -251,6 +298,11 @@ class Welcome(getattr(commands, "Cog", object)):
     elif choice == WhisperType.BOTH:
       await ctx.send(
         ("I will now send a DM to new members, as well as send a notice to {0.mention}."
+         "").format(channel)
+      )
+    elif choice == WhisperType.FALLBACK:
+      await ctx.send(
+        ("I will now send a DM to new members, and if that fails I will send the message to {0.mention}."
          "").format(channel)
       )
 
@@ -528,9 +580,15 @@ class Welcome(getattr(commands, "Cog", object)):
 
         whisper_type = await guild_settings.join.whisper.state()
         if whisper_type != 'off':
-          await self.__dm_user(member)
+          try:
+            await self.__dm_user(member)
+          except:
+            if whisper_type == 'fall':
+                message_format = await self.config.guild(member.guild).join.whisper.message()
+                await self.__handle_event(guild, member, 'join', message_format=message_format)
+                return
 
-          if whisper_type == 'only':
+          if whisper_type == 'only' or whisper_type == 'fall':
             # we're done here
             return
 
@@ -659,7 +717,7 @@ class Welcome(getattr(commands, "Cog", object)):
 
         if settings['delete'] and settings['last'] is not None:
           # we need to delete the previous message
-          await self.__delete_message(guild, settings['last'])
+          await self.__delete_message(guild, settings['last'], event)
           # regardless of success, remove reference to that message
           await guild_settings.get_attr(event).last.set(None)
 
@@ -668,7 +726,7 @@ class Welcome(getattr(commands, "Cog", object)):
         # store it for (possible) deletion later
         await guild_settings.get_attr(event).last.set(new_message and new_message.id)
 
-  async def __get_channel(self, guild: discord.Guild) -> discord.TextChannel:
+  async def __get_channel(self, guild: discord.Guild, event: str) -> discord.TextChannel:
     """Gets the best text channel to use for event notices.
 
     Order of priority:
@@ -679,7 +737,15 @@ class Welcome(getattr(commands, "Cog", object)):
 
     channel = None
 
-    channel_id = await self.config.guild(guild).channel()
+    if event == 'join':
+      channel_id = await self.config.guild(guild).channel()
+    elif event == 'leave':
+      channel_id = await self.config.guild(guild).leave_channel()
+    elif event == 'ban' or event == 'unban':
+      channel_id = await self.config.guild(guild).ban_channel()
+    else:
+      raise TypeError("Wrong event type in __get_channel.")
+
     if channel_id is not None:
       channel = guild.get_channel(channel_id)
 
@@ -719,11 +785,11 @@ class Welcome(getattr(commands, "Cog", object)):
     else:
       return int(msg.content)
 
-  async def __delete_message(self, guild: discord.Guild, message_id: int):
+  async def __delete_message(self, guild: discord.Guild, message_id: int, event: str):
     """Attempts to delete the message with the given ID."""
 
     try:
-      await (await (await self.__get_channel(guild)).fetch_message(message_id)).delete()
+      await (await (await self.__get_channel(guild, event)).fetch_message(message_id)).delete()
     except discord.NotFound:
       log.warning(
         ("Failed to delete message (ID {}): not found"
@@ -751,7 +817,7 @@ class Welcome(getattr(commands, "Cog", object)):
     if count and count != 1:
       plural = 's'
 
-    channel = await self.__get_channel(guild)
+    channel = await self.__get_channel(guild, event)
 
     try:
       return await channel.send(
@@ -803,11 +869,13 @@ class Welcome(getattr(commands, "Cog", object)):
         ("Failed to send DM to member ID {0.id} (server ID {1.id}): insufficient permissions"
          "").format(member, member.guild)
       )
+      raise WhisperError("Error.")
     except:
       log.error(
         ("Failed to send DM to member ID {0.id} (server ID {1.id})"
          "").format(member, member.guild)
       )
+      raise WhisperError("Error.")
 
   @staticmethod
   def __can_speak_in(channel: discord.TextChannel) -> bool:
