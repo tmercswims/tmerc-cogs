@@ -33,13 +33,12 @@ class Welcome(getattr(commands, "Cog", object)):
   guild_defaults = {
     'enabled': False,
     'channel': None,
-    'leave_channel': None,
-    'ban_channel': None,
     'date': None,
     'join': {
       'enabled': True,
       'delete': False,
       'last': None,
+      'channel': None,
       'counter': 0,
       'whisper': {
         'state': 'off',
@@ -51,18 +50,21 @@ class Welcome(getattr(commands, "Cog", object)):
     'leave': {
       'enabled': True,
       'delete': False,
+      'channel': None,
       'last': None,
       'messages': [default_leave],
     },
     'ban': {
       'enabled': True,
       'delete': False,
+      'channel': None,
       'last': None,
       'messages': [default_ban],
     },
     'unban': {
       'enabled': True,
       'delete': False,
+      'channel': None,
       'last': None,
       'messages': [default_unban],
     }
@@ -85,9 +87,11 @@ class Welcome(getattr(commands, "Cog", object)):
       guild = ctx.guild
       c = await self.config.guild(guild).all()
 
-      channel = await self.__get_channel(ctx.guild, "join")
-      leave_channel = await self.__get_channel(ctx.guild, "leave")
-      ban_channel = await self.__get_channel(ctx.guild, "ban")
+      channel = await self.__get_channel(guild, "default")
+      join_channel = await self.__get_channel(guild, "join")
+      leave_channel = await self.__get_channel(guild, "leave")
+      ban_channel = await self.__get_channel(guild, "ban")
+      unban_channel = await self.__get_channel(guild, "unban")
 
       j = c['join']
       jw = j['whisper']
@@ -99,34 +103,36 @@ class Welcome(getattr(commands, "Cog", object)):
         emb = discord.Embed(color=await ctx.embed_color(), title="Current Welcome Settings")
         emb.add_field(name="General", value=(
           "**Enabled:** {}\n"
-          "**Channel:** #{}\n"
-          "**Leave Channel:** #{}\n"
-          "**Ban/Unban Channel:** #{}\n"
-        ).format(c['enabled'], channel, leave_channel, ban_channel))
+          "**Channel:** #{}\n."
+        ).format(c['enabled'], channel))
         emb.add_field(name="Join", value=(
           "**Enabled:** {}\n"
+          "**Channel:** {}\n"
           "**Delete previous:** {}\n"
           "**Whisper state:** {}\n"
           "**Whisper message:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset join msg list` for a list\n"
           "**Bot message:** {}"
-        ).format(j['enabled'], j['delete'], jw['state'], jw['message'] if len(jw['message']) <= 50 else jw['message'][:50] + "...", len(j['messages']), j['bot'],
+        ).format(j['enabled'], join_channel, j['delete'], jw['state'], jw['message'] if len(jw['message']) <= 50 else jw['message'][:50] + "...", len(j['messages']), j['bot'],
                  prefix=ctx.prefix))
         emb.add_field(name="Leave", value=(
           "**Enabled:** {}\n"
+          "**Channel:** {}\n"
           "**Delete previous:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset leave msg list` for a list\n"
-        ).format(v['enabled'], v['delete'], len(v['messages']), prefix=ctx.prefix))
+        ).format(v['enabled'], leave_channel, v['delete'], len(v['messages']), prefix=ctx.prefix))
         emb.add_field(name="Ban", value=(
           "**Enabled:** {}\n"
+          "**Channel:** {}\n"
           "**Delete previous:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset ban msg list` for a list\n"
-        ).format(b['enabled'], b['delete'], len(b['messages']), prefix=ctx.prefix))
+        ).format(b['enabled'], ban_channel, b['delete'], len(b['messages']), prefix=ctx.prefix))
         emb.add_field(name="Unban", value=(
           "**Enabled:** {}\n"
+          "**Channel:** {}\n"
           "**Delete previous:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset unban msg list` for a list\n"
-        ).format(u['enabled'], u['delete'], len(u['messages']), prefix=ctx.prefix))
+        ).format(u['enabled'], unban_channel, u['delete'], len(u['messages']), prefix=ctx.prefix))
 
         await ctx.send(embed=emb)
       else:
@@ -135,6 +141,7 @@ class Welcome(getattr(commands, "Cog", object)):
            "  Channel: {}\n"
            "  Join:\n"
            "    Enabled: {}\n"
+           "    Channel: {}\n"
            "    Delete previous: {}\n"
            "    Whisper:\n"
            "      State: {}\n"
@@ -143,21 +150,24 @@ class Welcome(getattr(commands, "Cog", object)):
            "    Bot message: {}\n"
            "  Leave:\n"
            "    Enabled: {}\n"
+           "    Channel: {}\n"
            "    Delete previous: {}\n"
            "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
            "  Ban:\n"
            "    Enabled: {}\n"
+           "    Channel: {}\n"
            "    Delete previous: {}\n"
            "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
            "  Unban:\n"
            "    Enabled: {}\n"
+           "    Channel: {}\n"
            "    Delete previous: {}\n"
            "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n"
            "").format(c['enabled'], channel,
-                      j['enabled'], j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
-                      v['enabled'], v['delete'], len(v['messages']),
-                      b['enabled'], b['delete'], len(b['messages']),
-                      u['enabled'], u['delete'], len(u['messages']),
+                      j['enabled'], join_channel, j['delete'], jw['state'], jw['message'], len(j['messages']), j['bot'],
+                      v['enabled'], leave_channel, v['delete'], len(v['messages']),
+                      b['enabled'], ban_channel, b['delete'], len(b['messages']),
+                      u['enabled'], unban_channel, u['delete'], len(u['messages']),
                       prefix=ctx.prefix),
           "Current Welcome settings:"
         )
@@ -197,44 +207,6 @@ class Welcome(getattr(commands, "Cog", object)):
 
     await ctx.send(
       ("I will now send event notices to {0.mention}."
-       "").format(channel)
-    )
-
-  @welcomeset.command(name='leave-channel')
-  async def welcomeset_leave_channel(self, ctx: commands.Context, channel: discord.TextChannel):
-    """Sets the channel to be used for leave_channel event notices."""
-
-    if not self.__can_speak_in(channel):
-      await ctx.send(
-        ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
-         "").format(channel)
-      )
-      return
-
-    guild = ctx.guild
-    await self.config.guild(guild).leave_channel.set(channel.id)
-
-    await ctx.send(
-      ("I will now send leave event notices to {0.mention}."
-       "").format(channel)
-    )
-
-  @welcomeset.command(name='ban-channel')
-  async def welcomeset_channel(self, ctx: commands.Context, channel: discord.TextChannel):
-    """Sets the channel to be used for event notices."""
-
-    if not self.__can_speak_in(channel):
-      await ctx.send(
-        ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
-         "").format(channel)
-      )
-      return
-
-    guild = ctx.guild
-    await self.config.guild(guild).ban_channel.set(channel.id)
-
-    await ctx.send(
-      ("I will now send ban/unban event notices to {0.mention}."
        "").format(channel)
     )
 
@@ -386,6 +358,26 @@ class Welcome(getattr(commands, "Cog", object)):
          "")
       )
 
+  @welcomeset_join.command(name='channel')
+  async def welcomeset_join_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+      """Set channel for join notices
+
+      If not set, join notices are sent to the default events channel.
+      """
+      if not self.__can_speak_in(channel):
+        await ctx.send(
+          ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+           "").format(channel)
+        )
+        return
+
+      await self.config.guild(ctx.guild).join.channel.set(channel.id)
+
+      await ctx.send(
+        ("I will now send join event notices to {0.mention}."
+         "").format(channel)
+      )
+
   @welcomeset.group(name='leave')
   async def welcomeset_leave(self, ctx: commands.Context):
     """Change settings for leave notices."""
@@ -409,6 +401,26 @@ class Welcome(getattr(commands, "Cog", object)):
     """
 
     await self.__toggledelete(ctx, on_off, 'leave')
+
+  @welcomeset_leave.command(name='channel')
+  async def welcomeset_leave_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+      """Set channel for leave notices
+
+      If not set, leave notices are sent to the default events channel.
+      """
+      if not self.__can_speak_in(channel):
+        await ctx.send(
+          ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+           "").format(channel)
+        )
+        return
+
+      await self.config.guild(ctx.guild).leave.channel.set(channel.id)
+
+      await ctx.send(
+        ("I will now send leave event notices to {0.mention}."
+         "").format(channel)
+      )
 
   @welcomeset_leave.group(name='msg')
   async def welcomeset_leave_msg(self, ctx: commands.Context):
@@ -468,6 +480,26 @@ class Welcome(getattr(commands, "Cog", object)):
 
     await self.__toggledelete(ctx, on_off, 'ban')
 
+  @welcomeset_ban.command(name='channel')
+  async def welcomeset_ban_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+      """Set channel for ban notices
+
+      If not set, ban notices are sent to the default events channel.
+      """
+      if not self.__can_speak_in(channel):
+        await ctx.send(
+          ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+           "").format(channel)
+        )
+        return
+
+      await self.config.guild(ctx.guild).ban.channel.set(channel.id)
+
+      await ctx.send(
+        ("I will now send ban event notices to {0.mention}."
+         "").format(channel)
+      )
+
   @welcomeset_ban.group(name='msg')
   async def welcomeset_ban_msg(self, ctx: commands.Context):
     """Manage ban message formats."""
@@ -525,6 +557,26 @@ class Welcome(getattr(commands, "Cog", object)):
     """
 
     await self.__toggledelete(ctx, on_off, 'unban')
+
+  @welcomeset_unban.command(name='channel')
+  async def welcomeset_unban_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+      """Set channel for unban notices
+
+      If not set, unban notices are sent to the default events channel.
+      """
+      if not self.__can_speak_in(channel):
+        await ctx.send(
+          ("I do not have permission to send messages in {0.mention}. Check your permission settings and try again."
+           "").format(channel)
+        )
+        return
+
+      await self.config.guild(ctx.guild).unban.channel.set(channel.id)
+
+      await ctx.send(
+        ("I will now send unban event notices to {0.mention}."
+         "").format(channel)
+      )
 
   @welcomeset_unban.group(name='msg')
   async def welcomeset_unban_msg(self, ctx: commands.Context):
@@ -730,23 +782,32 @@ class Welcome(getattr(commands, "Cog", object)):
     """Gets the best text channel to use for event notices.
 
     Order of priority:
-    1. User-defined channel
-    2. Guild's system channel (if bot can speak in it)
-    3. First channel that the bot can speak in
+    1. User-defined channel for event
+    2. Cog-defined channel for all events
+    3. Guild's system channel (if bot can speak in it)
+    4. First channel that the bot can speak in
     """
 
     channel = None
 
     if event == 'join':
-      channel_id = await self.config.guild(guild).channel()
+      channel_id = await self.config.guild(guild).join.channel()
     elif event == 'leave':
-      channel_id = await self.config.guild(guild).leave_channel()
-    elif event == 'ban' or event == 'unban':
-      channel_id = await self.config.guild(guild).ban_channel()
+      channel_id = await self.config.guild(guild).leave.channel()
+    elif event == 'ban':
+      channel_id = await self.config.guild(guild).ban.channel()
+    elif event == 'unban':
+      channel_id = await self.config.guild(guild).unban.channel()
+    elif event == 'default':
+      channel_id = await self.config.guild(guild).channel()
     else:
       raise TypeError("Wrong event type in __get_channel.")
 
     if channel_id is not None:
+      channel = guild.get_channel(channel_id)
+
+    if channel is None or not self.__can_speak_in(channel):
+      channel_id = await self.config.guild(guild).channel()
       channel = guild.get_channel(channel_id)
 
     if channel is None or not self.__can_speak_in(channel):
