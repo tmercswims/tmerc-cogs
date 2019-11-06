@@ -9,6 +9,7 @@ from redbot.core import Config, commands, checks
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box, pagify
 
+from .errors import WhisperError
 from .enums import WhisperType
 
 __author__ = "tmerc"
@@ -18,8 +19,6 @@ log = logging.getLogger('red.tmerc.welcome')
 ENABLED = 'enabled'
 DISABLED = 'disabled'
 
-class WhisperError(Exception):
-    pass
 
 class Welcome(getattr(commands, "Cog", object)):
   """Announce when users join or leave a server."""
