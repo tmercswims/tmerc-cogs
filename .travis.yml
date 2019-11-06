@@ -1,6 +1,10 @@
 language: python
 cache: pip
 
+branches:
+  only:
+    - v3
+
 notifications:
   email:
     on_success: change
