@@ -96,6 +96,7 @@ class Welcome(getattr(commands, "Cog", object)):
           "**Enabled:** {}\n"
           "**Channel:** #{}\n"
         ).format(c['enabled'], channel))
+        whisper_message = jw['message'] if len(jw['message']) <= 50 else jw['message'][:50] + '...'
         emb.add_field(name="Join", value=(
           "**Enabled:** {}\n"
           "**Delete previous:** {}\n"
@@ -103,7 +104,7 @@ class Welcome(getattr(commands, "Cog", object)):
           "**Whisper message:** {}\n"
           "**Messages:** {}; do `{prefix}welcomeset join msg list` for a list\n"
           "**Bot message:** {}"
-        ).format(j['enabled'], j['delete'], jw['state'], jw['message'] if len(jw['message']) <= 50 else jw['message'][:50] + "...", len(j['messages']), j['bot'],
+        ).format(j['enabled'], j['delete'], jw['state'], whisper_message, len(j['messages']), j['bot'],
                  prefix=ctx.prefix))
         emb.add_field(name="Leave", value=(
           "**Enabled:** {}\n"
