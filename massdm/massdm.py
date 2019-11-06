@@ -1,45 +1,45 @@
 import logging
 
 import discord
-from redbot.core import commands, checks
+from redbot.core import checks, commands
 
 __author__ = "tmerc"
 
 log = logging.getLogger('red.tmerc.massdm')
 
 
-class MassDM(getattr(commands, "Cog", object)):
-  """Send a direct message to all members of the specified Role."""
+class MassDM(commands.Cog):
+    """Send a direct message to all members of the specified Role."""
 
-  def __init__(self):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-  @commands.command(aliases=['mdm'])
-  @commands.guild_only()
-  @checks.admin_or_permissions(manage_guild=True)
-  async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str):
-    """Sends a DM to all Members with the given Role.
+    @commands.command(aliases=['mdm'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str):
+        """Sends a DM to all Members with the given Role.
 
-    Allows for the following customizations:
-      `{member}` is the member being messaged
-      `{role}` is the role through which they are being messaged
-      `{server}` is the server through which they are being messaged
-      `{sender}` is you, the person sending the message
-    """
+        Allows for the following customizations:
+          `{member}` is the member being messaged
+          `{role}` is the role through which they are being messaged
+          `{server}` is the server through which they are being messaged
+          `{sender}` is you, the person sending the message
+        """
 
-    try:
-      await ctx.message.delete()
-    except discord.Forbidden:
-      log.warning("Failed to delete command message: insufficient permissions")
-    except:
-      log.warning("Failed to delete command message")
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            log.warning("Failed to delete command message: insufficient permissions")
+        except discord.DiscordException:
+            log.warning("Failed to delete command message")
 
-    for member in role.members:
-      try:
-        await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
-      except discord.Forbidden:
-        log.warning("Failed to DM user {0} (ID {0.id}): insufficient permissions".format(member))
-        continue
-      except:
-        log.warning("Failed to DM user {0} (ID {0.id})".format(member))
-        continue
+        for member in role.members:
+            try:
+                await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
+            except discord.Forbidden:
+                log.warning("Failed to DM user {0} (ID {0.id}): insufficient permissions".format(member))
+                continue
+            except discord.DiscordException:
+                log.warning("Failed to DM user {0} (ID {0.id})".format(member))
+                continue

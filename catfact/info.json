@@ -1,10 +1,18 @@
 {
-  "author" : ["tmerc"],
-  "install_msg": "Meow!",
-  "name" : "CatFact",
-  "short" : "Gets a random cat fact.",
-  "description" : "Gets a random cat fact.",
-  "requirements" : [],
-  "tags": ["catfact", "cat", "animals", "random", "fun"],
-  "hidden": false
+    "author": [
+        "tmerc"
+    ],
+    "install_msg": "Meow!",
+    "name": "CatFact",
+    "short": "Gets a random cat fact.",
+    "description": "Gets a random cat fact.",
+    "requirements": [],
+    "tags": [
+        "catfact",
+        "cat",
+        "animals",
+        "random",
+        "fun"
+    ],
+    "hidden": false
 }

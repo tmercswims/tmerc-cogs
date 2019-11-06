@@ -4,4 +4,4 @@ from .streamrole import StreamRole
 
 
 def setup(bot: Red):
-  bot.add_cog(StreamRole())
+    bot.add_cog(StreamRole())
