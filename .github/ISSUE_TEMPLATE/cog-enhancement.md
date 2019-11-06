@@ -1,5 +1,5 @@
 ---
-name: Cog enhancement
+name: Cog Enhancement
 about: Suggest an idea to make a cog better
 title: ''
 labels: enhancement
