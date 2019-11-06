@@ -13,4 +13,4 @@ install:
   - pip install black==19.10b0
 script:
   - python -m compileall .
-  - black --check -l 120 -N $(git ls-files "*.py")
+  - black --check -l 120 `git ls-files "*.py"`
