@@ -13,16 +13,13 @@ from .errors import MismatchedParenthesesException
 
 __author__ = "tmerc"
 
-log = logging.getLogger('red.tmerc.nestedcommands')
+log = logging.getLogger("red.tmerc.nestedcommands")
 
 
 class NestedCommands(commands.Cog):
     """Experimental cog that allows you to use the output of one command as the input of another."""
 
-    guild_defaults = {
-        'enabled': False,
-        'channel': None
-    }
+    guild_defaults = {"enabled": False, "channel": None}
 
     p = re.compile(r"\$\(.+\)")
 
@@ -35,7 +32,7 @@ class NestedCommands(commands.Cog):
 
         self.__init_before()
 
-    @commands.command(name='say')
+    @commands.command(name="say")
     async def say(self, ctx: commands.Context, *, message: str):
         """Says what you say."""
 
@@ -50,21 +47,19 @@ class NestedCommands(commands.Cog):
         if ctx.invoked_subcommand is None:
             config = await self.config.guild(ctx.guild).all()
 
-            enabled = config['enabled']
-            channel = config['channel']
+            enabled = config["enabled"]
+            channel = config["channel"]
             if channel is not None:
                 channel = get(ctx.guild.text_channels, id=channel)
 
             msg = box(
-                ("  Enabled: {}\n"
-                 "  Channel: {}\n"
-                 "").format(enabled, channel and channel.name),
-                "Current NestedCommands settings:"
+                "  Enabled: {}\n  Channel: {}\n".format(enabled, channel and channel.name),
+                "Current NestedCommands settings:",
             )
 
             await ctx.send(msg)
 
-    @ncset.command(name='toggle')
+    @ncset.command(name="toggle")
     async def ncset_toggle(self, ctx: commands.Context, on_off: bool = None):
         """Turns NestedCommand on or off.
 
@@ -79,8 +74,9 @@ class NestedCommands(commands.Cog):
         channel = await self.config.guild(guild).channel()
         if channel is None and target_state:
             await ctx.send(
-                ("You need to set a channel with `{}ncset channel` before you can enable NestedCommands."
-                 "").format(ctx.prefix)
+                "You need to set a channel with `{}ncset channel` before you can enable NestedCommands.".format(
+                    ctx.prefix
+                )
             )
             return
 
@@ -91,7 +87,7 @@ class NestedCommands(commands.Cog):
         else:
             await ctx.send("NestedCommands is now disabled.")
 
-    @ncset.command(name='channel')
+    @ncset.command(name="channel")
     async def ncset_channel(self, ctx: commands.Context, *, channel: discord.TextChannel):
         """Sets the channel which will be used to print the output of all inner commands.
 
@@ -104,9 +100,10 @@ class NestedCommands(commands.Cog):
         await self.config.guild(ctx.guild).channel.set(channel.id)
 
         await ctx.send(
-            ("Done. I will now use the channel {} for inner command outputs. "
-             "Ensure you also turn on NestedCommand with `{}ncset toggle`."
-             "").format(channel.mention, ctx.prefix)
+            (
+                "Done. I will now use the channel {} for inner command outputs. "
+                "Ensure you also turn on NestedCommand with `{}ncset toggle`."
+            ).format(channel.mention, ctx.prefix)
         )
 
     def __init_before(self):
@@ -124,9 +121,10 @@ class NestedCommands(commands.Cog):
 
                 if channel is None:
                     log.error(
-                        ("Failed to find channel with ID {} (server ID {}); "
-                         "this likely means that the channel has been deleted"
-                         "").format(channel_id, ctx.guild.id)
+                        (
+                            "Failed to find channel with ID {} (server ID {}); "
+                            "this likely means that the channel has been deleted"
+                        ).format(channel_id, ctx.guild.id)
                     )
                     return
 
@@ -134,8 +132,9 @@ class NestedCommands(commands.Cog):
                     top_level_commands = self.__get_top_level_commands(message.content)
                 except MismatchedParenthesesException as e:
                     log.error(
-                        ("Problem resolving nested commands (server ID {}, channel ID {}, message ID {}): {}"
-                         "").format(ctx.guild.id, ctx.channel.id, message.id, e.message)
+                        "Problem resolving nested commands (server ID {}, channel ID {}, message ID {}): {}".format(
+                            ctx.guild.id, ctx.channel.id, message.id, e.message
+                        )
                     )
                     return
 
@@ -144,7 +143,7 @@ class NestedCommands(commands.Cog):
                     inner_command = matched_text[2:-1]
 
                     new_message = copy(message)
-                    new_message.content = '{}{}'.format(ctx.prefix, inner_command)
+                    new_message.content = "{}{}".format(ctx.prefix, inner_command)
                     new_message.channel = channel
 
                     await ctx.bot.process_commands(new_message)
@@ -174,20 +173,20 @@ class NestedCommands(commands.Cog):
         ret = []
 
         depth = 0
-        current = ''
+        current = ""
         for i, c in enumerate(s):
-            if c == '$' and s[i + 1] == '(':
+            if c == "$" and s[i + 1] == "(":
                 depth += 1
 
             if depth > 0:
                 current += c
 
-            if c == ')':
+            if c == ")":
                 depth -= 1
 
-            if depth == 0 and current != '':
+            if depth == 0 and current != "":
                 ret.append(current)
-                current = ''
+                current = ""
 
         # if depth < 0:
         #   raise MismatchedParenthesesException(

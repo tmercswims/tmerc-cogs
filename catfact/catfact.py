@@ -6,7 +6,7 @@ from redbot.core import commands
 
 __author__ = "tmerc"
 
-log = logging.getLogger('red.tmerc.catfact')
+log = logging.getLogger("red.tmerc.catfact")
 
 
 class CatFact(commands.Cog):
@@ -15,7 +15,7 @@ class CatFact(commands.Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.__url = 'https://catfact.ninja/fact'
+        self.__url = "https://catfact.ninja/fact"
         self.__session = aiohttp.ClientSession()
 
     def cog_unload(self):
@@ -30,7 +30,7 @@ class CatFact(commands.Cog):
 
         try:
             async with self.__session.get(self.__url) as response:
-                fact = (await response.json())['fact']
+                fact = (await response.json())["fact"]
                 await ctx.send(fact)
         except aiohttp.ClientError:
             log.warning("API call failed; unable to get cat fact")

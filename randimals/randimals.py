@@ -9,7 +9,7 @@ from redbot.core import commands
 
 __author__ = "tmerc"
 
-log = logging.getLogger('red.tmerc.randimals')
+log = logging.getLogger("red.tmerc.randimals")
 
 
 class Randimals(commands.Cog):
@@ -30,7 +30,7 @@ class Randimals(commands.Cog):
 
         await ctx.trigger_typing()
 
-        url = 'https://random.dog/woof.json'
+        url = "https://random.dog/woof.json"
 
         try:
             async with self.__session.get(url) as response:
@@ -48,7 +48,7 @@ class Randimals(commands.Cog):
 
         await ctx.trigger_typing()
 
-        url = 'http://shibe.online/api/cats?count=1'
+        url = "http://shibe.online/api/cats?count=1"
 
         try:
             async with self.__session.get(url) as response:
@@ -66,7 +66,7 @@ class Randimals(commands.Cog):
 
         await ctx.trigger_typing()
 
-        url = 'https://wohlsoft.ru/images/foxybot/randomfox.php'
+        url = "https://wohlsoft.ru/images/foxybot/randomfox.php"
 
         try:
             async with self.__session.get(url) as response:
@@ -84,7 +84,7 @@ class Randimals(commands.Cog):
 
         await ctx.trigger_typing()
 
-        url = 'http://shibe.online/api/birds?count=1'
+        url = "http://shibe.online/api/birds?count=1"
 
         try:
             async with self.__session.get(url) as response:

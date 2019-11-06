@@ -5,7 +5,7 @@ from redbot.core import checks, commands
 
 __author__ = "tmerc"
 
-log = logging.getLogger('red.tmerc.massdm')
+log = logging.getLogger("red.tmerc.massdm")
 
 
 class MassDM(commands.Cog):
@@ -14,7 +14,7 @@ class MassDM(commands.Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @commands.command(aliases=['mdm'])
+    @commands.command(aliases=["mdm"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str):
