@@ -1,0 +1,16 @@
+language: python
+cache: pip
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+
+python:
+  - "3.7"
+  - "3.8"
+install:
+  - pip install black==19.10b0
+script:
+  - python -m compileall .
+  - black --check -l 120 -N `git ls-files "*.py"`
