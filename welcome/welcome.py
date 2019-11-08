@@ -34,6 +34,7 @@ class Welcome(commands.Cog):
         "date": None,
         "join": {
             "enabled": True,
+            "channel": None,
             "delete": False,
             "last": None,
             "counter": 0,
@@ -41,9 +42,9 @@ class Welcome(commands.Cog):
             "messages": [default_join],
             "bot": None,
         },
-        "leave": {"enabled": True, "delete": False, "last": None, "messages": [default_leave]},
-        "ban": {"enabled": True, "delete": False, "last": None, "messages": [default_ban]},
-        "unban": {"enabled": True, "delete": False, "last": None, "messages": [default_unban]},
+        "leave": {"enabled": True, "channel": None, "delete": False, "last": None, "messages": [default_leave]},
+        "ban": {"enabled": True, "channel": None, "delete": False, "last": None, "messages": [default_ban]},
+        "unban": {"enabled": True, "channel": None, "delete": False, "last": None, "messages": [default_unban]},
     }
 
     def __init__(self, *args, **kwargs):
@@ -64,7 +65,11 @@ class Welcome(commands.Cog):
             guild = ctx.guild
             c = await self.config.guild(guild).all()
 
-            channel = await self.__get_channel(ctx.guild)
+            channel = await self.__get_channel(guild, "default")
+            join_channel = await self.__get_channel(guild, "join")
+            leave_channel = await self.__get_channel(guild, "leave")
+            ban_channel = await self.__get_channel(guild, "ban")
+            unban_channel = await self.__get_channel(guild, "unban")
 
             j = c["join"]
             jw = j["whisper"]
@@ -75,13 +80,14 @@ class Welcome(commands.Cog):
             if await ctx.embed_requested():
                 emb = discord.Embed(color=await ctx.embed_color(), title="Current Welcome Settings")
                 emb.add_field(
-                    name="General", value="**Enabled:** {}\n**Channel:** #{}\n".format(c["enabled"], channel),
+                    name="General", value="**Enabled:** {}\n**Channel:** {}\n".format(c["enabled"], channel.mention),
                 )
                 whisper_message = jw["message"] if len(jw["message"]) <= 50 else jw["message"][:50] + "..."
                 emb.add_field(
                     name="Join",
                     value=(
                         "**Enabled:** {}\n"
+                        "**Channel:** {}\n"
                         "**Delete previous:** {}\n"
                         "**Whisper state:** {}\n"
                         "**Whisper message:** {}\n"
@@ -89,6 +95,7 @@ class Welcome(commands.Cog):
                         "**Bot message:** {}"
                     ).format(
                         j["enabled"],
+                        join_channel.mention,
                         j["delete"],
                         jw["state"],
                         whisper_message,
@@ -101,70 +108,78 @@ class Welcome(commands.Cog):
                     name="Leave",
                     value=(
                         "**Enabled:** {}\n"
+                        "**Channel:** {}\n"
                         "**Delete previous:** {}\n"
                         "**Messages:** {}; do `{prefix}welcomeset leave msg list` for a list\n"
-                    ).format(v["enabled"], v["delete"], len(v["messages"]), prefix=ctx.prefix),
+                    ).format(v["enabled"], leave_channel.mention, v["delete"], len(v["messages"]), prefix=ctx.prefix),
                 )
                 emb.add_field(
                     name="Ban",
                     value=(
                         "**Enabled:** {}\n"
+                        "**Channel:** {}\n"
                         "**Delete previous:** {}\n"
                         "**Messages:** {}; do `{prefix}welcomeset ban msg list` for a list\n"
-                    ).format(b["enabled"], b["delete"], len(b["messages"]), prefix=ctx.prefix),
+                    ).format(b["enabled"], ban_channel.mention, b["delete"], len(b["messages"]), prefix=ctx.prefix),
                 )
                 emb.add_field(
                     name="Unban",
                     value=(
                         "**Enabled:** {}\n"
+                        "**Channel:** {}\n"
                         "**Delete previous:** {}\n"
                         "**Messages:** {}; do `{prefix}welcomeset unban msg list` for a list\n"
-                    ).format(u["enabled"], u["delete"], len(u["messages"]), prefix=ctx.prefix),
+                    ).format(u["enabled"], unban_channel.mention, u["delete"], len(u["messages"]), prefix=ctx.prefix),
                 )
 
                 await ctx.send(embed=emb)
             else:
                 msg = box(
-                    (
-                        "  Enabled: {}\n"
-                        "  Channel: {}\n"
-                        "  Join:\n"
-                        "    Enabled: {}\n"
-                        "    Delete previous: {}\n"
-                        "    Whisper:\n"
-                        "      State: {}\n"
-                        "      Message: {}\n"
-                        "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
-                        "    Bot message: {}\n"
-                        "  Leave:\n"
-                        "    Enabled: {}\n"
-                        "    Delete previous: {}\n"
-                        "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
-                        "  Ban:\n"
-                        "    Enabled: {}\n"
-                        "    Delete previous: {}\n"
-                        "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
-                        "  Unban:\n"
-                        "    Enabled: {}\n"
-                        "    Delete previous: {}\n"
-                        "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n"
-                        ""
-                    ).format(
+                    "  Enabled: {}\n"
+                    "  Channel: {}\n"
+                    "  Join:\n"
+                    "    Enabled: {}\n"
+                    "    Channel: {}\n"
+                    "    Delete previous: {}\n"
+                    "    Whisper:\n"
+                    "      State: {}\n"
+                    "      Message: {}\n"
+                    "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
+                    "    Bot message: {}\n"
+                    "  Leave:\n"
+                    "    Enabled: {}\n"
+                    "    Channel: {}\n"
+                    "    Delete previous: {}\n"
+                    "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
+                    "  Ban:\n"
+                    "    Enabled: {}\n"
+                    "    Channel: {}\n"
+                    "    Delete previous: {}\n"
+                    "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
+                    "  Unban:\n"
+                    "    Enabled: {}\n"
+                    "    Channel: {}\n"
+                    "    Delete previous: {}\n"
+                    "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n".format(
                         c["enabled"],
                         channel,
                         j["enabled"],
+                        join_channel,
                         j["delete"],
                         jw["state"],
                         jw["message"],
                         len(j["messages"]),
                         j["bot"],
                         v["enabled"],
+                        leave_channel,
                         v["delete"],
                         len(v["messages"]),
                         b["enabled"],
+                        ban_channel,
                         b["delete"],
                         len(b["messages"]),
                         u["enabled"],
+                        unban_channel,
                         u["delete"],
                         len(u["messages"]),
                         prefix=ctx.prefix,
@@ -222,6 +237,15 @@ class Welcome(commands.Cog):
 
         await self.__toggle(ctx, on_off, "join")
 
+    @welcomeset_join.command(name="channel")
+    async def welcomeset_join_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
+        """Sets the channel to be used specifically for join notices.
+
+        If `channel` is not provided, the join-specific channel is cleared.
+        """
+
+        await self.__set_channel(ctx, channel, "join")
+
     @welcomeset_join.command(name="toggledelete")
     async def welcomeset_join_toggledelete(self, ctx: commands.Context, on_off: bool = None):
         """Turns deletion of previous join notice on or off.
@@ -250,7 +274,7 @@ class Welcome(commands.Cog):
 
         guild = ctx.guild
         whisper_type = choice.value
-        channel = await self.__get_channel(ctx.guild)
+        channel = await self.__get_channel(ctx.guild, "join")
 
         await self.config.guild(guild).join.whisper.state.set(whisper_type)
 
@@ -355,6 +379,15 @@ class Welcome(commands.Cog):
 
         await self.__toggle(ctx, on_off, "leave")
 
+    @welcomeset_leave.command(name="channel")
+    async def welcomeset_leave_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
+        """Sets the channel to be used specifically for leave notices.
+
+        If `channel` is not provided, the leave-specific channel is cleared.
+        """
+
+        await self.__set_channel(ctx, channel, "leave")
+
     @welcomeset_leave.command(name="toggledelete")
     async def welcomeset_leave_toggledelete(self, ctx: commands.Context, on_off: bool = None):
         """Turns deletion of previous leave notice on or off.
@@ -413,6 +446,15 @@ class Welcome(commands.Cog):
 
         await self.__toggle(ctx, on_off, "ban")
 
+    @welcomeset_ban.command(name="channel")
+    async def welcomeset_ban_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
+        """Sets the channel to be used specifically for ban notices.
+
+        If `channel` is not provided, the ban-specific channel is cleared.
+        """
+
+        await self.__set_channel(ctx, channel, "ban")
+
     @welcomeset_ban.command(name="toggledelete")
     async def welcomeset_ban_toggledelete(self, ctx: commands.Context, on_off: bool = None):
         """Turns deletion of previous ban notice on or off.
@@ -470,6 +512,15 @@ class Welcome(commands.Cog):
         """
 
         await self.__toggle(ctx, on_off, "unban")
+
+    @welcomeset_unban.command(name="channel")
+    async def welcomeset_unban_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
+        """Sets the channel to be used specifically for unban notices.
+
+        If `channel` is not provided, the unban-specific channel is cleared.
+        """
+
+        await self.__set_channel(ctx, channel, "unban")
 
     @welcomeset_unban.command(name="toggledelete")
     async def welcomeset_unban_toggledelete(self, ctx: commands.Context, on_off: bool = None):
@@ -580,6 +631,23 @@ class Welcome(commands.Cog):
 
         await ctx.send("{} notices are now {}.".format(event.capitalize(), ENABLED if target_state else DISABLED))
 
+    async def __set_channel(self, ctx: commands.Context, channel: discord.TextChannel, event: str):
+        """Handler for setting channels."""
+
+        guild = ctx.guild
+
+        store_this = channel.id if channel is not None else None
+
+        await self.config.guild(guild).get_attr(event).channel.set(store_this)
+
+        if store_this is not None:
+            await ctx.send("I will now send {0} notices to {1.mention}.".format(event, channel))
+        else:
+            default_channel = await self.__get_channel(guild, "default")
+            await ctx.send(
+                "I will now send {0} messages to the default channel, {1.mention}.".format(event, default_channel)
+            )
+
     async def __toggledelete(self, ctx: commands.Context, on_off: bool, event: str):
         """Handler for setting delete toggles."""
 
@@ -650,7 +718,7 @@ class Welcome(commands.Cog):
 
                 if settings["delete"] and settings["last"] is not None:
                     # we need to delete the previous message
-                    await self.__delete_message(guild, settings["last"])
+                    await self.__delete_message(guild, settings["last"], event)
                     # regardless of success, remove reference to that message
                     await guild_settings.get_attr(event).last.set(None)
 
@@ -659,7 +727,7 @@ class Welcome(commands.Cog):
                 # store it for (possible) deletion later
                 await guild_settings.get_attr(event).last.set(new_message and new_message.id)
 
-    async def __get_channel(self, guild: discord.Guild) -> discord.TextChannel:
+    async def __get_channel(self, guild: discord.Guild, event: str) -> discord.TextChannel:
         """Gets the best text channel to use for event notices.
 
         Order of priority:
@@ -670,9 +738,16 @@ class Welcome(commands.Cog):
 
         channel = None
 
-        channel_id = await self.config.guild(guild).channel()
+        if event == "default":
+            channel_id = await self.config.guild(guild).channel()
+        else:
+            channel_id = await self.config.guild(guild).get_attr(event).channel()
+
         if channel_id is not None:
             channel = guild.get_channel(channel_id)
+
+        if channel is None or not self.__can_speak_in(channel):
+            channel = guild.get_channel(await self.config.guild(guild).channel())
 
         if channel is None or not self.__can_speak_in(channel):
             channel = guild.system_channel
@@ -685,11 +760,11 @@ class Welcome(commands.Cog):
 
         return channel
 
-    async def __delete_message(self, guild: discord.Guild, message_id: int):
+    async def __delete_message(self, guild: discord.Guild, message_id: int, event: str):
         """Attempts to delete the message with the given ID."""
 
         try:
-            await (await (await self.__get_channel(guild)).fetch_message(message_id)).delete()
+            await (await (await self.__get_channel(guild, event)).fetch_message(message_id)).delete()
         except discord.NotFound:
             log.warning("Failed to delete message (ID {}): not found".format(message_id))
         except discord.Forbidden:
@@ -709,7 +784,7 @@ class Welcome(commands.Cog):
         if count and count != 1:
             plural = "s"
 
-        channel = await self.__get_channel(guild)
+        channel = await self.__get_channel(guild, event)
 
         try:
             return await channel.send(
