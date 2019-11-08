@@ -4,4 +4,4 @@ from .massdm import MassDM
 
 
 def setup(bot: Red):
-  bot.add_cog(MassDM())
+    bot.add_cog(MassDM())

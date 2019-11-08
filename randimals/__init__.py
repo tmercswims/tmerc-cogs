@@ -4,4 +4,4 @@ from .randimals import Randimals
 
 
 def setup(bot: Red):
-  bot.add_cog(Randimals())
+    bot.add_cog(Randimals())

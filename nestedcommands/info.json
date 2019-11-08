@@ -1,9 +1,16 @@
 {
-  "author" : ["tmerc"],
-  "install_msg" : "Thanks for installing!\nThis cog is considered _extremely_ experimental, use at your own risk!",
-  "name" : "NestedCommands",
-  "short" : "Nest commands together.",
-  "description" : "Experimental cog that allows you to use the output of one command as the input of another.",
-  "requirements" : [],
-  "tags": ["subcommand", "experimental", "tools", "utility"]
+    "author": [
+        "tmerc"
+    ],
+    "install_msg": "Thanks for installing!\nThis cog is considered _extremely_ experimental, use at your own risk!",
+    "name": "NestedCommands",
+    "short": "Nest commands together.",
+    "description": "Experimental cog that allows you to use the output of one command as the input of another.",
+    "requirements": [],
+    "tags": [
+        "subcommand",
+        "experimental",
+        "tools",
+        "utility"
+    ]
 }

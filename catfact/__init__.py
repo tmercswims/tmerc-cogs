@@ -4,4 +4,4 @@ from .catfact import CatFact
 
 
 def setup(bot: Red):
-  bot.add_cog(CatFact())
+    bot.add_cog(CatFact())

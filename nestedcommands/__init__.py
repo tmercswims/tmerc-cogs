@@ -4,4 +4,4 @@ from .nestedcommands import NestedCommands
 
 
 def setup(bot: Red):
-  bot.add_cog(NestedCommands(bot))
+    bot.add_cog(NestedCommands(bot))
