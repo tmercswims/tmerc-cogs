@@ -1,4 +1,4 @@
 format:
 	black -l 120 `git ls-files "*.py"`
-check:
+checkstyle:
 	black --check -l 120 `git ls-files "*.py"`
