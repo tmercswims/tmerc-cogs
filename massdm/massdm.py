@@ -34,7 +34,7 @@ class MassDM(commands.Cog):
         except discord.DiscordException:
             log.warning("Failed to delete command message")
 
-        for member in role.members:
+        for member in [m for m in role.members if not m.bot]:
             try:
                 await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
             except discord.Forbidden:
