@@ -80,11 +80,14 @@ class Welcome(commands.Cog):
             if await ctx.embed_requested():
                 emb = discord.Embed(color=await ctx.embed_color(), title="Current Welcome Settings")
                 emb.add_field(
-                    name="General", value="**Enabled:** {}\n**Channel:** {}\n".format(c["enabled"], channel.mention),
+                    name="General",
+                    inline=False,
+                    value="**Enabled:** {}\n**Channel:** {}\n".format(c["enabled"], channel.mention),
                 )
                 whisper_message = jw["message"] if len(jw["message"]) <= 50 else jw["message"][:50] + "..."
                 emb.add_field(
                     name="Join",
+                    inline=False,
                     value=(
                         "**Enabled:** {}\n"
                         "**Channel:** {}\n"
@@ -106,6 +109,7 @@ class Welcome(commands.Cog):
                 )
                 emb.add_field(
                     name="Leave",
+                    inline=False,
                     value=(
                         "**Enabled:** {}\n"
                         "**Channel:** {}\n"
@@ -115,6 +119,7 @@ class Welcome(commands.Cog):
                 )
                 emb.add_field(
                     name="Ban",
+                    inline=False,
                     value=(
                         "**Enabled:** {}\n"
                         "**Channel:** {}\n"
@@ -124,6 +129,7 @@ class Welcome(commands.Cog):
                 )
                 emb.add_field(
                     name="Unban",
+                    inline=False,
                     value=(
                         "**Enabled:** {}\n"
                         "**Channel:** {}\n"
@@ -184,7 +190,7 @@ class Welcome(commands.Cog):
                         len(u["messages"]),
                         prefix=ctx.prefix,
                     ),
-                    "Current Welcome settings:",
+                    "Current Welcome Settings",
                 )
 
                 await ctx.send(msg)
