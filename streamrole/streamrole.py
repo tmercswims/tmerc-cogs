@@ -48,18 +48,28 @@ class StreamRole(commands.Cog):
                 promote_from = get(ctx.guild.roles, id=promote_from)
             lax_promote = config["lax_promote"]
 
-            msg = box(
-                (
+            if await ctx.embed_requested():
+                emb = discord.Embed(color=await ctx.embed_color(), title="Current StreamRole Settings")
+                emb.add_field(name="Enabled", value=enabled)
+                emb.add_field(name="Streaming Role", value=(role and role.name))
+                emb.add_field(name="Only Promote Members With Prerequisite Role", value=promote)
+                emb.add_field(name="Promotion Prerequisite Role", value=(promote_from and promote_from.name))
+                emb.add_field(name="Promote from Prerequisite and Above", value=lax_promote)
+
+                await ctx.send(embed=emb)
+            else:
+                msg = box(
                     "  Enabled: {}\n"
                     "  Streaming role: {}\n"
                     "  Only promote members with prerequisite role: {}\n"
                     "  Promotion prerequisite role: {}\n"
-                    "  Promote from prerequisite and above: {}"
-                ).format(enabled, role and role.name, promote, promote_from and promote_from.name, lax_promote),
-                "Current StreamRole settings:",
-            )
+                    "  Promote from prerequisite and above: {}".format(
+                        enabled, role and role.name, promote, promote_from and promote_from.name, lax_promote
+                    ),
+                    "Current StreamRole Settings",
+                )
 
-            await ctx.send(msg)
+                await ctx.send(msg)
 
     @streamroleset.command(name="toggle")
     async def streamroleset_toggle(self, ctx: commands.Context, on_off: bool = None):
