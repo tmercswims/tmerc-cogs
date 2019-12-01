@@ -3,6 +3,7 @@ import logging
 from random import choice
 
 import aiohttp
+import discord
 from redbot.core import commands
 
 __author__ = "tmerc"
@@ -177,7 +178,7 @@ class Lenny(commands.Cog):
                 # grab the face
                 lenny = (await response.json())[0]["face"]
                 # escape markdown characters
-                lenny = lenny.replace("*", "\*").replace("`", "\`").replace("_", "\_").replace("~", "\~")
+                lenny = discord.utils.escape_markdown(lenny)
         # if the API call fails, make a (more limited) lenny locally instead
         except aiohttp.ClientError:
             log.warning("API call failed; falling back to local lenny")
