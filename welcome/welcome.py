@@ -74,7 +74,7 @@ class Welcome(commands.Cog):
         self.config = Config.get_conf(self, 86345009)
         self.config.register_guild(**self.guild_defaults)
 
-    @commands.group()
+    @commands.group(aliases=["welcome"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def welcomeset(self, ctx: commands.Context) -> None:
@@ -282,8 +282,8 @@ class Welcome(commands.Cog):
                 f"I will now send a DM to new members, and if that fails I will send the message to {channel.mention}."
             )
 
-    @welcomeset_join_whisper.command(name="msg")
-    async def welcomeset_join_whisper_msg(self, ctx: commands.Context, *, msg_format: str) -> None:
+    @welcomeset_join_whisper.command(name="message", aliases=["msg"])
+    async def welcomeset_join_whisper_message(self, ctx: commands.Context, *, msg_format: str) -> None:
         """Set the message DM'd to new members when they join.
 
         Allows for the following customizations:
@@ -295,14 +295,14 @@ class Welcome(commands.Cog):
 
         await ctx.send("I will now use that message format when whispering new members, if whisper is enabled.")
 
-    @welcomeset_join.group(name="msg")
-    async def welcomeset_join_msg(self, ctx: commands.Context) -> None:
+    @welcomeset_join.group(name="message", aliases=["msg"])
+    async def welcomeset_join_message(self, ctx: commands.Context) -> None:
         """Manage join message formats."""
 
         pass
 
-    @welcomeset_join_msg.command(name="add")
-    async def welcomeset_join_msg_add(self, ctx: commands.Context, *, msg_format: str) -> None:
+    @welcomeset_join_message.command(name="add")
+    async def welcomeset_join_message_add(self, ctx: commands.Context, *, msg_format: str) -> None:
         """Add a new join message format to be chosen.
 
         Allows for the following customizations:
@@ -317,22 +317,22 @@ class Welcome(commands.Cog):
           Someone new has joined! Who is it?! D: IS HE HERE TO HURT US?!
         """
 
-        await self.__msg_add(ctx, msg_format, "join")
+        await self.__message_add(ctx, msg_format, "join")
 
-    @welcomeset_join_msg.command(name="del")
-    async def welcomeset_join_msg_del(self, ctx: commands.Context) -> None:
+    @welcomeset_join_message.command(name="delete", aliases=["del"])
+    async def welcomeset_join_message_delete(self, ctx: commands.Context) -> None:
         """Delete an existing join message format from the list."""
 
-        await self.__msg_del(ctx, "join")
+        await self.__message_delete(ctx, "join")
 
-    @welcomeset_join_msg.command(name="list")
-    async def welcomeset_join_msg_list(self, ctx: commands.Context) -> None:
+    @welcomeset_join_message.command(name="list", aliases=["ls"])
+    async def welcomeset_join_message_list(self, ctx: commands.Context) -> None:
         """Lists the available join message formats."""
 
-        await self.__msg_list(ctx, "join")
+        await self.__message_list(ctx, "join")
 
-    @welcomeset_join.command(name="botmsg")
-    async def welcomeset_join_botmsg(self, ctx: commands.Context, *, msg_format: str = None) -> None:
+    @welcomeset_join.command(name="botmessage", aliases=["botmsg"])
+    async def welcomeset_join_botmessage(self, ctx: commands.Context, *, msg_format: str = None) -> None:
         """Sets the message format to use for join notices for bots.
 
         Supply no format to use normal join message formats for bots.
@@ -386,14 +386,14 @@ class Welcome(commands.Cog):
 
         await self.__toggledelete(ctx, on_off, "leave")
 
-    @welcomeset_leave.group(name="msg")
-    async def welcomeset_leave_msg(self, ctx: commands.Context) -> None:
+    @welcomeset_leave.group(name="message", aliases=["msg"])
+    async def welcomeset_leave_message(self, ctx: commands.Context) -> None:
         """Manage leave message formats."""
 
         pass
 
-    @welcomeset_leave_msg.command(name="add")
-    async def welcomeset_leave_msg_add(self, ctx: commands.Context, *, msg_format: str) -> None:
+    @welcomeset_leave_message.command(name="add")
+    async def welcomeset_leave_message_add(self, ctx: commands.Context, *, msg_format: str) -> None:
         """Add a new leave message format to be chosen.
 
         Allows for the following customizations:
@@ -408,19 +408,19 @@ class Welcome(commands.Cog):
           Someone has left... Aww... Bye :(
         """
 
-        await self.__msg_add(ctx, msg_format, "leave")
+        await self.__message_add(ctx, msg_format, "leave")
 
-    @welcomeset_leave_msg.command(name="del")
-    async def welcomeset_leave_msg_del(self, ctx: commands.Context) -> None:
+    @welcomeset_leave_message.command(name="delete", aliases=["del"])
+    async def welcomeset_leave_message_delete(self, ctx: commands.Context) -> None:
         """Delete an existing leave message format from the list."""
 
-        await self.__msg_del(ctx, "leave")
+        await self.__message_delete(ctx, "leave")
 
-    @welcomeset_leave_msg.command(name="list")
-    async def welcomeset_leave_msg_list(self, ctx: commands.Context) -> None:
+    @welcomeset_leave_message.command(name="list", aliases=["ls"])
+    async def welcomeset_leave_message_list(self, ctx: commands.Context) -> None:
         """Lists the available leave message formats."""
 
-        await self.__msg_list(ctx, "leave")
+        await self.__message_list(ctx, "leave")
 
     @welcomeset.group(name="ban")
     async def welcomeset_ban(self, ctx: commands.Context) -> None:
@@ -455,14 +455,14 @@ class Welcome(commands.Cog):
 
         await self.__toggledelete(ctx, on_off, "ban")
 
-    @welcomeset_ban.group(name="msg")
-    async def welcomeset_ban_msg(self, ctx: commands.Context) -> None:
+    @welcomeset_ban.group(name="message", aliases=["msg"])
+    async def welcomeset_ban_message(self, ctx: commands.Context) -> None:
         """Manage ban message formats."""
 
         pass
 
-    @welcomeset_ban_msg.command(name="add")
-    async def welcomeset_ban_msg_add(self, ctx: commands.Context, *, msg_format: str) -> None:
+    @welcomeset_ban_message.command(name="add")
+    async def welcomeset_ban_message_add(self, ctx: commands.Context, *, msg_format: str) -> None:
         """Add a new ban message format to be chosen.
 
         Allows for the following customizations:
@@ -477,19 +477,19 @@ class Welcome(commands.Cog):
           Someone has been banned. Good riddance!
         """
 
-        await self.__msg_add(ctx, msg_format, "ban")
+        await self.__message_add(ctx, msg_format, "ban")
 
-    @welcomeset_ban_msg.command(name="del")
-    async def welcomeset_ban_msg_del(self, ctx: commands.Context) -> None:
+    @welcomeset_ban_message.command(name="delete", aliases=["del"])
+    async def welcomeset_ban_message_delete(self, ctx: commands.Context) -> None:
         """Delete an existing ban message format from the list."""
 
-        await self.__msg_del(ctx, "ban")
+        await self.__message_delete(ctx, "ban")
 
-    @welcomeset_ban_msg.command(name="list")
-    async def welcomeset_ban_msg_list(self, ctx: commands.Context) -> None:
+    @welcomeset_ban_message.command(name="list", aliases=["ls"])
+    async def welcomeset_ban_message_list(self, ctx: commands.Context) -> None:
         """Lists the available ban message formats."""
 
-        await self.__msg_list(ctx, "ban")
+        await self.__message_list(ctx, "ban")
 
     @welcomeset.group(name="unban")
     async def welcomeset_unban(self, ctx: commands.Context) -> None:
@@ -524,14 +524,14 @@ class Welcome(commands.Cog):
 
         await self.__toggledelete(ctx, on_off, "unban")
 
-    @welcomeset_unban.group(name="msg")
-    async def welcomeset_unban_msg(self, ctx: commands.Context) -> None:
+    @welcomeset_unban.group(name="message", aliases=["msg"])
+    async def welcomeset_unban_message(self, ctx: commands.Context) -> None:
         """Manage unban message formats."""
 
         pass
 
-    @welcomeset_unban_msg.command(name="add")
-    async def welcomeset_unban_msg_add(self, ctx: commands.Context, *, msg_format: str) -> None:
+    @welcomeset_unban_message.command(name="add")
+    async def welcomeset_unban_message_add(self, ctx: commands.Context, *, msg_format: str) -> None:
         """Add a new unban message format to be chosen.
 
         Allows for the following customizations:
@@ -546,19 +546,19 @@ class Welcome(commands.Cog):
           Someone has been unbanned. Don't waste your second chance!
         """
 
-        await self.__msg_add(ctx, msg_format, "unban")
+        await self.__message_add(ctx, msg_format, "unban")
 
-    @welcomeset_unban_msg.command(name="del")
-    async def welcomeset_unban_msg_del(self, ctx: commands.Context) -> None:
+    @welcomeset_unban_message.command(name="delete", aliases=["del"])
+    async def welcomeset_unban_message_delete(self, ctx: commands.Context) -> None:
         """Delete an existing unban message format from the list."""
 
-        await self.__msg_del(ctx, "unban")
+        await self.__message_delete(ctx, "unban")
 
-    @welcomeset_unban_msg.command(name="list")
-    async def welcomeset_unban_msg_list(self, ctx: commands.Context) -> None:
+    @welcomeset_unban_message.command(name="list", aliases=["ls"])
+    async def welcomeset_unban_message_list(self, ctx: commands.Context) -> None:
         """Lists the available unban message formats."""
 
-        await self.__msg_list(ctx, "unban")
+        await self.__message_list(ctx, "unban")
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
@@ -648,7 +648,7 @@ class Welcome(commands.Cog):
 
         await ctx.send(f"Deletion of previous {event} notice is now {ENABLED if target_state else DISABLED}")
 
-    async def __msg_add(self, ctx: commands.Context, msg_format: str, event: str) -> None:
+    async def __message_add(self, ctx: commands.Context, msg_format: str, event: str) -> None:
         """Handler for adding message formats."""
 
         guild: discord.Guild = ctx.guild
@@ -658,7 +658,7 @@ class Welcome(commands.Cog):
 
         await ctx.send(f"New message format for {event} notices added.")
 
-    async def __msg_del(self, ctx: commands.Context, event: str) -> None:
+    async def __message_delete(self, ctx: commands.Context, event: str) -> None:
         """Handler for deleting message formats."""
 
         guild: discord.Guild = ctx.guild
@@ -668,7 +668,7 @@ class Welcome(commands.Cog):
                 await ctx.send(f"I only have one {event} message format, so I can't let you delete it.")
                 return
 
-            await self.__msg_list(ctx, event)
+            await self.__message_list(ctx, event)
             await ctx.send(f"Please enter the number of the {event} message format you wish to delete.")
 
             try:
@@ -681,7 +681,7 @@ class Welcome(commands.Cog):
 
         await ctx.send(f"Done. This {event} message format was deleted:\n`{removed}`")
 
-    async def __msg_list(self, ctx: commands.Context, event: str) -> None:
+    async def __message_list(self, ctx: commands.Context, event: str) -> None:
         """Handler for listing message formats."""
 
         guild: discord.Guild = ctx.guild
