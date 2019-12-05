@@ -1,6 +1,6 @@
+import discord
 import logging
 
-import discord
 from redbot.core import checks, commands
 
 __author__ = "tmerc"
@@ -11,13 +11,13 @@ log = logging.getLogger("red.tmerc.massdm")
 class MassDM(commands.Cog):
     """Send a direct message to all members of the specified Role."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     @commands.command(aliases=["mdm"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str):
+    async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str) -> None:
         """Sends a DM to all Members with the given Role.
 
         Allows for the following customizations:

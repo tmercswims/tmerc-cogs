@@ -1,16 +1,17 @@
-import asyncio
-import logging
-from random import choice
-
 import aiohttp
+import asyncio
 import discord
+import logging
+import random
+from typing import Dict, List
+
 from redbot.core import commands
 
 __author__ = "tmerc"
 
 log = logging.getLogger("red.tmerc.lenny")
 
-LENNY_PARTS = {
+LENNY_PARTS: Dict[str, List[str]] = {
     "ears": [
         "q{}p",
         "ʢ{}ʡ",
@@ -157,15 +158,15 @@ class Lenny(commands.Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.__url = "http://lenny.today/api/v1/random?limit=1"
+        self.__url: str = "http://lenny.today/api/v1/random?limit=1"
         self.__session = aiohttp.ClientSession()
 
-    def cog_unload(self):
+    def cog_unload(self) -> None:
         if self.__session:
             asyncio.get_event_loop().create_task(self.__session.close())
 
     @commands.command(aliases=["donger"])
-    async def lenny(self, ctx: commands.Context):
+    async def lenny(self, ctx: commands.Context) -> None:
         """☞⇀‿↼☞"""
 
         await ctx.trigger_typing()
@@ -183,7 +184,9 @@ class Lenny(commands.Cog):
         except aiohttp.ClientError:
             log.warning("API call failed; falling back to local lenny")
             lenny = (
-                choice(LENNY_PARTS["ears"]).format(choice(LENNY_PARTS["eyes"])).format(choice(LENNY_PARTS["mouths"]))
+                random.choice(LENNY_PARTS["ears"])
+                .format(random.choice(LENNY_PARTS["eyes"]))
+                .format(random.choice(LENNY_PARTS["mouths"]))
             )
 
         return lenny

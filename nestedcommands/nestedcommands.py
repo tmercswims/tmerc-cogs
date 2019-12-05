@@ -1,10 +1,10 @@
 import asyncio
+import copy
+import discord
 import logging
 import re
-from copy import copy
+from typing import List
 
-import discord
-from discord.utils import get
 from redbot.core import Config, checks, commands
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box
@@ -23,7 +23,7 @@ class NestedCommands(commands.Cog):
 
     p = re.compile(r"\$\(.+\)")
 
-    def __init__(self, bot: Red, *args, **kwargs):
+    def __init__(self, bot: Red, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.bot = bot
@@ -33,7 +33,7 @@ class NestedCommands(commands.Cog):
         self.__init_before()
 
     @commands.command(name="say")
-    async def say(self, ctx: commands.Context, *, message: str):
+    async def say(self, ctx: commands.Context, *, message: str) -> None:
         """Says what you say."""
 
         await ctx.send(message)
@@ -41,7 +41,7 @@ class NestedCommands(commands.Cog):
     @commands.group()
     @commands.guild_only()
     @checks.guildowner()
-    async def ncset(self, ctx: commands.Context):
+    async def ncset(self, ctx: commands.Context) -> None:
         """Change NestedCommands settings."""
 
         if ctx.invoked_subcommand is None:
@@ -50,7 +50,7 @@ class NestedCommands(commands.Cog):
             enabled = config["enabled"]
             channel = config["channel"]
             if channel is not None:
-                channel = get(ctx.guild.text_channels, id=channel)
+                channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=channel)
 
             msg = box(
                 f"  Enabled: {enabled}\n  Channel: {channel and channel.name}\n", "Current NestedCommands settings:",
@@ -59,7 +59,7 @@ class NestedCommands(commands.Cog):
             await ctx.send(msg)
 
     @ncset.command(name="toggle")
-    async def ncset_toggle(self, ctx: commands.Context, on_off: bool = None):
+    async def ncset_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns NestedCommand on or off.
 
         If `on_off` is not provided, the state will be flipped.
@@ -85,7 +85,7 @@ class NestedCommands(commands.Cog):
             await ctx.send("NestedCommands is now disabled.")
 
     @ncset.command(name="channel")
-    async def ncset_channel(self, ctx: commands.Context, *, channel: discord.TextChannel):
+    async def ncset_channel(self, ctx: commands.Context, *, channel: discord.TextChannel) -> None:
         """Sets the channel which will be used to print the output of all inner commands.
 
         It is highly recommended that you make this channel hidden and/or read-only to all users except Red,
@@ -101,11 +101,11 @@ class NestedCommands(commands.Cog):
             f"Ensure you also turn on NestedCommand with `{ctx.prefix}ncset toggle`."
         )
 
-    def __init_before(self):
+    def __init_before(self) -> None:
         """Sets up the before_invoke hook that makes this all work."""
 
         @self.bot.before_invoke
-        async def before_any_command(ctx: commands.Context):
+        async def before_any_command(ctx: commands.Context) -> None:
             if ctx.guild and await self.config.guild(ctx.guild).enabled():
                 message = ctx.message
                 channel_id = await self.config.guild(ctx.guild).channel()
@@ -134,7 +134,7 @@ class NestedCommands(commands.Cog):
                 for matched_text in top_level_commands:
                     inner_command = matched_text[2:-1]
 
-                    new_message = copy(message)
+                    new_message = copy.copy(message)
                     new_message.content = f"{ctx.prefix}{inner_command}"
                     new_message.channel = channel
 
@@ -161,7 +161,7 @@ class NestedCommands(commands.Cog):
                 # log.info(f"CONTENT AFTER ALL: {ctx.message.content}")
 
     @staticmethod
-    def __get_top_level_commands(s: str):
+    def __get_top_level_commands(s: str) -> List[str]:
         ret = []
 
         depth = 0

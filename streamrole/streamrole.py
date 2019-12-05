@@ -1,7 +1,6 @@
+import discord
 import logging
 
-import discord
-from discord.utils import get
 from redbot.core import Config, checks, commands
 from redbot.core.utils.chat_formatting import box
 
@@ -21,7 +20,7 @@ class StreamRole(commands.Cog):
         "lax_promote": False,
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.config = Config.get_conf(self, 34507445)
@@ -30,22 +29,22 @@ class StreamRole(commands.Cog):
     @commands.group()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def streamroleset(self, ctx: commands.Context):
+    async def streamroleset(self, ctx: commands.Context) -> None:
         """Change StreamRole settings."""
 
         await ctx.trigger_typing()
 
         if ctx.invoked_subcommand is None:
-            guild = ctx.guild
+            guild: discord.Guild = ctx.guild
             config = await self.config.guild(guild).all()
             enabled = config["enabled"]
             role = config["role"]
             if role is not None:
-                role = get(ctx.guild.roles, id=role)
+                role: discord.Role = discord.utils.get(ctx.guild.roles, id=role)
             promote = config["promote"]
             promote_from = config["promote_from"]
             if promote_from is not None:
-                promote_from = get(ctx.guild.roles, id=promote_from)
+                promote_from: discord.Role = discord.utils.get(ctx.guild.roles, id=promote_from)
             lax_promote = config["lax_promote"]
 
             if await ctx.embed_requested():
@@ -70,13 +69,13 @@ class StreamRole(commands.Cog):
                 await ctx.send(msg)
 
     @streamroleset.command(name="toggle")
-    async def streamroleset_toggle(self, ctx: commands.Context, on_off: bool = None):
+    async def streamroleset_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns StreamRole on or off.
 
         If `on_off` is not provided, the state will be flipped.
         """
 
-        guild = ctx.guild
+        guild: discord.Guild = ctx.guild
         target_state = on_off if on_off is not None else not (await self.config.guild(guild).enabled())
 
         streaming_role = await self.config.guild(guild).role()
@@ -94,7 +93,7 @@ class StreamRole(commands.Cog):
             await ctx.send("StreamRole is now disabled.")
 
     @streamroleset.command(name="role")
-    async def streamroleset_role(self, ctx: commands.Context, *, role: discord.Role):
+    async def streamroleset_role(self, ctx: commands.Context, *, role: discord.Role) -> None:
         """Sets the role which will be assigned to members who are streaming."""
 
         await self.config.guild(ctx.guild).role.set(role.id)
@@ -105,19 +104,19 @@ class StreamRole(commands.Cog):
         )
 
     @streamroleset.group(name="promote")
-    async def streamroleset_promote(self, ctx: commands.Context):
+    async def streamroleset_promote(self, ctx: commands.Context) -> None:
         """Changes promotion settings."""
 
         pass
 
     @streamroleset_promote.command(name="toggle")
-    async def streamroleset_promote_toggle(self, ctx: commands.Context, on_off: bool = None):
+    async def streamroleset_promote_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns promote role prerequisite on or off.
 
         If `on_off` is not provided, the state will be flipped.
         """
 
-        guild = ctx.guild
+        guild: discord.Guild = ctx.guild
         target_state = on_off if on_off is not None else not (await self.config.guild(guild).promote())
 
         prereq_role = await self.config.guild(guild).promote_from()
@@ -127,7 +126,7 @@ class StreamRole(commands.Cog):
                 "promotion role prerequisite."
             )
             return
-        prereq_role = get(guild.roles, id=prereq_role)
+        prereq_role: discord.Role = discord.utils.get(guild.roles, id=prereq_role)
 
         await self.config.guild(guild).promote.set(target_state)
 
@@ -143,7 +142,7 @@ class StreamRole(commands.Cog):
             )
 
     @streamroleset_promote.command(name="role")
-    async def streamroleset_promote_role(self, ctx: commands.Context, *, role: discord.Role):
+    async def streamroleset_promote_role(self, ctx: commands.Context, *, role: discord.Role) -> None:
         """Sets the prerequisite role for streaming promotion.
 
         If this role is set and promote is toggled on, only members with this role will be given the streaming role.
@@ -154,7 +153,7 @@ class StreamRole(commands.Cog):
         await ctx.send(f"Done. Only members with the role `{role.name}` will be given the streaming role.")
 
     @streamroleset_promote.command(name="lax")
-    async def streamroleset_promote_lax(self, ctx: commands.Context, on_off: bool = None):
+    async def streamroleset_promote_lax(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns lax promote role prerequisite on or off.
 
         If this is on, members with the prerequisite role or any role above it in the hierarchy will be given the
@@ -163,7 +162,7 @@ class StreamRole(commands.Cog):
         If `on_off` is not provided, the state will be flipped.
         """
 
-        guild = ctx.guild
+        guild: discord.Guild = ctx.guild
         target_state = on_off if on_off is not None else not (await self.config.guild(guild).lax_promote())
 
         await self.config.guild(guild).lax_promote.set(target_state)
@@ -180,14 +179,14 @@ class StreamRole(commands.Cog):
             )
 
     @commands.Cog.listener()
-    async def on_member_update(self, before: discord.Member, after: discord.Member):
+    async def on_member_update(self, before: discord.Member, after: discord.Member) -> None:
         """Listens to member updates to detect starting/stopping streaming."""
 
-        guild = after.guild
+        guild: discord.Guild = after.guild
         config = await self.config.guild(guild).all()
         is_streaming = any(a.type == discord.ActivityType.streaming for a in after.activities)
         if config["enabled"] and config["role"] is not None:
-            streaming_role = get(guild.roles, id=config["role"])
+            streaming_role: discord.Role = discord.utils.get(guild.roles, id=config["role"])
 
             if streaming_role is None:
                 log.error(
@@ -233,7 +232,7 @@ class StreamRole(commands.Cog):
         if not config["promote"] or not config["promote_from"]:
             return True
 
-        promote_role = get(member.guild.roles, id=config["promote_from"])
+        promote_role: discord.Role = discord.utils.get(member.guild.roles, id=config["promote_from"])
 
         if promote_role in member.roles:
             return True
