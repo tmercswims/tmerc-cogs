@@ -2,7 +2,7 @@ import asyncio
 import logging
 import random
 from datetime import date
-from typing import Union
+from typing import Optional, Union
 
 import discord
 from redbot.core import Config, checks, commands
@@ -77,119 +77,88 @@ class Welcome(commands.Cog):
             b = c["ban"]
             u = c["unban"]
 
+            whisper_message = jw["message"] if len(jw["message"]) <= 50 else jw["message"][:50] + "..."
+
             if await ctx.embed_requested():
                 emb = discord.Embed(color=await ctx.embed_color(), title="Current Welcome Settings")
                 emb.add_field(
                     name="General",
                     inline=False,
-                    value="**Enabled:** {}\n**Channel:** {}\n".format(c["enabled"], channel.mention),
+                    value=f"**Enabled:** {c['enabled']}\n**Channel:** {channel.mention}\n",
                 )
-                whisper_message = jw["message"] if len(jw["message"]) <= 50 else jw["message"][:50] + "..."
                 emb.add_field(
                     name="Join",
                     inline=False,
                     value=(
-                        "**Enabled:** {}\n"
-                        "**Channel:** {}\n"
-                        "**Delete previous:** {}\n"
-                        "**Whisper state:** {}\n"
-                        "**Whisper message:** {}\n"
-                        "**Messages:** {}; do `{prefix}welcomeset join msg list` for a list\n"
-                        "**Bot message:** {}"
-                    ).format(
-                        j["enabled"],
-                        join_channel.mention,
-                        j["delete"],
-                        jw["state"],
-                        whisper_message,
-                        len(j["messages"]),
-                        j["bot"],
-                        prefix=ctx.prefix,
+                        f"**Enabled:** {j['enabled']}\n"
+                        f"**Channel:** {join_channel.mention}\n"
+                        f"**Delete previous:** {j['delete']}\n"
+                        f"**Whisper state:** {jw['state']}\n"
+                        f"**Whisper message:** {whisper_message}\n"
+                        f"**Messages:** {len(j['messages'])}; do `{ctx.prefix}welcomeset join msg list` for a list\n"
+                        f"**Bot message:** {j['bot']}"
                     ),
                 )
                 emb.add_field(
                     name="Leave",
                     inline=False,
                     value=(
-                        "**Enabled:** {}\n"
-                        "**Channel:** {}\n"
-                        "**Delete previous:** {}\n"
-                        "**Messages:** {}; do `{prefix}welcomeset leave msg list` for a list\n"
-                    ).format(v["enabled"], leave_channel.mention, v["delete"], len(v["messages"]), prefix=ctx.prefix),
+                        f"**Enabled:** {v['enabled']}\n"
+                        f"**Channel:** {leave_channel.mention}\n"
+                        f"**Delete previous:** {v['delete']}\n"
+                        f"**Messages:** {len(v['messages'])}; do `{ctx.prefix}welcomeset leave msg list` for a list\n"
+                    ),
                 )
                 emb.add_field(
                     name="Ban",
                     inline=False,
                     value=(
-                        "**Enabled:** {}\n"
-                        "**Channel:** {}\n"
-                        "**Delete previous:** {}\n"
-                        "**Messages:** {}; do `{prefix}welcomeset ban msg list` for a list\n"
-                    ).format(b["enabled"], ban_channel.mention, b["delete"], len(b["messages"]), prefix=ctx.prefix),
+                        f"**Enabled:** {b['enabled']}\n"
+                        f"**Channel:** {ban_channel.mention}\n"
+                        f"**Delete previous:** {b['delete']}\n"
+                        f"**Messages:** {len(b['messages'])}; do `{ctx.prefix}welcomeset ban msg list` for a list\n"
+                    ),
                 )
                 emb.add_field(
                     name="Unban",
                     inline=False,
                     value=(
-                        "**Enabled:** {}\n"
-                        "**Channel:** {}\n"
-                        "**Delete previous:** {}\n"
-                        "**Messages:** {}; do `{prefix}welcomeset unban msg list` for a list\n"
-                    ).format(u["enabled"], unban_channel.mention, u["delete"], len(u["messages"]), prefix=ctx.prefix),
+                        f"**Enabled:** {u['enabled']}\n"
+                        f"**Channel:** {unban_channel.mention}\n"
+                        f"**Delete previous:** {u['delete']}\n"
+                        f"**Messages:** {len(u['messages'])}; do `{ctx.prefix}welcomeset unban msg list` for a list\n"
+                    ),
                 )
 
                 await ctx.send(embed=emb)
             else:
                 msg = box(
-                    "  Enabled: {}\n"
-                    "  Channel: {}\n"
-                    "  Join:\n"
-                    "    Enabled: {}\n"
-                    "    Channel: {}\n"
-                    "    Delete previous: {}\n"
-                    "    Whisper:\n"
-                    "      State: {}\n"
-                    "      Message: {}\n"
-                    "    Messages: {}; do '{prefix}welcomeset join msg list' for a list\n"
-                    "    Bot message: {}\n"
-                    "  Leave:\n"
-                    "    Enabled: {}\n"
-                    "    Channel: {}\n"
-                    "    Delete previous: {}\n"
-                    "    Messages: {}; do '{prefix}welcomeset leave msg list' for a list\n"
-                    "  Ban:\n"
-                    "    Enabled: {}\n"
-                    "    Channel: {}\n"
-                    "    Delete previous: {}\n"
-                    "    Messages: {}; do '{prefix}welcomeset ban msg list' for a list\n"
-                    "  Unban:\n"
-                    "    Enabled: {}\n"
-                    "    Channel: {}\n"
-                    "    Delete previous: {}\n"
-                    "    Messages: {}; do '{prefix}welcomeset unban msg list' for a list\n".format(
-                        c["enabled"],
-                        channel,
-                        j["enabled"],
-                        join_channel,
-                        j["delete"],
-                        jw["state"],
-                        jw["message"],
-                        len(j["messages"]),
-                        j["bot"],
-                        v["enabled"],
-                        leave_channel,
-                        v["delete"],
-                        len(v["messages"]),
-                        b["enabled"],
-                        ban_channel,
-                        b["delete"],
-                        len(b["messages"]),
-                        u["enabled"],
-                        unban_channel,
-                        u["delete"],
-                        len(u["messages"]),
-                        prefix=ctx.prefix,
-                    ),
+                    f"  Enabled: {c['enabled']}\n"
+                    f"  Channel: {channel}\n"
+                    f"  Join:\n"
+                    f"    Enabled: {j['enabled']}\n"
+                    f"    Channel: {join_channel}\n"
+                    f"    Delete previous: {j['delete']}\n"
+                    f"    Whisper:\n"
+                    f"      State: {jw['state']}\n"
+                    f"      Message: {whisper_message}\n"
+                    f"    Messages: {len(j['messages'])}; do '{ctx.prefix}welcomeset join msg list' for a list\n"
+                    f"    Bot message: {j['bot']}\n"
+                    f"  Leave:\n"
+                    f"    Enabled: {v['enabled']}\n"
+                    f"    Channel: {leave_channel}\n"
+                    f"    Delete previous: {v['delete']}\n"
+                    f"    Messages: {len(v['messages'])}; do '{ctx.prefix}welcomeset leave msg list' for a list\n"
+                    f"  Ban:\n"
+                    f"    Enabled: {b['enabled']}\n"
+                    f"    Channel: {ban_channel}\n"
+                    f"    Delete previous: {b['delete']}\n"
+                    f"    Messages: {len(b['messages'])}; do '{ctx.prefix}welcomeset ban msg list' for a list\n"
+                    f"  Unban:\n"
+                    f"    Enabled: {u['enabled']}\n"
+                    f"    Channel: {unban_channel}\n"
+                    f"    Delete previous: {u['delete']}\n"
+                    f"    Messages: {len(u['messages'])}; do '{ctx.prefix}welcomeset unban msg list' for a list\n",
                     "Current Welcome Settings",
                 )
 
@@ -207,26 +176,23 @@ class Welcome(commands.Cog):
 
         await self.config.guild(guild).enabled.set(target_state)
 
-        await ctx.send("Welcome is now {}." "".format(ENABLED if target_state else DISABLED))
+        await ctx.send(f"Welcome is now {ENABLED if target_state else DISABLED}.")
 
     @welcomeset.command(name="channel")
     async def welcomeset_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         """Sets the channel to be used for event notices."""
 
-        if not self.__can_speak_in(channel):
+        if not Welcome.__can_speak_in(channel):
             await ctx.send(
-                (
-                    "I do not have permission to send messages in {0.mention}. "
-                    "Check your permission settings and try again."
-                    ""
-                ).format(channel)
+                f"I do not have permission to send messages in {channel.mention}. "
+                "Check your permission settings and try again."
             )
             return
 
         guild = ctx.guild
         await self.config.guild(guild).channel.set(channel.id)
 
-        await ctx.send("I will now send event notices to {0.mention}." "".format(channel))
+        await ctx.send(f"I will now send event notices to {channel.mention}.")
 
     @welcomeset.group(name="join")
     async def welcomeset_join(self, ctx: commands.Context):
@@ -285,18 +251,14 @@ class Welcome(commands.Cog):
         await self.config.guild(guild).join.whisper.state.set(whisper_type)
 
         if choice == WhisperType.OFF:
-            await ctx.send("I will no longer DM new members, and will send a notice to {0.mention}.".format(channel))
+            await ctx.send(f"I will no longer DM new members, and will send a notice to {channel.mention}.")
         elif choice == WhisperType.ONLY:
-            await ctx.send("I will now only DM new members, and will not send a notice to {0.mention}.".format(channel))
+            await ctx.send(f"I will now only DM new members, and will not send a notice to {channel.mention}.")
         elif choice == WhisperType.BOTH:
-            await ctx.send(
-                "I will now send a DM to new members, as well as send a notice to {0.mention}.".format(channel)
-            )
+            await ctx.send(f"I will now send a DM to new members, as well as send a notice to {channel.mention}.")
         elif choice == WhisperType.FALLBACK:
             await ctx.send(
-                "I will now send a DM to new members, and if that fails I will send the message to {0.mention}.".format(
-                    channel
-                )
+                f"I will now send a DM to new members, and if that fails I will send the message to {channel.mention}."
             )
 
     @welcomeset_join_whisper.command(name="msg")
@@ -635,7 +597,7 @@ class Welcome(commands.Cog):
 
         await self.config.guild(guild).get_attr(event).enabled.set(target_state)
 
-        await ctx.send("{} notices are now {}.".format(event.capitalize(), ENABLED if target_state else DISABLED))
+        await ctx.send(f"{event.capitalize()} notices are now {ENABLED if target_state else DISABLED}.")
 
     async def __set_channel(self, ctx: commands.Context, channel: discord.TextChannel, event: str):
         """Handler for setting channels."""
@@ -647,12 +609,10 @@ class Welcome(commands.Cog):
         await self.config.guild(guild).get_attr(event).channel.set(store_this)
 
         if store_this is not None:
-            await ctx.send("I will now send {0} notices to {1.mention}.".format(event, channel))
+            await ctx.send(f"I will now send {event} notices to {channel.mention}.")
         else:
             default_channel = await self.__get_channel(guild, "default")
-            await ctx.send(
-                "I will now send {0} messages to the default channel, {1.mention}.".format(event, default_channel)
-            )
+            await ctx.send(f"I will now send {event} messages to the default channel, {default_channel.mention}.")
 
     async def __toggledelete(self, ctx: commands.Context, on_off: bool, event: str):
         """Handler for setting delete toggles."""
@@ -662,7 +622,7 @@ class Welcome(commands.Cog):
 
         await self.config.guild(guild).get_attr(event).delete.set(target_state)
 
-        await ctx.send("Deletion of previous {} notice is now {}.".format(event, ENABLED if target_state else DISABLED))
+        await ctx.send(f"Deletion of previous {event} notice is now {ENABLED if target_state else DISABLED}")
 
     async def __msg_add(self, ctx: commands.Context, msg_format: str, event: str):
         """Handler for adding message formats."""
@@ -672,7 +632,7 @@ class Welcome(commands.Cog):
         async with self.config.guild(guild).get_attr(event).messages() as messages:
             messages.append(msg_format)
 
-        await ctx.send("New message format for {} notices added.".format(event))
+        await ctx.send(f"New message format for {event} notices added.")
 
     async def __msg_del(self, ctx: commands.Context, event: str):
         """Handler for deleting message formats."""
@@ -681,33 +641,33 @@ class Welcome(commands.Cog):
 
         async with self.config.guild(guild).get_attr(event).messages() as messages:
             if len(messages) == 1:
-                await ctx.send("I only have one {} message format, so I can't let you delete it.".format(event))
+                await ctx.send(f"I only have one {event} message format, so I can't let you delete it.")
                 return
 
             await self.__msg_list(ctx, event)
-            await ctx.send("Please enter the number of the {} message format you wish to delete.".format(event))
+            await ctx.send(f"Please enter the number of the {event} message format you wish to delete.")
 
             try:
-                num = await self.__get_number_input(ctx, len(messages))
+                num = await Welcome.__get_number_input(ctx, len(messages))
             except asyncio.TimeoutError:
-                await ctx.send("Okay, I won't remove any of the {} message formats.".format(event))
+                await ctx.send(f"Okay, I won't remove any of the {event} message formats.")
                 return
             else:
                 removed = messages.pop(num - 1)
 
-        await ctx.send("Done. This {} message format was deleted:\n" "`{}`".format(event, removed))
+        await ctx.send(f"Done. This {event} message format was deleted:\n`{removed}`")
 
     async def __msg_list(self, ctx: commands.Context, event: str):
         """Handler for listing message formats."""
 
         guild = ctx.guild
 
-        msg = "{} message formats:\n".format(event.capitalize())
+        msg = f"{event.capitalize()} message formats:\n"
         async with self.config.guild(guild).get_attr(event).messages() as messages:
             for n, m in enumerate(messages, start=1):
-                msg += "  {}. {}\n".format(n, m)
+                msg += f"  {n}. {m}\n"
 
-        for page in pagify(msg, ["\n", " "], shorten_by=20):
+        for page in pagify(msg, shorten_by=20):
             await ctx.send(box(page))
 
     async def __handle_event(
@@ -752,15 +712,15 @@ class Welcome(commands.Cog):
         if channel_id is not None:
             channel = guild.get_channel(channel_id)
 
-        if channel is None or not self.__can_speak_in(channel):
+        if channel is None or not Welcome.__can_speak_in(channel):
             channel = guild.get_channel(await self.config.guild(guild).channel())
 
-        if channel is None or not self.__can_speak_in(channel):
+        if channel is None or not Welcome.__can_speak_in(channel):
             channel = guild.system_channel
 
-        if channel is None or not self.__can_speak_in(channel):
+        if channel is None or not Welcome.__can_speak_in(channel):
             for ch in guild.text_channels:
-                if self.__can_speak_in(ch):
+                if Welcome.__can_speak_in(ch):
                     channel = ch
                     break
 
@@ -772,15 +732,15 @@ class Welcome(commands.Cog):
         try:
             await (await (await self.__get_channel(guild, event)).fetch_message(message_id)).delete()
         except discord.NotFound:
-            log.warning("Failed to delete message (ID {}): not found".format(message_id))
+            log.warning("Failed to delete message (ID {message_id}): not found")
         except discord.Forbidden:
-            log.warning("Failed to delete message (ID {}): insufficient permissions".format(message_id))
+            log.warning("Failed to delete message (ID {message_id}): insufficient permissions")
         except discord.DiscordException:
-            log.warning("Failed to delete message (ID {})".format(message_id))
+            log.warning("Failed to delete message (ID {message_id})")
 
     async def __send_notice(
         self, guild: discord.guild, user: Union[discord.Member, discord.User], event: str, *, message_format=None
-    ) -> Union[discord.Message, None]:
+    ) -> Optional[discord.Message]:
         """Sends the notice for the event."""
 
         format_str = message_format or await self.__get_random_message_format(guild, event)
@@ -794,19 +754,16 @@ class Welcome(commands.Cog):
 
         try:
             return await channel.send(
-                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural,)
+                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural)
             )
         except discord.Forbidden:
             log.error(
-                "Failed to send {0} message to channel ID {1.id} (server ID {2.id}): insufficient permissions".format(
-                    event, channel, guild
-                )
+                f"Failed to send {event} message to channel ID {channel.id} (server ID {guild.id}): "
+                "insufficient permissions"
             )
             return None
         except discord.DiscordException:
-            log.error(
-                "Failed to send {0} message to channel ID {1.id} (server ID {2.id})".format(event, channel, guild)
-            )
+            log.error(f"Failed to send {event} message to channel ID {channel.id} (server ID {guild.id})")
             return None
 
     async def __get_random_message_format(self, guild: discord.guild, event: str) -> str:
@@ -821,10 +778,10 @@ class Welcome(commands.Cog):
         guild_settings = self.config.guild(guild)
 
         if await guild_settings.date() is None:
-            await guild_settings.date.set(self.__today())
+            await guild_settings.date.set(Welcome.__today())
 
-        if self.__today() > await guild_settings.date():
-            await guild_settings.date.set(self.__today())
+        if Welcome.__today() > await guild_settings.date():
+            await guild_settings.date.set(Welcome.__today())
             await guild_settings.get_attr(event).counter.set(0)
 
         count = await guild_settings.get_attr(event).counter()
@@ -839,14 +796,12 @@ class Welcome(commands.Cog):
             await member.send(message_format.format(member=member, server=member.guild))
         except discord.Forbidden:
             log.error(
-                "Failed to send DM to member ID {0.id} (server ID {1.id}): insufficient permissions".format(
-                    member, member.guild
-                )
+                f"Failed to send DM to member ID {member.id} (server ID {member.guild.id}): insufficient permissions"
             )
-            raise WhisperError("Error.")
+            raise WhisperError()
         except discord.DiscordException:
-            log.error("Failed to send DM to member ID {0.id} (server ID {1.id})".format(member, member.guild))
-            raise WhisperError("Error.")
+            log.error(f"Failed to send DM to member ID {member.id} (server ID {member.guild.id})")
+            raise WhisperError()
 
     @staticmethod
     async def __get_number_input(ctx: commands.Context, maximum: int, minimum: int = 0) -> int:
@@ -855,12 +810,11 @@ class Welcome(commands.Cog):
         author = ctx.author
         channel = ctx.channel
 
-        def check(m: discord.Message):
-            num = None
+        def check(m: discord.Message) -> bool:
             try:
                 num = int(m.content)
             except ValueError:
-                pass
+                return False
 
             return num is not None and minimum < num <= maximum and m.author == author and m.channel == channel
 

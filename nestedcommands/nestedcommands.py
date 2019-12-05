@@ -53,8 +53,7 @@ class NestedCommands(commands.Cog):
                 channel = get(ctx.guild.text_channels, id=channel)
 
             msg = box(
-                "  Enabled: {}\n  Channel: {}\n".format(enabled, channel and channel.name),
-                "Current NestedCommands settings:",
+                f"  Enabled: {enabled}\n  Channel: {channel and channel.name}\n", "Current NestedCommands settings:",
             )
 
             await ctx.send(msg)
@@ -74,9 +73,7 @@ class NestedCommands(commands.Cog):
         channel = await self.config.guild(guild).channel()
         if channel is None and target_state:
             await ctx.send(
-                "You need to set a channel with `{}ncset channel` before you can enable NestedCommands.".format(
-                    ctx.prefix
-                )
+                f"You need to set a channel with `{ctx.prefix}ncset channel` before you can enable NestedCommands."
             )
             return
 
@@ -100,10 +97,8 @@ class NestedCommands(commands.Cog):
         await self.config.guild(ctx.guild).channel.set(channel.id)
 
         await ctx.send(
-            (
-                "Done. I will now use the channel {} for inner command outputs. "
-                "Ensure you also turn on NestedCommand with `{}ncset toggle`."
-            ).format(channel.mention, ctx.prefix)
+            f"Done. I will now use the channel {channel.mention} for inner command outputs. "
+            f"Ensure you also turn on NestedCommand with `{ctx.prefix}ncset toggle`."
         )
 
     def __init_before(self):
@@ -121,20 +116,17 @@ class NestedCommands(commands.Cog):
 
                 if channel is None:
                     log.error(
-                        (
-                            "Failed to find channel with ID {} (server ID {}); "
-                            "this likely means that the channel has been deleted"
-                        ).format(channel_id, ctx.guild.id)
+                        f"Failed to find channel with ID {channel_id} (server ID {ctx.guild.id}); "
+                        "this likely means that the channel has been deleted"
                     )
                     return
 
                 try:
-                    top_level_commands = self.__get_top_level_commands(message.content)
+                    top_level_commands = NestedCommands.__get_top_level_commands(message.content)
                 except MismatchedParenthesesException as e:
                     log.error(
-                        "Problem resolving nested commands (server ID {}, channel ID {}, message ID {}): {}".format(
-                            ctx.guild.id, ctx.channel.id, message.id, e.message
-                        )
+                        f"Problem resolving nested commands (server ID {ctx.guild.id}, channel ID {ctx.channel.id}, "
+                        f"message ID {message.id}): {e.message}"
                     )
                     return
 
@@ -143,7 +135,7 @@ class NestedCommands(commands.Cog):
                     inner_command = matched_text[2:-1]
 
                     new_message = copy(message)
-                    new_message.content = "{}{}".format(ctx.prefix, inner_command)
+                    new_message.content = f"{ctx.prefix}{inner_command}"
                     new_message.channel = channel
 
                     await ctx.bot.process_commands(new_message)
@@ -156,17 +148,17 @@ class NestedCommands(commands.Cog):
 
                     await asyncio.sleep(0.1)
 
-                # log.info("ctx.kwargs 1: {}".format(ctx.kwargs))
-                # log.info("replacements: {}".format(replacements))
+                # log.info(f"ctx.kwargs 1: {ctx.kwargs}")
+                # log.info(f"replacements: {replacements}")
                 for name, value in ctx.kwargs.items():
                     for matched_text, inner_output in replacements.items():
                         if matched_text in value:
                             ctx.kwargs[name] = value.replace(matched_text, inner_output, 1)
 
-                # log.info("ctx.kwargs 2: {}".format(ctx.kwargs))
-                # log.info("ctx.args: {}".format(ctx.args))
-                # log.info("ctx.args[1].message.content: {}".format(ctx.args[1].message.content))
-                # log.info("CONTENT AFTER ALL: {}".format(ctx.message.content))
+                # log.info(f"ctx.kwargs 2: {ctx.kwargs}")
+                # log.info(f"ctx.args: {ctx.args}")
+                # log.info(f"ctx.args[1].message.content: {ctx.args[1].message.content}")
+                # log.info(f"CONTENT AFTER ALL: {ctx.message.content}")
 
     @staticmethod
     def __get_top_level_commands(s: str):
@@ -189,14 +181,8 @@ class NestedCommands(commands.Cog):
                 current = ""
 
         # if depth < 0:
-        #   raise MismatchedParenthesesException(
-        #     ("{} too many closing parentheses in nested commands"
-        #      "").format(abs(depth))
-        #   )
+        #     raise MismatchedParenthesesException(f"{abs(depth)} too many closing parentheses in nested commands")
         # elif depth > 0:
-        #   raise MismatchedParenthesesException(
-        #     ("{} too few closing parentheses in nested commands"
-        #      "").format(depth)
-        #   )
+        #     raise MismatchedParenthesesException(f"{depth} too few closing parentheses in nested commands")
 
         return ret

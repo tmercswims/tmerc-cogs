@@ -38,8 +38,8 @@ class MassDM(commands.Cog):
             try:
                 await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
             except discord.Forbidden:
-                log.warning("Failed to DM user {0} (ID {0.id}): insufficient permissions".format(member))
+                log.warning(f"Failed to DM user {member} (ID {member.id}): insufficient permissions")
                 continue
             except discord.DiscordException:
-                log.warning("Failed to DM user {0} (ID {0.id})".format(member))
+                log.warning(f"Failed to DM user {member} (ID {member.id})")
                 continue

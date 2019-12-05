@@ -59,13 +59,11 @@ class StreamRole(commands.Cog):
                 await ctx.send(embed=emb)
             else:
                 msg = box(
-                    "  Enabled: {}\n"
-                    "  Streaming role: {}\n"
-                    "  Only promote members with prerequisite role: {}\n"
-                    "  Promotion prerequisite role: {}\n"
-                    "  Promote from prerequisite and above: {}".format(
-                        enabled, role and role.name, promote, promote_from and promote_from.name, lax_promote
-                    ),
+                    f"  Enabled: {enabled}\n"
+                    f"  Streaming role: {role and role.name}\n"
+                    f"  Only promote members with prerequisite role: {promote}\n"
+                    f"  Promotion prerequisite role: {promote_from and promote_from.name}\n"
+                    f"  Promote from prerequisite and above: {lax_promote}",
                     "Current StreamRole Settings",
                 )
 
@@ -84,9 +82,7 @@ class StreamRole(commands.Cog):
         streaming_role = await self.config.guild(guild).role()
         if streaming_role is None and target_state:
             await ctx.send(
-                "You need to set a role with `{}streamroleset role` before you can enable StreamRole.".format(
-                    ctx.prefix
-                )
+                f"You need to set a role with `{ctx.prefix}streamroleset role` before you can enable StreamRole."
             )
             return
 
@@ -104,10 +100,8 @@ class StreamRole(commands.Cog):
         await self.config.guild(ctx.guild).role.set(role.id)
 
         await ctx.send(
-            (
-                "Done. Members who are streaming will now be given the role `{}`. Ensure you also turn on StreamRole "
-                "with `{}streamroleset toggle`."
-            ).format(role.name, ctx.prefix)
+            f"Done. Members who are streaming will now be given the role `{role.name}`. "
+            f"Ensure you also turn on StreamRole with `{ctx.prefix}streamroleset toggle`."
         )
 
     @streamroleset.group(name="promote")
@@ -129,10 +123,8 @@ class StreamRole(commands.Cog):
         prereq_role = await self.config.guild(guild).promote_from()
         if prereq_role is None and target_state:
             await ctx.send(
-                (
-                    "You need to set a role with `{}streamroleset promote role` before you can enable "
-                    "promotion role prerequisite."
-                ).format(ctx.prefix)
+                f"You need to set a role with `{ctx.prefix}streamroleset promote role` before you can enable "
+                "promotion role prerequisite."
             )
             return
         prereq_role = get(guild.roles, id=prereq_role)
@@ -141,10 +133,8 @@ class StreamRole(commands.Cog):
 
         if target_state:
             await ctx.send(
-                (
-                    "Done. Promote role prerequisite is now enabled. "
-                    "Only members with the role `{}` will be given the streaming role."
-                ).format(prereq_role.name)
+                "Done. Promote role prerequisite is now enabled. "
+                f"Only members with the role `{prereq_role.name}` will be given the streaming role."
             )
         else:
             await ctx.send(
@@ -161,7 +151,7 @@ class StreamRole(commands.Cog):
 
         await self.config.guild(ctx.guild).promote_from.set(role.id)
 
-        await ctx.send("Done. Only members with the role `{}` will be given the streaming role.".format(role.name))
+        await ctx.send(f"Done. Only members with the role `{role.name}` will be given the streaming role.")
 
     @streamroleset_promote.command(name="lax")
     async def streamroleset_promote_lax(self, ctx: commands.Context, on_off: bool = None):
@@ -180,17 +170,13 @@ class StreamRole(commands.Cog):
 
         if target_state:
             await ctx.send(
-                (
-                    "Lax promotion is now on. If promotion prerequisite is enabled, any member with the prerequisite "
-                    "role or any role above it in the hierarchy will be given the streaming role."
-                )
+                "Lax promotion is now on. If promotion prerequisite is enabled, any member with the prerequisite "
+                "role or any role above it in the hierarchy will be given the streaming role."
             )
         else:
             await ctx.send(
-                (
-                    "Lax promotion is now off. If promotion prerequisite is enabled, only members with exactly the "
-                    "prerequisite role will be given the streaming role."
-                )
+                "Lax promotion is now off. If promotion prerequisite is enabled, only members with exactly the "
+                "prerequisite role will be given the streaming role."
             )
 
     @commands.Cog.listener()
@@ -205,10 +191,8 @@ class StreamRole(commands.Cog):
 
             if streaming_role is None:
                 log.error(
-                    (
-                        "Failed to find streaming role with ID {} (server ID {}); "
-                        "this likely means that the role has been deleted"
-                    ).format(config["role"], guild.id)
+                    f"Failed to find streaming role with ID {config['role']} (server ID {guild.id}); "
+                    "this likely means that the role has been deleted"
                 )
                 return
 
@@ -218,37 +202,32 @@ class StreamRole(commands.Cog):
                     await after.remove_roles(streaming_role, reason="Member is not streaming.")
                 except discord.Forbidden:
                     log.warning(
-                        (
-                            "Failed to remove role ID {} from member ID {} (server ID {}): insufficient permissions"
-                        ).format(streaming_role.id, after.id, guild.id)
+                        f"Failed to remove role ID {streaming_role.id} from member ID {after.id} "
+                        f"(server ID {guild.id}): insufficient permissions"
                     )
                 except discord.DiscordException:
                     log.warning(
-                        "Failed to remove role ID {} from member ID {} (server ID {})".format(
-                            streaming_role.id, after.id, guild.id
-                        )
+                        f"Failed to remove role ID {streaming_role.id} from member ID {after.id} (server ID {guild.id})"
                     )
 
             # is streaming; attempt to add streaming role if not present
             # and if allowed by promotion settings
             elif is_streaming and streaming_role not in after.roles:
-                if self.__can_promote(after, config):
+                if StreamRole.__can_promote(after, config):
                     try:
                         await after.add_roles(streaming_role, reason="Member is streaming.")
                     except discord.Forbidden:
                         log.warning(
-                            "Failed to add role ID {} to member ID {} (server ID {}): insufficient permissions".format(
-                                streaming_role.id, after.id, guild.id
-                            )
+                            f"Failed to add role ID {streaming_role.id} to member ID {after.id} "
+                            f"(server ID {guild.id}): insufficient permissions"
                         )
                     except discord.DiscordException:
                         log.warning(
-                            "Failed to add role ID {} to member ID {} (server ID {})".format(
-                                streaming_role.id, after.id, guild.id
-                            )
+                            f"Failed to add role ID {streaming_role.id} to member ID {after.id} (server ID {guild.id})"
                         )
 
-    def __can_promote(self, member: discord.Member, config: dict) -> bool:
+    @staticmethod
+    def __can_promote(member: discord.Member, config: dict) -> bool:
         """Indicates whether member can be given the streaming role based on the promotion rules defined in config."""
 
         if not config["promote"] or not config["promote_from"]:
@@ -262,7 +241,7 @@ class StreamRole(commands.Cog):
         if not config["lax_promote"]:
             return False
 
-        return self.__has_role_above(member, promote_role)
+        return StreamRole.__has_role_above(member, promote_role)
 
     @staticmethod
     def __has_role_above(member: discord.Member, role: discord.Role) -> bool:
