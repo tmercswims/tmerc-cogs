@@ -42,9 +42,30 @@ class Welcome(commands.Cog):
             "messages": [default_join],
             "bot": None,
         },
-        "leave": {"enabled": True, "channel": None, "delete": False, "last": None, "messages": [default_leave]},
-        "ban": {"enabled": True, "channel": None, "delete": False, "last": None, "messages": [default_ban]},
-        "unban": {"enabled": True, "channel": None, "delete": False, "last": None, "messages": [default_unban]},
+        "leave": {
+            "enabled": True,
+            "channel": None,
+            "delete": False,
+            "last": None,
+            "counter": 0,
+            "messages": [default_leave],
+        },
+        "ban": {
+            "enabled": True,
+            "channel": None,
+            "delete": False,
+            "last": None,
+            "counter": 0,
+            "messages": [default_ban],
+        },
+        "unban": {
+            "enabled": True,
+            "channel": None,
+            "delete": False,
+            "last": None,
+            "counter": 0,
+            "messages": [default_unban],
+        },
     }
 
     def __init__(self, *args, **kwargs) -> None:
@@ -378,6 +399,8 @@ class Welcome(commands.Cog):
         Allows for the following customizations:
           `{member}` is the member who left
           `{server}` is the server
+          `{count}` is the number of members who have left today
+          `{plural}` is an 's' if `count` is not 1, and nothing if it is
 
         For example:
           {member.name}... Why did you leave???
@@ -445,6 +468,8 @@ class Welcome(commands.Cog):
         Allows for the following customizations:
           `{member}` is the banned member
           `{server}` is the server
+          `{count}` is the number of members who have been banned today
+          `{plural}` is an 's' if `count` is not 1, and nothing if it is
 
         For example:
           {member.name} was banned... What did you do???
@@ -512,6 +537,8 @@ class Welcome(commands.Cog):
         Allows for the following customizations:
           `{member}` is the unbanned member
           `{server}` is the server
+          `{count}` is the number of members who have been unbanned today
+          `{plural}` is an 's' if `count` is not 1, and nothing if it is
 
         For example:
           {member.name} was unbanned... Did you learn your lesson???
@@ -548,9 +575,6 @@ class Welcome(commands.Cog):
                 message_format = await guild_settings.join.bot()
 
             else:
-                # only increment when it isn't a bot
-                await self.__increment_count(guild, "join")
-
                 whisper_type: str = await guild_settings.join.whisper.state()
                 if whisper_type != "off":
                     try:
@@ -677,6 +701,9 @@ class Welcome(commands.Cog):
 
         guild_settings = self.config.guild(guild)
 
+        # always increment, even if we aren't sending a notice
+        await self.__increment_count(guild, event)
+
         if await guild_settings.enabled():
             settings = await guild_settings.get_attr(event).all()
             if settings["enabled"]:
@@ -745,7 +772,7 @@ class Welcome(commands.Cog):
 
         format_str = message_format or await self.__get_random_message_format(guild, event)
 
-        count = event == "join" and await self.config.guild(guild).get_attr(event).counter()
+        count = await self.config.guild(guild).get_attr(event).counter()
         plural = ""
         if count and count != 1:
             plural = "s"
