@@ -32,9 +32,12 @@ class NestedCommands(commands.Cog):
 
         self.__init_before()
 
-    @commands.command(name="say")
-    async def say(self, ctx: commands.Context, *, message: str) -> None:
-        """Says what you say."""
+    @commands.command()
+    async def echo(self, ctx: commands.Context, *, message: str) -> None:
+        """Says what you say. Does no filtering.
+
+        Is there an echo in here?
+        """
 
         await ctx.send(message)
 
