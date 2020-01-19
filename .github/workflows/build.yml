@@ -1,25 +1,23 @@
 name: Compile & Lint
 
 on:
-  push:
-    branches: 
-      - v3
-  pull_request:
-    branches: 
-      - v3
+  - push
+  - pull_request
 
 jobs:
   build:
-
+    name: Compile & Lint
     runs-on: ubuntu-latest
     
     strategy:
       fail-fast: true
       matrix:
-        python: [3.7, 3.8]
+        python:
+          - 3.8
 
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
@@ -27,7 +25,9 @@ jobs:
       - name: Compile
         run: |
           python -m compileall .
+      - name: Install Black
+        run: |
+          python -m pip install black
       - name: Lint
         run: |
-          pip install black==19.10b0
-          black --check -l 120 .
+          python -m black --line-length 120 --target-version py38 --check .

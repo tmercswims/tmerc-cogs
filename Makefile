@@ -1,4 +1,4 @@
 format:
-	black -l 120 `git ls-files "*.py"`
+	python -m black --line-length 120 --target-version py38 .
 checkstyle:
-	black --check -l 120 `git ls-files "*.py"`
+	python -m black --line-length 120 --target-version py38 --check .
