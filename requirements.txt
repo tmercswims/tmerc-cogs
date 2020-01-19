@@ -1,3 +1,4 @@
 aiohttp
+black
 discord.py
 red-discordbot
