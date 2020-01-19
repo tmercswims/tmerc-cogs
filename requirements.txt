@@ -1,0 +1,3 @@
+aiohttp
+discord.py
+red-discordbot
