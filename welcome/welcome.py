@@ -687,9 +687,9 @@ class Welcome(commands.Cog):
         guild: discord.Guild = ctx.guild
 
         msg = f"{event.capitalize()} message formats:\n"
-        async with self.config.guild(guild).get_attr(event).messages() as messages:
-            for n, m in enumerate(messages, start=1):
-                msg += f"  {n}. {m}\n"
+        messages = await self.config.guild(guild).get_attr(event).messages()
+        for n, m in enumerate(messages, start=1):
+            msg += f"  {n}. {m}\n"
 
         for page in pagify(msg, shorten_by=20):
             await ctx.send(box(page))
