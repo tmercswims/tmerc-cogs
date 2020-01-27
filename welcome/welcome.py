@@ -778,8 +778,12 @@ class Welcome(commands.Cog):
             plural = "s"
 
         channel = await self.__get_channel(guild, event)
-        roles = [r.name for r in user.roles if r.name != "@everyone"]
-        roles = self.format_list(*roles)
+        if isinstance(user, discord.Member):
+            roles = [r.name for r in user.roles if r.name != "@everyone"]
+            roles = self.format_list(*roles)
+        else:
+            roles = []
+            
         try:
             return await channel.send(
                 format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=roles)
