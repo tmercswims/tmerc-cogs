@@ -782,7 +782,7 @@ class Welcome(commands.Cog):
         roles = self.format_list(*roles)
         try:
             return await channel.send(
-                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=roles, joined_at=user.joined_at)
+                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=roles)
             )
         except discord.Forbidden:
             log.error(
