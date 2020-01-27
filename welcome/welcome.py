@@ -778,10 +778,11 @@ class Welcome(commands.Cog):
             plural = "s"
 
         channel = await self.__get_channel(guild, event)
-
+        roles = [r.name for r in user.roles if r.name != "@everyone"]
+        roles = self.format_list(*roles)
         try:
             return await channel.send(
-                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural)
+                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=roles, joined_at=user.joined_at)
             )
         except discord.Forbidden:
             log.error(
@@ -863,3 +864,12 @@ class Welcome(commands.Cog):
         """Gets today's date in ordinal form."""
 
         return datetime.date.today().toordinal()
+
+    @staticmethod
+    def format_list(*items, join='and', delim=', '):
+        if len(items) > 1:
+            return (' %s ' % join).join((delim.join(items[:-1]), items[-1]))
+        elif items:
+            return items[0]
+        else:
+            return ''
