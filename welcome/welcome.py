@@ -289,7 +289,6 @@ class Welcome(commands.Cog):
         Allows for the following customizations:
           `{member}` is the member who joined
           `{server}` is the server
-          `{roles}` is a list of all the roles that the member has at the time
         """
 
         await self.config.guild(ctx.guild).join.whisper.message.set(msg_format)
