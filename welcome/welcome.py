@@ -6,7 +6,7 @@ import random
 from typing import Optional, Union
 
 from redbot.core import Config, checks, commands
-from redbot.core.utils.chat_formatting import box, pagify
+from redbot.core.utils.chat_formatting import box, pagify, humanize_list
 
 from .enums import WhisperType
 from .errors import WhisperError
@@ -289,6 +289,7 @@ class Welcome(commands.Cog):
         Allows for the following customizations:
           `{member}` is the member who joined
           `{server}` is the server
+          `{roles}` is a list of all the roles that the member has at the time
         """
 
         await self.config.guild(ctx.guild).join.whisper.message.set(msg_format)
@@ -310,6 +311,7 @@ class Welcome(commands.Cog):
           `{server}` is the server
           `{count}` is the number of members who have joined today
           `{plural}` is an 's' if `count` is not 1, and nothing if it is
+          `{roles}` is a list of all the roles that the member has at the time
 
         For example:
           {member.mention}... What are you doing here???
@@ -401,6 +403,7 @@ class Welcome(commands.Cog):
           `{server}` is the server
           `{count}` is the number of members who have left today
           `{plural}` is an 's' if `count` is not 1, and nothing if it is
+          `{roles}` is a list of all the roles that the member has at the time
 
         For example:
           {member.name}... Why did you leave???
@@ -470,6 +473,7 @@ class Welcome(commands.Cog):
           `{server}` is the server
           `{count}` is the number of members who have been banned today
           `{plural}` is an 's' if `count` is not 1, and nothing if it is
+          `{roles}` is a list of all the roles that the member has at the time
 
         For example:
           {member.name} was banned... What did you do???
@@ -539,6 +543,7 @@ class Welcome(commands.Cog):
           `{server}` is the server
           `{count}` is the number of members who have been unbanned today
           `{plural}` is an 's' if `count` is not 1, and nothing if it is
+          `{roles}` is a list of all the roles that the member has at the time
 
         For example:
           {member.name} was unbanned... Did you learn your lesson???
@@ -780,7 +785,7 @@ class Welcome(commands.Cog):
         channel = await self.__get_channel(guild, event)
         if isinstance(user, discord.Member):
             roles = [r.name for r in user.roles if r.name != "@everyone"]
-            roles = self.format_list(*roles)
+            roles = humanize_list(roles)
         else:
             roles = []
 
@@ -868,12 +873,3 @@ class Welcome(commands.Cog):
         """Gets today's date in ordinal form."""
 
         return datetime.date.today().toordinal()
-
-    @staticmethod
-    def format_list(*items, join="and", delim=", "):
-        if len(items) > 1:
-            return (" %s " % join).join((delim.join(items[:-1]), items[-1]))
-        elif items:
-            return items[0]
-        else:
-            return ""
