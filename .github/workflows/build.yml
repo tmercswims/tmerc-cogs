@@ -8,7 +8,7 @@ jobs:
   build:
     name: Compile & Lint
     runs-on: ubuntu-latest
-    
+
     strategy:
       fail-fast: true
       matrix:
@@ -30,4 +30,4 @@ jobs:
           python -m pip install black
       - name: Lint
         run: |
-          python -m black --line-length 120 --target-version py38 --check .
+          python -m black --check .
