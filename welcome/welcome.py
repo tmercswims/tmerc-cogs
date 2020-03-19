@@ -6,7 +6,7 @@ import random
 from typing import Optional, Union
 
 from redbot.core import Config, checks, commands
-from redbot.core.utils.chat_formatting import box, pagify, humanize_list
+from redbot.core.utils.chat_formatting import box, humanize_list, pagify
 
 from .enums import WhisperType
 from .errors import WhisperError
@@ -782,15 +782,16 @@ class Welcome(commands.Cog):
             plural = "s"
 
         channel = await self.__get_channel(guild, event)
+
+        role_str: str = ""
         if isinstance(user, discord.Member):
             roles = [r.name for r in user.roles if r.name != "@everyone"]
-            roles = humanize_list(roles)
-        else:
-            roles = []
+            if len(roles) > 0:
+                role_str = humanize_list(roles)
 
         try:
             return await channel.send(
-                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=roles)
+                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=role_str)
             )
         except discord.Forbidden:
             log.error(
