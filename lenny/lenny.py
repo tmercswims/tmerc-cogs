@@ -158,7 +158,7 @@ class Lenny(commands.Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.__url: str = "http://lenny.today/api/v1/random?limit=1"
+        self.__url: str = "http://api.lenny.today/v1/random?limit=1"
         self.__session = aiohttp.ClientSession()
 
     def cog_unload(self) -> None:
