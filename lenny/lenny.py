@@ -152,6 +152,17 @@ LENNY_PARTS: Dict[str, List[str]] = {
 }
 
 
+def protect_against_emojification(text) -> str:
+    res = ""
+    for symbol in text:
+        if symbol == "\\":
+            res += symbol
+        else:
+            res += symbol + "\N{VARIATION SELECTOR-15}"
+
+    return res
+
+
 class Lenny(commands.Cog):
     """乁(-ロ-)ㄏ"""
 
@@ -180,6 +191,8 @@ class Lenny(commands.Cog):
                 lenny = (await response.json())[0]["face"]
                 # escape markdown characters
                 lenny = discord.utils.escape_markdown(lenny)
+                # protect against discord transforming symbol in emoji
+                lenny = protect_against_emojification(lenny)
         # if the API call fails, make a (more limited) lenny locally instead
         except aiohttp.ClientError:
             log.warning("API call failed; falling back to local lenny")
