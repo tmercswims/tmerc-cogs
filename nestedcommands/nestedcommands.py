@@ -56,7 +56,8 @@ class NestedCommands(commands.Cog):
                 channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=channel)
 
             msg = box(
-                f"  Enabled: {enabled}\n  Channel: {channel and channel.name}\n", "Current NestedCommands settings:",
+                f"  Enabled: {enabled}\n  Channel: {channel and channel.name}\n",
+                "Current NestedCommands settings:",
             )
 
             await ctx.send(msg)
