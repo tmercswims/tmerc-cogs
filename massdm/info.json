@@ -2,7 +2,7 @@
     "author": [
         "tmerc"
     ],
-    "install_msg": "Thanks for installing!",
+    "install_msg": "Thanks for installing!\n\n**IMPORTANT!** Discord does not take kindly to bots which send too many DMs, and their definition of \"too many\" is very small. Use of this cog, _even once_, could get your bot quarantined or permanently banned. Remember, any servers which your bot is in, _even ones that you yourself are not_, can use this cog and get your bot banned. If you are not willing to take this risk, please uninstall this cog right now. If you choose to use it anyway and it results in action taken against you or your bot, I (tmerc) take no responsibility. **You have been warned!**",
     "name": "MassDM",
     "short": "DM a Role.",
     "description": "Send a direct message to all members of the specified Role. Personalize the message for each person.",
