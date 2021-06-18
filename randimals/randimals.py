@@ -95,7 +95,7 @@ class Randimals(commands.Cog):
         async def fetcher() -> str:
             url = "https://api.bunnies.io/v2/loop/random/?media=gif"
             async with self.__session.get(url) as response:
-                return (await response.json())["gif"]
+                return (await response.json())["media"]["gif"]
 
         try:
             file = await self.__get_image_carefully(fetcher)
