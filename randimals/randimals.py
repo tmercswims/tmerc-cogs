@@ -159,6 +159,24 @@ class Randimals(commands.Cog):
             await ctx.send("I was unable to get a panda picture.")
 
     @commands.command()
+    async def lizard(self, ctx: commands.Context) -> None:
+        """Get a random lizard."""
+
+        await ctx.trigger_typing()
+
+        async def fetcher() -> str:
+            url = "https://nekos.life/api/v2/img/lizard"
+            async with self.__session.get(url) as response:
+                return (await response.json())["url"]
+
+        try:
+            file = await self.__get_image_carefully(fetcher)
+            await ctx.send(file=file)
+        except (aiohttp.ClientError, RetryLimitExceeded):
+            log.warning("API call failed; unable to get lizard picture")
+            await ctx.send("I was unable to get a lizard picture.")
+
+    @commands.command()
     async def fox(self, ctx: commands.Context) -> None:
         """Get a random fox."""
 
