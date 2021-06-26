@@ -1,0 +1,17 @@
+{
+    "author": [
+        "tmerc"
+    ],
+    "install_msg": "Thanks for installing!",
+    "name": "CommunityCalendar",
+    "short": "Create events for your community.",
+    "description": "Create events, invite people, and save events as templates for reuse.",
+    "requirements": [
+        "dateparser"
+    ],
+    "tags": [
+        "calendar",
+        "events",
+        "invite"
+    ]
+}
