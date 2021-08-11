@@ -3,6 +3,8 @@ import logging
 
 from redbot.core import checks, commands
 
+from .safemodels import SafeGuild, SafeMember, SafeRole
+
 __author__ = "tmerc"
 
 log = logging.getLogger("red.tmerc.massdm")
@@ -36,7 +38,15 @@ class MassDM(commands.Cog):
 
         for member in [m for m in role.members if not m.bot]:
             try:
-                await member.send(message.format(member=member, role=role, server=ctx.guild, sender=ctx.author))
+                await member.send(
+                    message.format(
+                        member=SafeMember(member),
+                        role=SafeRole(role),
+                        server=SafeGuild(ctx.guild),
+                        guild=SafeGuild(ctx.guild),
+                        sender=SafeMember(ctx.author),
+                    )
+                )
             except discord.Forbidden:
                 log.warning(f"Failed to DM user {member} (ID {member.id}): insufficient permissions")
                 continue
