@@ -10,6 +10,7 @@ from redbot.core.utils.chat_formatting import box, humanize_list, pagify
 
 from .enums import WhisperType
 from .errors import WhisperError
+from .safemodels import SafeGuild, SafeMember
 
 __author__ = "tmerc"
 
@@ -791,7 +792,14 @@ class Welcome(commands.Cog):
 
         try:
             return await channel.send(
-                format_str.format(member=user, server=guild, bot=user, count=count or "", plural=plural, roles=role_str)
+                format_str.format(
+                    member=SafeMember(user),
+                    server=SafeGuild(guild),
+                    bot=SafeMember(user),
+                    count=count or "",
+                    plural=plural,
+                    roles=role_str,
+                )
             )
         except discord.Forbidden:
             log.error(
