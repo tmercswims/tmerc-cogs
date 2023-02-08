@@ -105,6 +105,25 @@ class Randimals(commands.Cog):
             await ctx.send("I was unable to get a bunny picture.")
 
     @commands.command()
+    async def capybara(self, ctx: commands.Context) -> None:
+        """Get a random capybara."""
+
+        await ctx.trigger_typing()
+
+        async def fetcher() -> str:
+            url = "https://api.capy.lol/v1/capybara?json=true"
+            async with self.__session.get(url) as response:
+                return (await response.json())["data"]["url"]
+
+        try:
+            file = await self.__get_image_carefully(fetcher)
+            file.filename += '.jpg'
+            await ctx.send(file=file)
+        except (aiohttp.ClientError, RetryLimitExceeded):
+            log.warning("API call failed; unable to get capybara picture")
+            await ctx.send("I was unable to get a capybara picture.")
+
+    @commands.command()
     async def duck(self, ctx: commands.Context) -> None:
         """Get a random duck."""
 
