@@ -117,7 +117,7 @@ class Randimals(commands.Cog):
 
         try:
             file = await self.__get_image_carefully(fetcher)
-            file.filename += '.jpg'
+            file.filename += ".jpg"
             await ctx.send(file=file)
         except (aiohttp.ClientError, RetryLimitExceeded):
             log.warning("API call failed; unable to get capybara picture")
