@@ -1,9 +1,18 @@
 {
-    "author" : ["tmerc"],
+    "author" : [
+        "tmerc"
+    ],
     "install_msg" : "Thanks for installing!",
     "name" : "Randimals",
     "short" : "Get some random animal images.",
     "description" : "Displays random images of some animals.",
     "requirements" : [],
-    "tags": ["animal", "random", "fun"]
+    "tags": [
+        "animal",
+        "random",
+        "fun"
+    ],
+    "hidden": false,
+    "disabled": false,
+    "max_bot_version": "3.4.19"
 }

@@ -1,9 +1,19 @@
 {
-    "author" : ["tmerc"],
+    "author" : [
+        "tmerc"
+    ],
     "install_msg" : "Thanks for installing!",
     "name" : "StreamRole",
     "short" : "Streamers get a role.",
     "description" : "Assign a configurable role to anyone who is streaming.",
     "requirements" : [],
-    "tags": ["stream", "role", "tools", "utility"]
+    "tags": [
+        "stream",
+        "role",
+        "tools",
+        "utility"
+    ],
+    "hidden": false,
+    "disabled": false,
+    "max_bot_version": "3.4.19"
 }
