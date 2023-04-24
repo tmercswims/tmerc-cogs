@@ -14,5 +14,5 @@
     ],
     "hidden": false,
     "disabled": false,
-    "max_bot_version": "3.4.19"
+    "min_bot_version": "3.5.0"
 }
