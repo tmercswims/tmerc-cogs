@@ -36,7 +36,7 @@ class Randimals(commands.Cog):
     async def dog(self, ctx: commands.Context) -> None:
         """Get a random dog."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://random.dog/woof.json"
@@ -54,7 +54,7 @@ class Randimals(commands.Cog):
     async def cat(self, ctx: commands.Context) -> None:
         """Get a random cat."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "http://shibe.online/api/cats?count=1"
@@ -72,7 +72,7 @@ class Randimals(commands.Cog):
     async def bigcat(self, ctx: commands.Context) -> None:
         """Get a random bigcat."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://randombig.cat/roar.json"
@@ -90,7 +90,7 @@ class Randimals(commands.Cog):
     async def bunny(self, ctx: commands.Context) -> None:
         """Get a random bunny."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://api.bunnies.io/v2/loop/random/?media=gif"
@@ -108,7 +108,7 @@ class Randimals(commands.Cog):
     async def capybara(self, ctx: commands.Context) -> None:
         """Get a random capybara."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://api.capy.lol/v1/capybara?json=true"
@@ -127,7 +127,7 @@ class Randimals(commands.Cog):
     async def duck(self, ctx: commands.Context) -> None:
         """Get a random duck."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://random-d.uk/api/random"
@@ -145,7 +145,7 @@ class Randimals(commands.Cog):
     async def koala(self, ctx: commands.Context) -> None:
         """Get a random koala."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://some-random-api.ml/img/koala"
@@ -163,7 +163,7 @@ class Randimals(commands.Cog):
     async def panda(self, ctx: commands.Context) -> None:
         """Get a random panda."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://some-random-api.ml/img/panda"
@@ -181,7 +181,7 @@ class Randimals(commands.Cog):
     async def lizard(self, ctx: commands.Context) -> None:
         """Get a random lizard."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://nekos.life/api/v2/img/lizard"
@@ -199,7 +199,7 @@ class Randimals(commands.Cog):
     async def fox(self, ctx: commands.Context) -> None:
         """Get a random fox."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "https://wohlsoft.ru/images/foxybot/randomfox.php"
@@ -217,7 +217,7 @@ class Randimals(commands.Cog):
     async def bird(self, ctx: commands.Context) -> None:
         """Get a random bird."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         async def fetcher() -> str:
             url = "http://shibe.online/api/birds?count=1"

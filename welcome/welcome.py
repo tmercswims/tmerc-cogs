@@ -81,7 +81,7 @@ class Welcome(commands.Cog):
     async def welcomeset(self, ctx: commands.Context) -> None:
         """Change Welcome settings."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         if ctx.invoked_subcommand is None:
             guild: discord.Guild = ctx.guild

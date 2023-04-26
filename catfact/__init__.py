@@ -3,5 +3,5 @@ from redbot.core.bot import Red
 from .catfact import CatFact
 
 
-def setup(bot: Red):
-    bot.add_cog(CatFact())
+async def setup(bot: Red) -> None:
+    await bot.add_cog(CatFact())

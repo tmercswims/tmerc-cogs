@@ -32,7 +32,7 @@ class StreamRole(commands.Cog):
     async def streamroleset(self, ctx: commands.Context) -> None:
         """Change StreamRole settings."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         if ctx.invoked_subcommand is None:
             guild: discord.Guild = ctx.guild
@@ -74,6 +74,8 @@ class StreamRole(commands.Cog):
 
         If `on_off` is not provided, the state will be flipped.
         """
+
+        await ctx.typing()
 
         guild: discord.Guild = ctx.guild
         target_state = on_off if on_off is not None else not (await self.config.guild(guild).enabled())
@@ -179,7 +181,7 @@ class StreamRole(commands.Cog):
             )
 
     @commands.Cog.listener()
-    async def on_member_update(self, before: discord.Member, after: discord.Member) -> None:
+    async def on_presence_update(self, _, after: discord.Member) -> None:
         """Listens to member updates to detect starting/stopping streaming."""
 
         guild: discord.Guild = after.guild

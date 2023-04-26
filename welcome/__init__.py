@@ -3,5 +3,5 @@ from redbot.core.bot import Red
 from .welcome import Welcome
 
 
-def setup(bot: Red):
-    bot.add_cog(Welcome())
+async def setup(bot: Red):
+    await bot.add_cog(Welcome())

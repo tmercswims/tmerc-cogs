@@ -3,5 +3,5 @@ from redbot.core.bot import Red
 from .massdm import MassDM
 
 
-def setup(bot: Red):
-    bot.add_cog(MassDM())
+async def setup(bot: Red) -> None:
+    await bot.add_cog(MassDM())

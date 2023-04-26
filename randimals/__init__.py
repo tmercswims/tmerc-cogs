@@ -3,5 +3,5 @@ from redbot.core.bot import Red
 from .randimals import Randimals
 
 
-def setup(bot: Red):
-    bot.add_cog(Randimals())
+async def setup(bot: Red):
+    await bot.add_cog(Randimals())

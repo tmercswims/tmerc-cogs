@@ -26,7 +26,7 @@ class CatFact(commands.Cog):
     async def catfact(self, ctx: commands.Context) -> None:
         """Gets a random cat fact."""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         try:
             async with self.__session.get(self.__url) as response:

@@ -69,7 +69,7 @@ class NestedCommands(commands.Cog):
         If `on_off` is not provided, the state will be flipped.
         """
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         guild = ctx.guild
         target_state = on_off if on_off is not None else not (await self.config.guild(guild).enabled())
@@ -96,7 +96,7 @@ class NestedCommands(commands.Cog):
         because this cog relies on the message history to function properly.
         """
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         await self.config.guild(ctx.guild).channel.set(channel.id)
 
@@ -144,7 +144,7 @@ class NestedCommands(commands.Cog):
 
                     await ctx.bot.process_commands(new_message)
 
-                    inner_output = (await channel.history(limit=1).flatten())[0].content
+                    inner_output = (await anext(channel.history(limit=1))).content
 
                     message.content = message.content.replace(matched_text, inner_output, 1)
 

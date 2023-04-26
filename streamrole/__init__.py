@@ -3,5 +3,5 @@ from redbot.core.bot import Red
 from .streamrole import StreamRole
 
 
-def setup(bot: Red):
-    bot.add_cog(StreamRole())
+async def setup(bot: Red):
+    await bot.add_cog(StreamRole())

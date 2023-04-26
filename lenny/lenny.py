@@ -180,7 +180,7 @@ class Lenny(commands.Cog):
     async def lenny(self, ctx: commands.Context) -> None:
         """☞⇀‿↼☞"""
 
-        await ctx.trigger_typing()
+        await ctx.typing()
 
         await ctx.send(await self.__get_lenny())
 
