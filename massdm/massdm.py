@@ -1,6 +1,6 @@
-import discord
 import logging
 
+import discord
 from redbot.core import checks, commands
 
 from .safemodels import SafeGuild, SafeMember, SafeRole
@@ -16,7 +16,11 @@ class MassDM(commands.Cog):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    @commands.command(aliases=["mdm"])
+    @commands.hybrid_command(aliases=["mdm"])
+    @discord.app_commands.describe(
+        role="The role whose members are to be messaged.",
+        message="The message to send. Allows for customizations using {member}, {role}, {server}, and {sender}.",
+    )
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def massdm(self, ctx: commands.Context, role: discord.Role, *, message: str) -> None:

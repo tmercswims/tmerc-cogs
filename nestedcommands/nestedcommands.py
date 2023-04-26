@@ -1,10 +1,10 @@
 import asyncio
 import copy
-import discord
 import logging
 import re
 from typing import List
 
+import discord
 from redbot.core import Config, checks, commands
 from redbot.core.bot import Red
 from redbot.core.utils.chat_formatting import box
@@ -32,7 +32,7 @@ class NestedCommands(commands.Cog):
 
         self.__init_before()
 
-    @commands.command()
+    @commands.hybrid_command()
     async def echo(self, ctx: commands.Context, *, message: str) -> None:
         """Says what you say. Does no filtering.
 
@@ -41,11 +41,11 @@ class NestedCommands(commands.Cog):
 
         await ctx.send(message)
 
-    @commands.group()
+    @commands.hybrid_group(fallback="state")
     @commands.guild_only()
     @checks.guildowner()
     async def ncset(self, ctx: commands.Context) -> None:
-        """Change NestedCommands settings."""
+        """Get current NestedCommands settings."""
 
         if ctx.invoked_subcommand is None:
             config = await self.config.guild(ctx.guild).all()

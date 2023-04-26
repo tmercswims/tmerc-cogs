@@ -1,11 +1,11 @@
-import aiohttp
 import asyncio
-import discord
 import io
 import logging
 import os
 from typing import Awaitable, Callable
 
+import aiohttp
+import discord
 from redbot.core import commands
 
 from .errors import RetryLimitExceeded
@@ -32,7 +32,7 @@ class Randimals(commands.Cog):
         if self.__session:
             asyncio.get_event_loop().create_task(self.__session.close())
 
-    @commands.command()
+    @commands.hybrid_command()
     async def dog(self, ctx: commands.Context) -> None:
         """Get a random dog."""
 
@@ -50,14 +50,14 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get dog picture")
             await ctx.send("I was unable to get a dog picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def cat(self, ctx: commands.Context) -> None:
         """Get a random cat."""
 
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "http://shibe.online/api/cats?count=1"
+            url = "https://shibe.online/api/cats?count=1"
             async with self.__session.get(url) as response:
                 return (await response.json())[0]
 
@@ -68,7 +68,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get cat picture")
             await ctx.send("I was unable to get a cat picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def bigcat(self, ctx: commands.Context) -> None:
         """Get a random bigcat."""
 
@@ -86,7 +86,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get bigcat picture")
             await ctx.send("I was unable to get a bigcat picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def bunny(self, ctx: commands.Context) -> None:
         """Get a random bunny."""
 
@@ -104,7 +104,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get bunny picture")
             await ctx.send("I was unable to get a bunny picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def capybara(self, ctx: commands.Context) -> None:
         """Get a random capybara."""
 
@@ -123,7 +123,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get capybara picture")
             await ctx.send("I was unable to get a capybara picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def duck(self, ctx: commands.Context) -> None:
         """Get a random duck."""
 
@@ -141,7 +141,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get duck picture")
             await ctx.send("I was unable to get a duck picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def koala(self, ctx: commands.Context) -> None:
         """Get a random koala."""
 
@@ -159,7 +159,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get koala picture")
             await ctx.send("I was unable to get a koala picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def panda(self, ctx: commands.Context) -> None:
         """Get a random panda."""
 
@@ -177,7 +177,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get panda picture")
             await ctx.send("I was unable to get a panda picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def lizard(self, ctx: commands.Context) -> None:
         """Get a random lizard."""
 
@@ -195,7 +195,7 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get lizard picture")
             await ctx.send("I was unable to get a lizard picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def fox(self, ctx: commands.Context) -> None:
         """Get a random fox."""
 
@@ -213,14 +213,14 @@ class Randimals(commands.Cog):
             log.warning("API call failed; unable to get fox picture")
             await ctx.send("I was unable to get a fox picture.")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def bird(self, ctx: commands.Context) -> None:
         """Get a random bird."""
 
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "http://shibe.online/api/birds?count=1"
+            url = "https://shibe.online/api/birds?count=1"
             async with self.__session.get(url) as response:
                 return (await response.json())[0]
 

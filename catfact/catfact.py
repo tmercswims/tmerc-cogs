@@ -1,7 +1,7 @@
-import aiohttp
 import asyncio
 import logging
 
+import aiohttp
 from redbot.core import commands
 
 __author__ = "tmerc"
@@ -22,7 +22,7 @@ class CatFact(commands.Cog):
         if self.__session:
             asyncio.get_event_loop().create_task(self.__session.close())
 
-    @commands.command()
+    @commands.hybrid_command()
     async def catfact(self, ctx: commands.Context) -> None:
         """Gets a random cat fact."""
 

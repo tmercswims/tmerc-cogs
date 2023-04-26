@@ -1,10 +1,10 @@
-import aiohttp
 import asyncio
-import discord
 import logging
 import random
 from typing import Dict, List
 
+import aiohttp
+import discord
 from redbot.core import commands
 
 __author__ = "tmerc"
@@ -169,14 +169,14 @@ class Lenny(commands.Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.__url: str = "http://api.lenny.today/v1/random?limit=1"
+        self.__url: str = "https://api.lenny.today/v1/random?limit=1"
         self.__session = aiohttp.ClientSession()
 
     def cog_unload(self) -> None:
         if self.__session:
             asyncio.get_event_loop().create_task(self.__session.close())
 
-    @commands.command(aliases=["donger"])
+    @commands.hybrid_command(aliases=["donger"])
     async def lenny(self, ctx: commands.Context) -> None:
         """☞⇀‿↼☞"""
 

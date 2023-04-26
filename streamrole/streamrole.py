@@ -1,6 +1,6 @@
-import discord
 import logging
 
+import discord
 from redbot.core import Config, checks, commands
 from redbot.core.utils.chat_formatting import box
 
@@ -26,11 +26,11 @@ class StreamRole(commands.Cog):
         self.config = Config.get_conf(self, 34507445)
         self.config.register_guild(**self.guild_defaults)
 
-    @commands.group()
+    @commands.hybrid_group(aliases=["streamroleset"], fallback="state")
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def streamroleset(self, ctx: commands.Context) -> None:
-        """Change StreamRole settings."""
+    async def streamrole(self, ctx: commands.Context) -> None:
+        """Get current StreamRole settings."""
 
         await ctx.typing()
 
@@ -68,8 +68,8 @@ class StreamRole(commands.Cog):
 
                 await ctx.send(msg)
 
-    @streamroleset.command(name="toggle")
-    async def streamroleset_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
+    @streamrole.command(name="toggle")
+    async def streamrole_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns StreamRole on or off.
 
         If `on_off` is not provided, the state will be flipped.
@@ -94,8 +94,8 @@ class StreamRole(commands.Cog):
         else:
             await ctx.send("StreamRole is now disabled.")
 
-    @streamroleset.command(name="role")
-    async def streamroleset_role(self, ctx: commands.Context, *, role: discord.Role) -> None:
+    @streamrole.command(name="role")
+    async def streamrole_role(self, ctx: commands.Context, *, role: discord.Role) -> None:
         """Sets the role which will be assigned to members who are streaming."""
 
         await self.config.guild(ctx.guild).role.set(role.id)
@@ -105,14 +105,14 @@ class StreamRole(commands.Cog):
             f"Ensure you also turn on StreamRole with `{ctx.prefix}streamroleset toggle`."
         )
 
-    @streamroleset.group(name="promote")
-    async def streamroleset_promote(self, ctx: commands.Context) -> None:
+    @streamrole.group(name="promote")
+    async def streamrole_promote(self, ctx: commands.Context) -> None:
         """Changes promotion settings."""
 
         pass
 
-    @streamroleset_promote.command(name="toggle")
-    async def streamroleset_promote_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
+    @streamrole_promote.command(name="toggle")
+    async def streamrole_promote_toggle(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns promote role prerequisite on or off.
 
         If `on_off` is not provided, the state will be flipped.
@@ -143,8 +143,8 @@ class StreamRole(commands.Cog):
                 "All members who are streaming will be given the streaming role."
             )
 
-    @streamroleset_promote.command(name="role")
-    async def streamroleset_promote_role(self, ctx: commands.Context, *, role: discord.Role) -> None:
+    @streamrole_promote.command(name="role")
+    async def streamrole_promote_role(self, ctx: commands.Context, *, role: discord.Role) -> None:
         """Sets the prerequisite role for streaming promotion.
 
         If this role is set and promote is toggled on, only members with this role will be given the streaming role.
@@ -154,8 +154,8 @@ class StreamRole(commands.Cog):
 
         await ctx.send(f"Done. Only members with the role `{role.name}` will be given the streaming role.")
 
-    @streamroleset_promote.command(name="lax")
-    async def streamroleset_promote_lax(self, ctx: commands.Context, on_off: bool = None) -> None:
+    @streamrole_promote.command(name="lax")
+    async def streamrole_promote_lax(self, ctx: commands.Context, on_off: bool = None) -> None:
         """Turns lax promote role prerequisite on or off.
 
         If this is on, members with the prerequisite role or any role above it in the hierarchy will be given the
