@@ -5,14 +5,13 @@ class SafeMember:
     def __init__(self, member: discord.Member) -> None:
         self.name = str(member.name)
         self.display_name = str(member.display_name)
-        self.nick = str(member.nick)
+        self.nick = str(getattr(member, "nick", ""))
         self.id = str(member.id)
         self.mention = str(member.mention)
         self.discriminator = str(member.discriminator)
         self.color = str(member.color)
         self.colour = str(member.colour)
         self.created_at = str(member.created_at)
-        self.joined_at = str(member.joined_at)
 
     def __str__(self):
         return self.name
