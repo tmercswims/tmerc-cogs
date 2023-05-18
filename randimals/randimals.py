@@ -148,7 +148,7 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://some-random-api.ml/img/koala"
+            url = "https://some-random-api.com/img/koala"
             async with self.__session.get(url) as response:
                 return (await response.json())["link"]
 
@@ -166,7 +166,7 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://some-random-api.ml/img/panda"
+            url = "https://some-random-api.com/img/panda"
             async with self.__session.get(url) as response:
                 return (await response.json())["link"]
 
