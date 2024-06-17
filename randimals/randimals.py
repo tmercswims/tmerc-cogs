@@ -3,6 +3,7 @@ import io
 import logging
 import os
 from typing import Awaitable, Callable
+from urllib.parse import urlparse
 
 import aiohttp
 import discord
@@ -95,7 +96,7 @@ class Randimals(commands.Cog):
         async def fetcher() -> str:
             url = "https://api.capy.lol/v1/capybara?json=true"
             async with self.__session.get(url) as response:
-                return (await response.json())["data"]["url"]
+                return urlparse((await response.json())["data"]["url"])._replace(scheme="https").geturl()
 
         try:
             file = await self.__get_image_carefully(fetcher)
