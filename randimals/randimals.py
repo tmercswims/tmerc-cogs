@@ -69,24 +69,6 @@ class Randimals(commands.Cog):
             await ctx.send("I was unable to get a cat picture.")
 
     @commands.hybrid_command()
-    async def bigcat(self, ctx: commands.Context) -> None:
-        """Get a random bigcat."""
-
-        await ctx.typing()
-
-        async def fetcher() -> str:
-            url = "https://randombig.cat/roar.json"
-            async with self.__session.get(url) as response:
-                return (await response.json())["url"]
-
-        try:
-            file = await self.__get_image_carefully(fetcher)
-            await ctx.send(file=file)
-        except (aiohttp.ClientError, RetryLimitExceeded):
-            log.warning("API call failed; unable to get bigcat picture")
-            await ctx.send("I was unable to get a bigcat picture.")
-
-    @commands.hybrid_command()
     async def bunny(self, ctx: commands.Context) -> None:
         """Get a random bunny."""
 
