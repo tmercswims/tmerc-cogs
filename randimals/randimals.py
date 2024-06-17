@@ -215,6 +215,15 @@ class Randimals(commands.Cog):
             await ctx.send("I was unable to get a bird picture.")
 
     async def __get_image_carefully(self, fetcher: Callable[[], Awaitable[str]]) -> discord.File:
+        # We need to send a user agent pretending to be a normal browser so that Imgur works. Without this, it assumes
+        # that we _aren't_ a normal browser (it's correct) and automatically returns a 429 (too many requests), which is
+        # really just Imgur trying to get us to use their actual REST API. We won't, because it requires authentication
+        # tokens, and you have to pay Imgur for any real amount of usage. So at least for now, this workaround works.
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/75.0.3770.100 Safari/537.36"
+        }
+
         for x in range(Randimals.RETRY_LIMIT):
             try:
                 img_url = await fetcher()
@@ -222,7 +231,10 @@ class Randimals(commands.Cog):
                 async with self.__session.head(img_url) as size_check:
                     if size_check.content_length is None or size_check.content_length > Randimals.SIZE_LIMIT:
                         continue
-                    async with self.__session.get(img_url) as image:
+                    async with self.__session.get(
+                        img_url,
+                        headers=headers,
+                    ) as image:
                         return discord.File(io.BytesIO(await image.read()), filename=filename)
             except aiohttp.ClientError:
                 continue
