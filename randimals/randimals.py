@@ -58,9 +58,9 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://shibe.online/api/cats?count=1"
+            url = "https://some-random-api.com/animal/cat"
             async with self.__session.get(url) as response:
-                return (await response.json())[0]
+                return (await response.json())["image"]
 
         try:
             file = await self.__get_image_carefully(fetcher)
@@ -203,9 +203,9 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://shibe.online/api/birds?count=1"
+            url = "https://some-random-api.com/animal/bird"
             async with self.__session.get(url) as response:
-                return (await response.json())[0]
+                return (await response.json())["image"]
 
         try:
             file = await self.__get_image_carefully(fetcher)
