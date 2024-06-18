@@ -233,24 +233,6 @@ class Randimals(commands.Cog):
             await ctx.send("I was unable to get a kangaroo picture.")
 
     @commands.hybrid_command()
-    async def raccoon(self, ctx: commands.Context) -> None:
-        """Get a random raccoon."""
-
-        await ctx.typing()
-
-        async def fetcher() -> str:
-            url = "https://some-random-api.com/animal/raccoon"
-            async with self.__session.get(url) as response:
-                return (await response.json())["image"]
-
-        try:
-            file = await self.__get_image_carefully(fetcher)
-            await ctx.send(file=file)
-        except (aiohttp.ClientError, RetryLimitExceeded):
-            log.warning("API call failed; unable to get raccoon picture")
-            await ctx.send("I was unable to get a raccoon picture.")
-
-    @commands.hybrid_command()
     async def redpanda(self, ctx: commands.Context) -> None:
         """Get a random red panda."""
 
