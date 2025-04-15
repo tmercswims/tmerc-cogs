@@ -58,9 +58,9 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://api.some-random-api.com/animal/cat"
+            url = "https://api.some-random-api.com/img/cat"
             async with self.__session.get(url) as response:
-                return (await response.json())["image"]
+                return (await response.json())["link"]
 
         try:
             file = await self.__get_image_carefully(fetcher)
@@ -203,9 +203,9 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://api.some-random-api.com/animal/bird"
+            url = "https://api.some-random-api.com/img/bird"
             async with self.__session.get(url) as response:
-                return (await response.json())["image"]
+                return (await response.json())["link"]
 
         try:
             file = await self.__get_image_carefully(fetcher)
@@ -221,9 +221,9 @@ class Randimals(commands.Cog):
         await ctx.typing()
 
         async def fetcher() -> str:
-            url = "https://api.some-random-api.com/animal/red_panda"
+            url = "https://api.some-random-api.com/img/red_panda"
             async with self.__session.get(url) as response:
-                return (await response.json())["image"]
+                return (await response.json())["link"]
 
         try:
             file = await self.__get_image_carefully(fetcher)
