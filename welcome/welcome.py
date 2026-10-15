@@ -838,7 +838,7 @@ class Welcome(commands.Cog):
         message_format = await self.config.guild(member.guild).join.whisper.message()
 
         try:
-            await member.send(message_format.format(member=member, server=member.guild))
+            await member.send(message_format.format(member=SafeMember(member), server=SafeGuild(member.guild)))
         except discord.Forbidden:
             log.error(
                 f"Failed to send DM to member ID {member.id} (server ID {member.guild.id}): insufficient permissions"
